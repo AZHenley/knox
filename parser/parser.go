@@ -102,7 +102,10 @@ func (p *Parser) paramList() {
 		p.consume(token.COLON)
 		p.consume(token.IDENT) // Replace this with varType()
 		if p.curTokenIs(token.COMMA) {
-			p.nextToken() // Bug: Can have a comma before the right paran.
+			p.consume(token.COMMA)
+			if p.curTokenIs(token.RPAREN) {
+				p.consumeError(token.IDENT)
+			}
 		}
 	}
 	p.consume(token.RPAREN)
