@@ -33,7 +33,7 @@ const (
 	LBRACE    = "{"
 	RBRACE    = "}"
 	FUNCTION  = "FUNCTION"
-	LET       = "LET"
+	VAR       = "VAR"
 	TRUE      = "TRUE"
 	FALSE     = "FALSE"
 	IF        = "IF"
@@ -50,8 +50,8 @@ const (
 
 // reversed keywords
 var keywords = map[string]TokenType{
-	"fn":     FUNCTION,
-	"let":    LET,
+	"func":   FUNCTION,
+	"var":    VAR,
 	"true":   TRUE,
 	"false":  FALSE,
 	"if":     IF,

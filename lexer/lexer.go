@@ -4,7 +4,7 @@ package lexer
 
 import "knox/token"
 
-// Lexer used to be as lexer for monkey programming language.
+// Lexer object.
 type Lexer struct {
 	position     int    //current character position
 	readPosition int    //next character position
