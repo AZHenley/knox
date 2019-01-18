@@ -1,0 +1,6 @@
+func foobar(a: b, b:c) { }
+func barbar() {
+    var beast : int
+    var mom : string
+    var mom : float
+}
