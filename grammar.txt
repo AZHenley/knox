@@ -1,7 +1,7 @@
-program = funcDecl+
+program = {funcDecl}
 funcDecl = "func" ident paramList ["out" paramList] block
-paramList = 
-block = "{" statement+ "}"
+paramList = "(" {ident ":" type ","} [ident ":" type]  ")"
+block = "{" {statement} "}"
 statement = funcCall
             | varDecl
             | varAssignment
@@ -9,15 +9,16 @@ statement = funcCall
             | forStatement
             | jumpStatement
 ifStatement = "if" cond block
-forStatement = "for" [cond | forClause | forRange] block
+forStatement = "for" [cond | forClause] block
+forClause = [statement] ";" [condition] ";" [statement]
 jumpStatement = "continue" | "break" | "return"
 varDecl = "let" ident ":" type [assignOp expr]
 varAssignment = ident assignOp expr
 type = ident ["[" "]"]
 funcCall = "func" ident argList
-paranExpr = "(" expr ")"
-// cond is a conditional expr
-// expr should handle +, -, *, /, ^, ==, >, <, !=, (, )
+argList = "(" {expr ","} [expr] ")"
+// cond should handle >, <, >=, <= ==, !=, &&, ||, (, )
+// expr should handle +, -, *, /, ^, (, )
 
 
-// Missing... class, arrays of arrays, switch, varDeclList, semicolon separators, lots of operators
+// Missing... class, arrays of arrays, switch, varDeclList, semicolon separators, some operators, ranges
