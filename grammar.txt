@@ -8,17 +8,24 @@ statement = funcCall
             | ifStatement
             | forStatement
             | jumpStatement
-ifStatement = "if" cond block
-forStatement = "for" [cond | forClause] block
-forClause = [statement] ";" [condition] ";" [statement]
+ifStatement = "if" expr block
+forStatement = "for" [expr | forClause] block
+forClause = [statement] ";" [expr] ";" [statement]
 jumpStatement = "continue" | "break" | "return"
 varDecl = "let" ident ":" type [assignOp expr]
 varAssignment = ident assignOp expr
 type = ident ["[" "]"]
 funcCall = "func" ident argList
 argList = "(" {expr ","} [expr] ")"
-// cond should handle >, <, >=, <= ==, !=, &&, ||, (, )
-// expr should handle +, -, *, /, ^, (, )
 
 
-// Missing... class, arrays of arrays, switch, varDeclList, semicolon separators, some operators, ranges
+expr = logical
+logical = equality {("!=" | "==") equality}
+equality = comparison {("!=" | "==") comparison } ;
+comparison = addition {(">" | ">=" | "<" | "<=") addition}
+addition = multiplication {( "-" | "+" ) multiplication}
+multiplication = unary {( "/" | "*" ) unary}
+unary = (["!" | "-"] unary) | primary
+primary = INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")" ;
+
+// Missing... class, arrays of arrays, switch, varDeclList, semicolon separators, some operators, ranges, lot of literals
