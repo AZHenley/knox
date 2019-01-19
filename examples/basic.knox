@@ -2,7 +2,14 @@ func foobar(a: b, b:c) { }
 func barbar() {
     var beast : int = 5 + -4 * -3
     var mom : string = "Hello"
-    var dad : float = dog()
+    var dad : float = dog(5/2, "ha")
     var dog : bool = 3 > 2 * 7 || 1 == 0
     var lame : haha
+    if grandma > 5000 {
+        while i != grandpa {
+            var hza : int
+            continue
+        }
+    }
+    return
 }
