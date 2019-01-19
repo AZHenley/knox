@@ -82,6 +82,10 @@ func (p *Parser) consume(t token.TokenType) bool {
 	//return false
 }
 
+////
+// Grammar rules.
+////
+
 // Program parses a program.
 func (p *Parser) Program() {
 	for !p.curTokenIs(token.EOF) {
@@ -93,7 +97,7 @@ func (p *Parser) funcDecl() {
 	p.consume(token.FUNCTION)
 	p.consume(token.IDENT)
 	p.paramList()
-	p.body()
+	p.block()
 	fmt.Println("End of func decl.")
 }
 
@@ -102,7 +106,7 @@ func (p *Parser) paramList() {
 	for !p.curTokenIs(token.RPAREN) {
 		p.consume(token.IDENT)
 		p.consume(token.COLON)
-		p.consume(token.IDENT) // Replace this with varType()
+		p.varType()
 		if p.curTokenIs(token.COMMA) {
 			p.consume(token.COMMA)
 			if p.curTokenIs(token.RPAREN) {
@@ -113,7 +117,7 @@ func (p *Parser) paramList() {
 	p.consume(token.RPAREN)
 }
 
-func (p *Parser) body() {
+func (p *Parser) block() {
 	p.consume(token.LBRACE)
 	for !p.curTokenIs(token.RBRACE) {
 		p.statement()
@@ -128,6 +132,17 @@ func (p *Parser) statement() {
 		p.funcCall()
 	} else if p.curTokenIs(token.IDENT) {
 		p.varAssignment()
+	} else if p.curTokenIs(token.IF) {
+		p.ifStatement()
+	} else if p.curTokenIs(token.FOR) {
+		p.forStatement()
+	} else if p.curTokenIs(token.WHILE) {
+		p.whileStatement()
+	} else if p.curTokenIs(token.RETURN) || p.curTokenIs(token.CONTINUE) || p.curTokenIs(token.BREAK) {
+		p.jumpStatement()
+	} else {
+		fmt.Println("Expected statement.")
+		panic("!")
 	}
 }
 
@@ -136,7 +151,7 @@ func (p *Parser) varDecl() {
 	p.consume(token.VAR)
 	p.consume(token.IDENT)
 	p.consume(token.COLON)
-	p.consume(token.IDENT) // Replace this with varType()
+	p.varType()
 	if p.curTokenIs(token.ASSIGN) {
 		p.consume(token.ASSIGN)
 		p.expr() // Does not handle array literal.
@@ -161,6 +176,18 @@ func (p *Parser) argList() {
 	p.nextToken()
 }
 
+// varType = ident {"[" [expr] "]"}
+func (p *Parser) varType() {
+	p.consume(token.IDENT)
+	for p.curTokenIs(token.LBRACKET) {
+		p.nextToken()
+		if !p.curTokenIs(token.RBRACKET) {
+			p.expr()
+		}
+		p.consume(token.RBRACKET)
+	}
+}
+
 // varRef = ident {"[" expr "]"}
 func (p *Parser) varRef() {
 	p.consume(token.IDENT)
@@ -171,8 +198,50 @@ func (p *Parser) varRef() {
 	}
 }
 
+// varAssignment = varRef assignOp expr
 func (p *Parser) varAssignment() {
+	p.varRef()
+	p.consume(token.ASSIGN)
+	p.expr()
+}
 
+// ifStatement = "if" expr block
+func (p *Parser) ifStatement() {
+	p.consume(token.IF)
+	p.expr()
+	p.block()
+}
+
+// forStatement = "for" forClause block
+func (p *Parser) forStatement() {
+	p.consume(token.FOR)
+	p.forClause()
+	p.block()
+}
+
+// forClause = [statement] ";" [expr] ";" [statement]
+func (p *Parser) forClause() {
+	if !p.curTokenIs(token.SEMICOLON) {
+		p.statement()
+	}
+	p.consume(token.SEMICOLON)
+	if !p.curTokenIs(token.SEMICOLON) {
+		p.expr()
+	}
+	p.consume(token.SEMICOLON)
+	if !p.curTokenIs(token.LBRACE) {
+		p.statement()
+	}
+}
+
+func (p *Parser) whileStatement() {
+	p.consume(token.WHILE)
+	p.expr()
+	p.block()
+}
+
+func (p *Parser) jumpStatement() {
+	p.nextToken()
 }
 
 // Expression grammar based on Crafting Interpreters
