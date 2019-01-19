@@ -13,6 +13,7 @@ The principles and major features behind the design of Knox are:
 ```
 Example goes here.
 ```
+## OLD...
 
 ## Comparison to Go:
  - No type inference
