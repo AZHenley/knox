@@ -143,7 +143,32 @@ func (p *Parser) varDecl() {
 	}
 }
 
+// funcCall = ident argList
 func (p *Parser) funcCall() {
+	p.consume(token.IDENT)
+	p.argList()
+}
+
+// argList = "(" {expr ","} [expr] ")"
+func (p *Parser) argList() {
+	p.consume(token.LPAREN)
+	for !p.curTokenIs(token.RPAREN) {
+		p.expr()
+		if p.curTokenIs(token.COMMA) {
+			p.nextToken()
+		}
+	}
+	p.nextToken()
+}
+
+// varRef = ident {"[" expr "]"}
+func (p *Parser) varRef() {
+	p.consume(token.IDENT)
+	for p.curTokenIs(token.LBRACKET) {
+		p.nextToken()
+		p.expr()
+		p.consume(token.RBRACKET)
+	}
 }
 
 func (p *Parser) varAssignment() {
@@ -205,6 +230,17 @@ func (p *Parser) unary() {
 	}
 }
 
+// primary = funcCall | varRef | INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")"
 func (p *Parser) primary() {
-	p.consume(token.INT)
+	if p.curTokenIs(token.INT) || p.curTokenIs(token.FLOAT) || p.curTokenIs(token.STRING) || p.curTokenIs(token.TRUE) || p.curTokenIs(token.FALSE) || p.curTokenIs(token.NIL) {
+		p.nextToken()
+	} else if p.curTokenIs(token.LPAREN) {
+		p.nextToken()
+		p.expr()
+		p.consume(token.RPAREN)
+	} else if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LPAREN) {
+		p.funcCall()
+	} else {
+		p.varRef()
+	}
 }
