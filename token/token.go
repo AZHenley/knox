@@ -44,6 +44,8 @@ const (
 	IF        = "IF"
 	ELSE      = "ELSE"
 	RETURN    = "RETURN"
+	BREAK     = "BREAK"
+	CONTINUE  = "CONTINUE"
 	FOR       = "FOR"
 	EQ        = "=="
 	NOTEQ     = "!="
@@ -56,15 +58,17 @@ const (
 
 // reversed keywords
 var keywords = map[string]TokenType{
-	"func":   FUNCTION,
-	"var":    VAR,
-	"true":   TRUE,
-	"false":  FALSE,
-	"if":     IF,
-	"else":   ELSE,
-	"return": RETURN,
-	"for":    FOR,
-	"nil":    NIL,
+	"func":     FUNCTION,
+	"var":      VAR,
+	"true":     TRUE,
+	"false":    FALSE,
+	"if":       IF,
+	"else":     ELSE,
+	"return":   RETURN,
+	"break":    BREAK,
+	"continue": CONTINUE,
+	"for":      FOR,
+	"nil":      NIL,
 }
 
 // LookupIdentifier used to determinate whether identifier is keyword nor not
