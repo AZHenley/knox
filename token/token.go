@@ -26,8 +26,11 @@ const (
 	BANG      = "!"
 	ASTERISK  = "*"
 	SLASH     = "/"
+	POWER     = "^"
 	LT        = "<"
+	LTEQ      = "<="
 	GT        = ">"
+	GTEQ      = ">="
 	LPAREN    = "("
 	RPAREN    = ")"
 	LBRACE    = "{"
@@ -41,11 +44,12 @@ const (
 	RETURN    = "RETURN"
 	FOR       = "FOR"
 	EQ        = "=="
-	NOT_EQ    = "!="
+	NOTEQ     = "!="
 	STRING    = "STRING"
 	LBRACKET  = "["
 	RBRACKET  = "]"
 	COLON     = ":"
+	NIL       = "NIL"
 )
 
 // reversed keywords
@@ -58,6 +62,7 @@ var keywords = map[string]TokenType{
 	"else":   ELSE,
 	"return": RETURN,
 	"for":    FOR,
+	"nil":    NIL,
 }
 
 // LookupIdentifier used to determinate whether identifier is keyword nor not
