@@ -44,6 +44,8 @@ func (p *Parser) consumeError(t token.TokenType) {
 func (p *Parser) nextToken() {
 	p.curToken = p.peekToken
 	p.peekToken = p.l.NextToken()
+
+	//fmt.Println("Currently at " + string(p.curToken.Literal))
 }
 
 // determinate current token is t or not.
@@ -129,15 +131,15 @@ func (p *Parser) statement() {
 	}
 }
 
-// varDecl = "let" ident ":" type [assignOp expr
+// varDecl = "let" ident ":" type [assignOp expr]
 func (p *Parser) varDecl() {
 	p.consume(token.VAR)
 	p.consume(token.IDENT)
 	p.consume(token.COLON)
-	p.consume(token.IDENT)          // Replace this with varType()
-	if p.curTokenIs(token.ASSIGN) { // Does not handle +=, -=, /=, *=
+	p.consume(token.IDENT) // Replace this with varType()
+	if p.curTokenIs(token.ASSIGN) {
 		p.consume(token.ASSIGN)
-		p.expr()
+		p.expr() // Does not handle array literal.
 	}
 }
 
@@ -150,5 +152,59 @@ func (p *Parser) varAssignment() {
 
 // Expression grammar based on Crafting Interpreters
 func (p *Parser) expr() {
+	p.logical()
+	fmt.Println("End of expr.")
+}
 
+func (p *Parser) logical() {
+	p.equality()
+	for p.curTokenIs(token.AND) || p.curTokenIs(token.OR) {
+		p.nextToken()
+		p.equality()
+	}
+}
+
+func (p *Parser) equality() {
+	p.comparison()
+	for p.curTokenIs(token.EQ) || p.curTokenIs(token.NOTEQ) {
+		p.nextToken()
+		p.comparison()
+	}
+}
+
+func (p *Parser) comparison() {
+	p.addition()
+	for p.curTokenIs(token.GT) || p.curTokenIs(token.GTEQ) || p.curTokenIs(token.LT) || p.curTokenIs(token.LTEQ) {
+		p.nextToken()
+		p.addition()
+	}
+}
+
+func (p *Parser) addition() {
+	p.multiplication()
+	for p.curTokenIs(token.PLUS) || p.curTokenIs(token.MINUS) {
+		p.nextToken()
+		p.multiplication()
+	}
+}
+
+func (p *Parser) multiplication() {
+	p.unary()
+	for p.curTokenIs(token.ASTERISK) || p.curTokenIs(token.SLASH) {
+		p.nextToken()
+		p.unary()
+	}
+}
+
+func (p *Parser) unary() {
+	if p.curTokenIs(token.BANG) || p.curTokenIs(token.PLUS) || p.curTokenIs(token.MINUS) {
+		p.nextToken()
+		p.unary()
+	} else {
+		p.primary()
+	}
+}
+
+func (p *Parser) primary() {
+	p.consume(token.INT)
 }
