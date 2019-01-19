@@ -31,6 +31,8 @@ const (
 	LTEQ      = "<="
 	GT        = ">"
 	GTEQ      = ">="
+	AND       = "&&"
+	OR        = "||"
 	LPAREN    = "("
 	RPAREN    = ")"
 	LBRACE    = "{"

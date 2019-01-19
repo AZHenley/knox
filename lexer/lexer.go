@@ -64,15 +64,27 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.SLASH, l.ch)
 	case rune('*'):
 		tok = newToken(token.ASTERISK, l.ch)
-	case rune('<'):
+	case rune('<'): // Does not handle LTEQ.
 		tok = newToken(token.LT, l.ch)
-	case rune('>'):
+	case rune('>'): // Does not handle GTEQ.
 		tok = newToken(token.GT, l.ch)
+	case rune('&'):
+		if l.peekChar() == '&' {
+			ch := l.ch
+			l.readChar()
+			tok = token.Token{Type: token.AND, Literal: string(ch) + string(l.ch)}
+		}
+	case rune('|'):
+		if l.peekChar() == '|' {
+			ch := l.ch
+			l.readChar()
+			tok = token.Token{Type: token.OR, Literal: string(ch) + string(l.ch)}
+		}
 	case rune('!'):
 		if l.peekChar() == rune('=') {
 			ch := l.ch
 			l.readChar()
-			tok = token.Token{Type: token.NOT_EQ, Literal: string(ch) + string(l.ch)}
+			tok = token.Token{Type: token.NOTEQ, Literal: string(ch) + string(l.ch)}
 		} else {
 			tok = newToken(token.BANG, l.ch)
 		}
