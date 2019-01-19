@@ -1,6 +1,6 @@
 program = {funcDecl}
 funcDecl = "func" ident paramList ["out" paramList] block
-paramList = "(" {ident ":" type ","} [ident ":" type]  ")"
+paramList = "(" {ident ":" varType ","} [ident ":" varType]  ")"
 block = "{" {statement} "}"
 statement = funcCall
             | varDecl
@@ -12,11 +12,11 @@ ifStatement = "if" expr block
 forStatement = "for" [expr | forClause] block
 forClause = [statement] ";" [expr] ";" [statement]
 jumpStatement = "continue" | "break" | "return"
-varDecl = "let" ident ":" type [assignOp expr]
+varDecl = "let" ident ":" varType [assignOp expr]
 varAssignment = ident assignOp expr
-varRef = ident {"[" [expr] "]"}
-type = ident {"[" [expr] "]"}
-funcCall = "func" ident argList
+varRef = ident {"[" expr "]"}
+varType = ident {"[" [expr] "]"}
+funcCall = ident argList
 argList = "(" {expr ","} [expr] ")"
 
 
