@@ -1,7 +1,8 @@
 func foobar(a: b, b:c) { }
 func barbar() {
     var beast : int = 5 + -4 * -3
-    var mom : string
-    var dad : float
+    var mom : string = "Hello"
+    var dad : float = dog()
     var dog : bool = 3 > 2 * 7 || 1 == 0
+    var lame : haha
 }
