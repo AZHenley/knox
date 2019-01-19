@@ -12,32 +12,26 @@ type Parser struct {
 	l         *lexer.Lexer
 	curToken  token.Token
 	peekToken token.Token
-	errors    []string
-	ast       ast.ASTNode
+	//errors    []string
+	ast ast.ASTNode
 }
 
 // New lexer.
 func New(l *lexer.Lexer) *Parser {
-	p := &Parser{l: l, errors: []string{}}
+	p := &Parser{l: l}
 	p.nextToken()
 	p.nextToken() // Not sure why these are needed.
 	return p
 }
 
-// Errors return stored errors
-func (p *Parser) Errors() []string {
-	return p.errors
+func (p *Parser) abort(t token.TokenType) {
+	fmt.Printf("Expected %s, got %s instead.\n", t, p.curToken.Type)
+	panic("Aborted.\n")
 }
 
-// if peek token occurs error
-func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.curToken.Type)
-	p.errors = append(p.errors, msg)
-}
-
-func (p *Parser) consumeError(t token.TokenType) {
-	fmt.Printf("Expected next token to be %s, got %s instead.\n", t, p.curToken.Type)
-	//p.errors = append(p.errors, msg)
+func (p *Parser) abortMsg(msg string) {
+	fmt.Println(msg)
+	panic("Aborted.\n")
 }
 
 // forward token
@@ -58,28 +52,14 @@ func (p *Parser) peekTokenIs(t token.TokenType) bool {
 	return p.peekToken.Type == t
 }
 
-// expect next token is t
-// succeed: return true and forward token
-// failed: return false and store error
-func (p *Parser) expectPeek(t token.TokenType) bool {
-	if p.peekTokenIs(t) {
-		p.nextToken()
-		return true
-	} else {
-		p.peekError(t)
-		return false
-	}
-}
-
 func (p *Parser) consume(t token.TokenType) bool {
 	if p.curTokenIs(t) {
 		p.nextToken()
 		return true
 	}
 
-	p.consumeError(t)
-	panic("Aborted.")
-	//return false
+	p.abort(t)
+	return false // Can't happen.
 }
 
 ////
@@ -109,8 +89,8 @@ func (p *Parser) paramList() {
 		p.varType()
 		if p.curTokenIs(token.COMMA) {
 			p.consume(token.COMMA)
-			if p.curTokenIs(token.RPAREN) {
-				p.consumeError(token.IDENT)
+			if p.curTokenIs(token.RPAREN) { // No comma before paren.
+				p.abort(token.IDENT)
 			}
 		}
 	}
@@ -141,8 +121,7 @@ func (p *Parser) statement() {
 	} else if p.curTokenIs(token.RETURN) || p.curTokenIs(token.CONTINUE) || p.curTokenIs(token.BREAK) {
 		p.jumpStatement()
 	} else {
-		fmt.Println("Expected statement.")
-		panic("!")
+		p.abortMsg("Expected statement.")
 	}
 }
 
@@ -170,7 +149,10 @@ func (p *Parser) argList() {
 	for !p.curTokenIs(token.RPAREN) {
 		p.expr()
 		if p.curTokenIs(token.COMMA) {
-			p.nextToken()
+			p.consume(token.COMMA)
+			if p.curTokenIs(token.RPAREN) { // No comma before paren.
+				p.abort(token.IDENT)
+			}
 		}
 	}
 	p.nextToken()
