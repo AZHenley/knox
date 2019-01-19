@@ -47,6 +47,7 @@ const (
 	BREAK     = "BREAK"
 	CONTINUE  = "CONTINUE"
 	FOR       = "FOR"
+	WHILE     = "WHILE"
 	EQ        = "=="
 	NOTEQ     = "!="
 	STRING    = "STRING"
@@ -68,6 +69,7 @@ var keywords = map[string]TokenType{
 	"break":    BREAK,
 	"continue": CONTINUE,
 	"for":      FOR,
+	"while":    WHILE,
 	"nil":      NIL,
 }
 
