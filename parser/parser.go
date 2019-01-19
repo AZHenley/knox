@@ -122,6 +122,10 @@ func (p *Parser) body() {
 func (p *Parser) statement() {
 	if p.curTokenIs(token.VAR) {
 		p.varDecl()
+	} else if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LPAREN) {
+		p.funcCall()
+	} else if p.curTokenIs(token.IDENT) {
+		p.varAssignment()
 	}
 }
 
@@ -130,6 +134,21 @@ func (p *Parser) varDecl() {
 	p.consume(token.VAR)
 	p.consume(token.IDENT)
 	p.consume(token.COLON)
-	p.consume(token.IDENT) // Replace this with varType()
-	// Handle optional assignOp expr
+	p.consume(token.IDENT)          // Replace this with varType()
+	if p.curTokenIs(token.ASSIGN) { // Does not handle +=, -=, /=, *=
+		p.consume(token.ASSIGN)
+		p.expr()
+	}
+}
+
+func (p *Parser) funcCall() {
+}
+
+func (p *Parser) varAssignment() {
+
+}
+
+// Expression grammar based on Crafting Interpreters
+func (p *Parser) expr() {
+
 }
