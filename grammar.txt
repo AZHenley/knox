@@ -14,18 +14,19 @@ forClause = [statement] ";" [expr] ";" [statement]
 jumpStatement = "continue" | "break" | "return"
 varDecl = "let" ident ":" type [assignOp expr]
 varAssignment = ident assignOp expr
-type = ident ["[" "]"]
+varRef = ident {"[" [expr] "]"}
+type = ident {"[" [expr] "]"}
 funcCall = "func" ident argList
 argList = "(" {expr ","} [expr] ")"
 
 
 expr = logical
-logical = equality {("!=" | "==") equality}
+logical = equality {("&&" | "||") equality}
 equality = comparison {("!=" | "==") comparison } ;
 comparison = addition {(">" | ">=" | "<" | "<=") addition}
 addition = multiplication {( "-" | "+" ) multiplication}
 multiplication = unary {( "/" | "*" ) unary}
-unary = (["!" | "-"] unary) | primary
-primary = INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")" ;
+unary = (("!" | "-" | "+") unary) | primary
+primary = funcCall | varRef | INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")"
 
-// Missing... class, arrays of arrays, switch, varDeclList, semicolon separators, some operators, ranges, lot of literals
+// Missing... class, arrays of arrays, switch, varDeclList, newline/semicolon separators, some operators, ranges, lot of literals
