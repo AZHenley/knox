@@ -1,2 +1,2 @@
-func barbar() { }
-func foo() {}
+func foo() { }
+func bar() {}
