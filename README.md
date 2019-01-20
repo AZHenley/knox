@@ -7,7 +7,7 @@ The principles and major features behind the design of Knox are:
  - Explicitness. Explicit and unambiguous code is a priority, even over brevity. No surprises.
  - Pass by reference. All complex types should be pass by reference and pointers should be hidden.
  - Data structures. Lists and maps are first-class data structures that should be as easy as Python.
- - Type contraints. Expressive type system that allows constraints.
+ - Operability. Use any Go library and produce Go libraries.
  - Well-behaved. Contracts, error handling, and unit testing are first-class constructs.
 
 ```
@@ -19,6 +19,7 @@ Example goes here.
  - No type inference
  - No short form of variable declarations
  - No variable declaration blocks
+ - No implicit casting
  - Change syntax for variable and function declarations
  - Change loops?
  - Make else if/else syntax less strict
@@ -48,6 +49,7 @@ Example goes here.
 ## Decisions we made:
   - No optional, default, or named parameters
   - No method overloading
+  - No implicit casting
   - Generics for parameters only (and return)
   - let name:type = value
   - func name(a:int, b:int, c:int) out (x:int, y:int) { }
