@@ -13,7 +13,7 @@ type Parser struct {
 	curToken  token.Token
 	peekToken token.Token
 	//errors    []string
-	ast ast.ASTNode
+	//ast ast.ASTNode
 }
 
 // New lexer.
@@ -57,7 +57,6 @@ func (p *Parser) consume(t token.TokenType) bool {
 		p.nextToken()
 		return true
 	}
-
 	p.abort(t)
 	return false // Can't happen.
 }
@@ -67,18 +66,33 @@ func (p *Parser) consume(t token.TokenType) bool {
 ////
 
 // Program parses a program.
-func (p *Parser) Program() {
+func (p *Parser) Program() ast.Node {
+	var progNode ast.Node
+	progNode.Type = ast.PROGRAM
+
 	for !p.curTokenIs(token.EOF) {
-		p.funcDecl()
+		progNode.Children = append(progNode.Children, p.funcDecl())
 	}
+	return progNode
 }
 
-func (p *Parser) funcDecl() {
+func (p *Parser) funcDecl() ast.Node {
+	var funcNode ast.Node
+	funcNode.Type = ast.FUNCDECL
+
 	p.consume(token.FUNCTION)
+
+	var identNode ast.Node
+	identNode.Type = ast.IDENT
+	identNode.TokenStart = p.curToken
+	funcNode.Children = append(funcNode.Children, identNode)
 	p.consume(token.IDENT)
+
+	//funcNode.Children = append(funcNode.Children, p.paramList())
+	//funcNode.Children = append(funcNode.Children, p.block())
 	p.paramList()
 	p.block()
-	fmt.Println("End of func decl.")
+	return funcNode
 }
 
 func (p *Parser) paramList() {
