@@ -7,7 +7,7 @@ The principles and major features behind the design of Knox are:
  - Explicitness. Explicit and unambiguous code is a priority, even over brevity. No surprises.
  - Pass by reference. All complex types should be pass by reference and pointers should be hidden.
  - Data structures. Lists and maps are first-class data structures that should be as easy as Python.
- - Type contraints. Expressive type system that allows constraints.
+ - Operability. Use any Go library and produce Go libraries.
  - Well-behaved. Contracts, error handling, and unit testing are first-class constructs.
 
 ```
