@@ -2,7 +2,10 @@
 
 package lexer
 
-import "knox/token"
+import (
+	"fmt"
+	"knox/token"
+)
 
 // Lexer object.
 type Lexer struct {
@@ -211,6 +214,10 @@ func (l *Lexer) readString() string {
 		l.readChar()
 		if l.ch == '"' {
 			break
+		}
+		if l.ch == rune(0) {
+			fmt.Println("End of string literal not found.")
+			panic("Aborted.")
 		}
 	}
 	return string(l.characters[position:l.position])
