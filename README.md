@@ -19,6 +19,7 @@ Example goes here.
  - No type inference
  - No short form of variable declarations
  - No variable declaration blocks
+ - No implicit casting
  - Change syntax for variable and function declarations
  - Change loops?
  - Make else if/else syntax less strict
@@ -48,6 +49,7 @@ Example goes here.
 ## Decisions we made:
   - No optional, default, or named parameters
   - No method overloading
+  - No implicit casting
   - Generics for parameters only (and return)
   - let name:type = value
   - func name(a:int, b:int, c:int) out (x:int, y:int) { }
