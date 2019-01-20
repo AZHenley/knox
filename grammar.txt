@@ -31,4 +31,4 @@ multiplication = unary {( "/" | "*" ) unary}
 unary = (("!" | "-" | "+") unary) | primary
 primary = funcCall | varRef | INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")"
 
-// Missing... class, arrays of arrays, switch, varDeclList, newline/semicolon separators, some operators, ranges, lot of literals
+// Missing... class, arrays of arrays, switch, varDeclList, newline/semicolon separators, some operators, ranges, lot of literals, else if, else
