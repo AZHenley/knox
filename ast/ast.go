@@ -7,9 +7,9 @@ type NodeType string
 
 // Node is for the AST.
 type Node struct {
-	nodeType   NodeType
-	children   []Node
-	tokenStart token.Token
+	Type       NodeType
+	Children   []Node
+	TokenStart token.Token
 	//symbols symtable.SymTable // Only blocks get a symbol table.
 }
 
@@ -33,4 +33,5 @@ const (
 	INT            = "INT"            // Leaf.
 	FLOAT          = "FLOAT"          // Leaf.
 	STRING         = "STRING"         // Leaf.
+	IDENT          = "IDENT"          // Leaf.
 )
