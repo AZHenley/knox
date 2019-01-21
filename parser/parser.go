@@ -88,19 +88,25 @@ func (p *Parser) funcDecl() ast.Node {
 	funcNode.Children = append(funcNode.Children, identNode)
 	p.consume(token.IDENT)
 
-	//funcNode.Children = append(funcNode.Children, p.paramList())
-	//funcNode.Children = append(funcNode.Children, p.block())
-	p.paramList()
-	p.block()
+	funcNode.Children = append(funcNode.Children, p.paramList())
+	funcNode.Children = append(funcNode.Children, p.block())
 	return funcNode
 }
 
-func (p *Parser) paramList() {
+func (p *Parser) paramList() ast.Node {
+	var paramNode ast.Node
+	paramNode.Type = ast.PARAMLIST
+
 	p.consume(token.LPAREN)
 	for !p.curTokenIs(token.RPAREN) {
+		var identNode ast.Node
+		identNode.Type = ast.IDENT
+		identNode.TokenStart = p.curToken
 		p.consume(token.IDENT)
 		p.consume(token.COLON)
-		p.varType()
+
+		paramNode.Children = append(paramNode.Children, identNode)
+		paramNode.Children = append(paramNode.Children, p.varType())
 		if p.curTokenIs(token.COMMA) {
 			p.consume(token.COMMA)
 			if p.curTokenIs(token.RPAREN) { // No comma before paren.
@@ -109,59 +115,93 @@ func (p *Parser) paramList() {
 		}
 	}
 	p.consume(token.RPAREN)
+	return paramNode
 }
 
-func (p *Parser) block() {
+func (p *Parser) block() ast.Node {
+	var blockNode ast.Node
+	blockNode.Type = ast.BLOCK
+
 	p.consume(token.LBRACE)
 	for !p.curTokenIs(token.RBRACE) {
 		p.statement()
+		blockNode.Children = append(blockNode.Children, p.statement())
 	}
 	p.consume(token.RBRACE)
+
+	return blockNode
 }
 
-func (p *Parser) statement() {
+func (p *Parser) statement() ast.Node {
+	var statementNode ast.Node
+
 	if p.curTokenIs(token.VAR) {
-		p.varDecl()
+		statementNode = p.varDecl()
 	} else if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LPAREN) {
-		p.funcCall()
+		statementNode = p.funcCall()
 	} else if p.curTokenIs(token.IDENT) {
-		p.varAssignment()
+		statementNode = p.varAssignment()
 	} else if p.curTokenIs(token.IF) {
-		p.ifStatement()
+		statementNode = p.ifStatement()
 	} else if p.curTokenIs(token.FOR) {
-		p.forStatement()
+		statementNode = p.forStatement()
 	} else if p.curTokenIs(token.WHILE) {
-		p.whileStatement()
+		statementNode = p.whileStatement()
 	} else if p.curTokenIs(token.RETURN) || p.curTokenIs(token.CONTINUE) || p.curTokenIs(token.BREAK) {
-		p.jumpStatement()
+		statementNode = p.jumpStatement()
 	} else {
 		p.abortMsg("Expected statement.")
 	}
+	return statementNode
 }
 
 // varDecl = "let" ident ":" type [assignOp expr]
 func (p *Parser) varDecl() {
+	var varNode ast.Node
+	varNode.Type = ast.VARDECL
+
 	p.consume(token.VAR)
+
+	var identNode ast.Node
+	identNode.Type = ast.IDENT
+	identNode.TokenStart = p.curToken
 	p.consume(token.IDENT)
 	p.consume(token.COLON)
-	p.varType()
+
+	varNode.Children = append(varNode.Children, identNode)
+	varNode.Children = append(varNode.Children, p.varType())
+
 	if p.curTokenIs(token.ASSIGN) {
 		p.consume(token.ASSIGN)
-		p.expr() // Does not handle array literal.
+		varNode.Children = append(varNode.Children, p.expr())
+		// Does not handle array literal.
 	}
 }
 
 // funcCall = ident argList
-func (p *Parser) funcCall() {
+func (p *Parser) funcCall() ast.Node {
+	var funcNode ast.Node
+	funcNode.Type = ast.FUNCCALL
+
+	var identNode ast.Node
+	identNode.Type = ast.IDENT
+	identNode.TokenStart = p.curToken
 	p.consume(token.IDENT)
-	p.argList()
+
+	funcNode.Children = append(funcNode.Children, identNode)
+	var nodes = p.argList()
+	funcNode.Children = append(funcNode.Children, nodes...)
+
+	return funcNode
 }
 
 // argList = "(" {expr ","} [expr] ")"
-func (p *Parser) argList() {
+func (p *Parser) argList() []ast.Node {
+	var argNodes []ast.Node
+
 	p.consume(token.LPAREN)
 	for !p.curTokenIs(token.RPAREN) {
-		p.expr()
+		argNodes = append(argNodes, p.expr())
 		if p.curTokenIs(token.COMMA) {
 			p.consume(token.COMMA)
 			if p.curTokenIs(token.RPAREN) { // No comma before paren.
@@ -170,11 +210,20 @@ func (p *Parser) argList() {
 		}
 	}
 	p.nextToken()
+	return argNodes
 }
 
 // varType = ident {"[" [expr] "]"}
-func (p *Parser) varType() {
+func (p *Parser) varType() ast.Node {
+	var typeNode ast.Node
+	typeNode.Type = ast.VARTYPE
+
+	var identNode ast.Node
+	identNode.Type = ast.IDENT
+	identNode.TokenStart = p.curToken
+	typeNode.Children = append(typeNode.Children, identNode)
 	p.consume(token.IDENT)
+
 	for p.curTokenIs(token.LBRACKET) {
 		p.nextToken()
 		if !p.curTokenIs(token.RBRACKET) {
@@ -182,27 +231,47 @@ func (p *Parser) varType() {
 		}
 		p.consume(token.RBRACKET)
 	}
+
+	return typeNode
 }
 
 // varRef = ident {"[" expr "]"}
-func (p *Parser) varRef() {
+func (p *Parser) varRef() ast.Node {
+	var refNode ast.Node
+	refNode.Type = ast.VARREF
+
+	var identNode ast.Node
+	identNode.Type = ast.IDENT
+	identNode.TokenStart = p.curToken
+	refNode.Children = append(refNode.Children, identNode)
 	p.consume(token.IDENT)
+
 	for p.curTokenIs(token.LBRACKET) {
 		p.nextToken()
 		p.expr()
 		p.consume(token.RBRACKET)
 	}
+
+	return refNode
 }
 
 // varAssignment = varRef assignOp expr
-func (p *Parser) varAssignment() {
-	p.varRef()
+func (p *Parser) varAssignment() ast.Node {
+	var assignNode ast.Node
+	assignNode.Type = ast.VARASSIGN
+
+	assignNode.Children = append(assignNode.Children, p.varRef())
 	p.consume(token.ASSIGN)
-	p.expr()
+	assignNode.Children = append(assignNode.Children, p.expr())
+
+	return assignNode
 }
 
 // ifStatement = "if" expr block
 func (p *Parser) ifStatement() {
+	var statementNode ast.Node
+	statementNode.Type = ast.IFSTATEMENT
+
 	p.consume(token.IF)
 	p.expr()
 	p.block()
