@@ -268,45 +268,68 @@ func (p *Parser) varAssignment() ast.Node {
 }
 
 // ifStatement = "if" expr block
-func (p *Parser) ifStatement() {
+func (p *Parser) ifStatement() ast.Node {
 	var statementNode ast.Node
 	statementNode.Type = ast.IFSTATEMENT
 
 	p.consume(token.IF)
-	p.expr()
-	p.block()
+	statementNode.Children = append(statementNode.Children, p.expr())
+	statementNode.Children = append(statementNode.Children, p.block())
+
+	return statementNode
 }
 
 // forStatement = "for" forClause block
-func (p *Parser) forStatement() {
+func (p *Parser) forStatement() ast.Node {
+	var statementNode ast.Node
+	statementNode.Type = ast.FORSTATEMENT
+
 	p.consume(token.FOR)
-	p.forClause()
-	p.block()
+	statementNode.Children = append(statementNode.Children, p.forClause()...)
+	statementNode.Children = append(statementNode.Children, p.block())
+
+	return statementNode
 }
 
 // forClause = [statement] ";" [expr] ";" [statement]
-func (p *Parser) forClause() {
+func (p *Parser) forClause() []ast.Node {
+	var nodes []ast.Node
+
+	// TODO: Need to return 3 AST nodes in all cases.
 	if !p.curTokenIs(token.SEMICOLON) {
-		p.statement()
+		nodes = append(nodes, p.statement())
 	}
 	p.consume(token.SEMICOLON)
 	if !p.curTokenIs(token.SEMICOLON) {
-		p.expr()
+		nodes = append(nodes, p.expr())
 	}
 	p.consume(token.SEMICOLON)
 	if !p.curTokenIs(token.LBRACE) {
-		p.statement()
+		nodes = append(nodes, p.statement())
 	}
+
+	return nodes
 }
 
-func (p *Parser) whileStatement() {
+func (p *Parser) whileStatement() ast.Node {
+	var statementNode ast.Node
+	statementNode.Type = ast.WHILESTATEMENT
+
 	p.consume(token.WHILE)
-	p.expr()
-	p.block()
+	statementNode.Children = append(statementNode.Children, p.expr())
+	statementNode.Children = append(statementNode.Children, p.block())
+
+	return statementNode
 }
 
-func (p *Parser) jumpStatement() {
+func (p *Parser) jumpStatement() ast.Node {
+	var statementNode ast.Node
+	statementNode.Type = ast.JUMPSTATEMENT
+	statementNode.TokenStart = p.curToken
+
 	p.nextToken()
+
+	return statementNode
 }
 
 // Expression grammar based on Crafting Interpreters
