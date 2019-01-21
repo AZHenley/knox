@@ -124,7 +124,7 @@ func (p *Parser) block() ast.Node {
 
 	p.consume(token.LBRACE)
 	for !p.curTokenIs(token.RBRACE) {
-		p.statement()
+		//p.statement()
 		blockNode.Children = append(blockNode.Children, p.statement())
 	}
 	p.consume(token.RBRACE)
@@ -134,6 +134,8 @@ func (p *Parser) block() ast.Node {
 
 func (p *Parser) statement() ast.Node {
 	var statementNode ast.Node
+
+	fmt.Println(p.curToken)
 
 	if p.curTokenIs(token.VAR) {
 		statementNode = p.varDecl()
@@ -155,7 +157,7 @@ func (p *Parser) statement() ast.Node {
 	return statementNode
 }
 
-// varDecl = "let" ident ":" type [assignOp expr]
+// varDecl = "var" ident ":" type [assignOp expr]
 func (p *Parser) varDecl() ast.Node {
 	var varNode ast.Node
 	varNode.Type = ast.VARDECL
