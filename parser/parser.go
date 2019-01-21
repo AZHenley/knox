@@ -156,7 +156,7 @@ func (p *Parser) statement() ast.Node {
 }
 
 // varDecl = "let" ident ":" type [assignOp expr]
-func (p *Parser) varDecl() {
+func (p *Parser) varDecl() ast.Node {
 	var varNode ast.Node
 	varNode.Type = ast.VARDECL
 
@@ -176,6 +176,8 @@ func (p *Parser) varDecl() {
 		varNode.Children = append(varNode.Children, p.expr())
 		// Does not handle array literal.
 	}
+
+	return varNode
 }
 
 // funcCall = ident argList
@@ -333,62 +335,112 @@ func (p *Parser) jumpStatement() ast.Node {
 }
 
 // Expression grammar based on Crafting Interpreters
-func (p *Parser) expr() {
-	p.logical()
-	fmt.Println("End of expr.")
+func (p *Parser) expr() ast.Node {
+	var exprNode ast.Node
+	exprNode.Type = ast.EXPRESSION
+
+	exprNode.Children = append(exprNode.Children, p.logical())
+
+	return exprNode
 }
 
-func (p *Parser) logical() {
-	p.equality()
+func (p *Parser) logical() ast.Node {
+	var node = p.equality()
 	for p.curTokenIs(token.AND) || p.curTokenIs(token.OR) {
+		var binaryNode ast.Node
+		binaryNode.Type = ast.BINARYOP
+		binaryNode.TokenStart = p.curToken
+
 		p.nextToken()
-		p.equality()
+		binaryNode.Children = append(binaryNode.Children, node)
+		binaryNode.Children = append(binaryNode.Children, p.equality())
+
+		return binaryNode
 	}
+	return node
 }
 
-func (p *Parser) equality() {
-	p.comparison()
+func (p *Parser) equality() ast.Node {
+	var node = p.comparison()
 	for p.curTokenIs(token.EQ) || p.curTokenIs(token.NOTEQ) {
+		var binaryNode ast.Node
+		binaryNode.Type = ast.BINARYOP
+		binaryNode.TokenStart = p.curToken
+
 		p.nextToken()
-		p.comparison()
+		binaryNode.Children = append(binaryNode.Children, node)
+		binaryNode.Children = append(binaryNode.Children, p.comparison())
+
+		return binaryNode
 	}
+	return node
 }
 
-func (p *Parser) comparison() {
-	p.addition()
+func (p *Parser) comparison() ast.Node {
+	var node = p.addition()
 	for p.curTokenIs(token.GT) || p.curTokenIs(token.GTEQ) || p.curTokenIs(token.LT) || p.curTokenIs(token.LTEQ) {
+		var binaryNode ast.Node
+		binaryNode.Type = ast.BINARYOP
+		binaryNode.TokenStart = p.curToken
+
 		p.nextToken()
-		p.addition()
+		binaryNode.Children = append(binaryNode.Children, node)
+		binaryNode.Children = append(binaryNode.Children, p.addition())
+
+		return binaryNode
 	}
+	return node
 }
 
-func (p *Parser) addition() {
-	p.multiplication()
+func (p *Parser) addition() ast.Node {
+	var node = p.multiplication()
 	for p.curTokenIs(token.PLUS) || p.curTokenIs(token.MINUS) {
+		var binaryNode ast.Node
+		binaryNode.Type = ast.BINARYOP
+		binaryNode.TokenStart = p.curToken
+
 		p.nextToken()
-		p.multiplication()
+		binaryNode.Children = append(binaryNode.Children, node)
+		binaryNode.Children = append(binaryNode.Children, p.multiplication())
+
+		return binaryNode
 	}
+	return node
 }
 
-func (p *Parser) multiplication() {
-	p.unary()
+func (p *Parser) multiplication() ast.Node {
+	var node = p.unary()
 	for p.curTokenIs(token.ASTERISK) || p.curTokenIs(token.SLASH) {
+		var binaryNode ast.Node
+		binaryNode.Type = ast.BINARYOP
+		binaryNode.TokenStart = p.curToken
+
 		p.nextToken()
-		p.unary()
+		binaryNode.Children = append(binaryNode.Children, node)
+		binaryNode.Children = append(binaryNode.Children, p.unary())
+
+		return binaryNode
 	}
+	return node
 }
 
-func (p *Parser) unary() {
+func (p *Parser) unary() ast.Node {
 	if p.curTokenIs(token.BANG) || p.curTokenIs(token.PLUS) || p.curTokenIs(token.MINUS) {
+		var unaryNode ast.Node
+		unaryNode.Type = ast.UNARYOP
+		unaryNode.TokenStart = p.curToken
+
 		p.nextToken()
-		p.unary()
+		unaryNode.Children = append(unaryNode.Children, p.unary())
+
+		return unaryNode
 	} else {
-		p.primary()
+		return p.primary()
 	}
 }
 
 // primary = funcCall | varRef | INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")"
-func (p *Parser) primary() {
+func (p *Parser) primary() ast.Node {
 	if p.curTokenIs(token.INT) || p.curTokenIs(token.FLOAT) || p.curTokenIs(token.STRING) || p.curTokenIs(token.TRUE) || p.curTokenIs(token.FALSE) || p.curTokenIs(token.NIL) {
 		p.nextToken()
 	} else if p.curTokenIs(token.LPAREN) {
@@ -400,4 +452,9 @@ func (p *Parser) primary() {
 	} else {
 		p.varRef()
 	}
+
+	// Placeholder.
+	var primaryNode ast.Node
+	primaryNode.Type = ast.INT
+	return primaryNode
 }
