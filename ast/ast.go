@@ -38,5 +38,7 @@ const (
 	INT            = "INT"            // Leaf.
 	FLOAT          = "FLOAT"          // Leaf.
 	STRING         = "STRING"         // Leaf.
+	BOOL           = "BOOL"           // Leaf.
+	NIL            = "NIL"            // Leaf.
 	IDENT          = "IDENT"          // Leaf.
 )
