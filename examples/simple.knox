@@ -1,2 +1,3 @@
-func foo() { }
-func bar() {}
+func foo() { 
+    var star : moon
+}
