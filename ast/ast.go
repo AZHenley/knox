@@ -15,21 +15,26 @@ type Node struct {
 
 // Predefined AST node types.
 const (
-	PROGRAM        = "PROGRAM"        // Variable children. One for each funcdecl.
-	BLOCK          = "BLOCK"          // Variable children. One for each statement.
-	EXPRESSION     = "EXPRESSION"     // One child. Tree of binary ops, unary ops, and primaries.
-	BINARYOP       = "BINARYOP"       // Two children.
-	UNARYOP        = "UNARYOP"        // One child.
-	VARDECL        = "VARDECL"        // Two or three children. Third is optional expression for assignment.
-	VARASSIGN      = "VARASSIGN"      // Two children. Name and expression.
-	FUNCDECL       = "FUNCDECL"       // Four children. Name, paramlist for params, paramlist for return, block.
-	PARAMLIST      = "PARAMLIST"      // Variable children. Pairs of name and type.
-	IFSTATEMENT    = "IFSTATEMENT"    // Three children. Condition, if block, else block (chain elif/else).
+	PROGRAM    = "PROGRAM"    // Variable children. One for each funcdecl.
+	BLOCK      = "BLOCK"      // Variable children. One for each statement.
+	EXPRESSION = "EXPRESSION" // One child. Tree of binary ops, unary ops, and primaries.
+	BINARYOP   = "BINARYOP"   // Two children.
+	UNARYOP    = "UNARYOP"    // One child.
+	VARDECL    = "VARDECL"    // Two or three children. Name, type, expression for assignment.
+	// TODO: Consider making the third child a VARASSIGN.
+	VARTYPE = "VARTYPE" // One child. Name.
+	// TODO: Support lists.
+	VARASSIGN = "VARASSIGN" // Two children. Varref and expression.
+	FUNCDECL  = "FUNCDECL"  // Four children. Name, paramlist for params, paramlist for return, block.
+	PARAMLIST = "PARAMLIST" // Variable children. Pairs of name and type.
+	// TODO: Consider making the pairs a VARDECL node.
+	IFSTATEMENT = "IFSTATEMENT" // Three children. Condition, if block, else block (chain elif/else).
+	// TODO: Consider changing this.
 	FORSTATEMENT   = "FORSTATEMENT"   // Four children. Init, condition, afterthought, block.
 	WHILESTATEMENT = "WHILESTATEMENT" // Two children. Condition and block.
 	JUMPSTATEMENT  = "JUMPSTATEMENT"  // Leaf.
-	VARREF         = "VARREF"         // Variable children. Variable name and list of expressions for array indices.
-	FUNCCALL       = "FUNCCALL"       // Variable children. One expression for each parameter.
+	VARREF         = "VARREF"         // Variable children. Name and list of expressions for array indices.
+	FUNCCALL       = "FUNCCALL"       // Variable children. Name then one expression for each parameter.
 	INT            = "INT"            // Leaf.
 	FLOAT          = "FLOAT"          // Leaf.
 	STRING         = "STRING"         // Leaf.
