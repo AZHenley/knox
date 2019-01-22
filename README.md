@@ -20,6 +20,7 @@ Example goes here.
  - No short form of variable declarations
  - No variable declaration blocks
  - No implicit casting
+ - Variables must be initialized
  - Change syntax for variable and function declarations
  - Change loops?
  - Make else if/else syntax less strict
