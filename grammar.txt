@@ -16,10 +16,10 @@ whileStatement = "while" expr block
 jumpStatement = "continue" | "break" | "return"
 varDecl = "let" ident ":" varType [assignOp expr]
 varAssignment = varRef assignOp expr
-varRef = ident {"[" expr "]"}
+varRef = ident {"[" expr "]"}           // The [] should be outside of this rule.
 varType = ident {"[" [expr] "]"}
 funcCall = ident argList
-argList = "(" {expr ","} [expr] ")"
+argList = "(" {expr ","} [expr] ")"     // The [] should be outside of this rule.
 
 
 expr = logical
@@ -28,7 +28,8 @@ equality = comparison {("!=" | "==") comparison } ;
 comparison = addition {(">" | ">=" | "<" | "<=") addition}
 addition = multiplication {( "-" | "+" ) multiplication}
 multiplication = unary {( "/" | "*" ) unary}
-unary = (("!" | "-" | "+") unary) | primary
-primary = funcCall | varRef | INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")"
+unary = (("!" | "-" | "+") unary) | postfix
+postfix = "(" expr ")" | primary        // Add funccall and indexop
+primary = ident | int | float | string | "false" | "true" | "nil" |
 
-// Missing... class, arrays of arrays, switch, varDeclList, newline/semicolon separators, some operators, ranges, lot of literals, else if, else
+// Missing... class, arrays of arrays, switch, newline/semicolon separators, some operators, ranges, lot of literals, else if, else, multiple assignment for multiple return values

@@ -435,8 +435,22 @@ func (p *Parser) unary() ast.Node {
 
 		return unaryNode
 	} else {
-		return p.primary()
+		return p.postfix()
 	}
+}
+
+func (p *Parser) postfix() ast.Node {
+	var postNode ast.Node
+
+	if p.curTokenIs(token.LPAREN) {
+		p.nextToken()
+		postNode = p.expr()
+		p.consume(token.RPAREN)
+	} else {
+		postNode = p.primary()
+	}
+
+	return postNode
 }
 
 // primary = funcCall | varRef | INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")"
@@ -455,22 +469,6 @@ func (p *Parser) primary() ast.Node {
 		primaryNode.Type = ast.BOOL
 	case token.NIL:
 		primaryNode.Type = ast.NIL
-	case token.LPAREN:
-		p.nextToken()
-		p.expr()
-		p.consume(token.RPAREN)
-		return primaryNode
-		// TODO: Finish the AST node for this branch.
-	default:
-		if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LPAREN) {
-			p.funcCall()
-			return primaryNode
-			// TODO: Finish the AST node for this branch.
-		} else {
-			p.varRef()
-			return primaryNode
-			// TODO: Finish the AST node for this branch.
-		}
 	}
 
 	p.nextToken()
