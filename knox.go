@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
+	"knox/ast"
 	"knox/lexer"
 	"knox/parser"
 )
@@ -14,7 +14,8 @@ func main() {
 	}
 	l := lexer.New(string(code))
 	p := parser.New(l)
-	ast := p.Program()
+	a := p.Program()
 
-	fmt.Println(ast.Children)
+	//fmt.Println(ast.Children)
+	ast.Print(a)
 }
