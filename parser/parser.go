@@ -135,8 +135,6 @@ func (p *Parser) block() ast.Node {
 func (p *Parser) statement() ast.Node {
 	var statementNode ast.Node
 
-	fmt.Println(p.curToken)
-
 	if p.curTokenIs(token.VAR) {
 		statementNode = p.varDecl()
 	} else if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LPAREN) {
@@ -443,20 +441,50 @@ func (p *Parser) unary() ast.Node {
 
 // primary = funcCall | varRef | INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")"
 func (p *Parser) primary() ast.Node {
-	if p.curTokenIs(token.INT) || p.curTokenIs(token.FLOAT) || p.curTokenIs(token.STRING) || p.curTokenIs(token.TRUE) || p.curTokenIs(token.FALSE) || p.curTokenIs(token.NIL) {
-		p.nextToken()
-	} else if p.curTokenIs(token.LPAREN) {
+	var primaryNode ast.Node
+	primaryNode.TokenStart = p.curToken
+
+	switch p.curToken.Type {
+	case token.INT:
+		primaryNode.Type = ast.INT
+	case token.FLOAT:
+		primaryNode.Type = ast.FLOAT
+	case token.STRING:
+		primaryNode.Type = ast.STRING
+	case token.TRUE, token.FALSE:
+		primaryNode.Type = ast.BOOL
+	case token.NIL:
+		primaryNode.Type = ast.NIL
+	case token.LPAREN:
 		p.nextToken()
 		p.expr()
 		p.consume(token.RPAREN)
-	} else if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LPAREN) {
-		p.funcCall()
-	} else {
-		p.varRef()
+		return primaryNode
+		// TODO: Finish the AST node for this branch.
+	default:
+		if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LPAREN) {
+			p.funcCall()
+			return primaryNode
+			// TODO: Finish the AST node for this branch.
+		} else {
+			p.varRef()
+			return primaryNode
+			// TODO: Finish the AST node for this branch.
+		}
 	}
 
-	// Placeholder.
-	var primaryNode ast.Node
-	primaryNode.Type = ast.INT
+	p.nextToken()
 	return primaryNode
+
+	// if p.curTokenIs(token.INT) || p.curTokenIs(token.FLOAT) || p.curTokenIs(token.STRING) || p.curTokenIs(token.TRUE) || p.curTokenIs(token.FALSE) || p.curTokenIs(token.NIL) {
+	// 	p.nextToken()
+	// } else if p.curTokenIs(token.LPAREN) {
+	// 	p.nextToken()
+	// 	p.expr()
+	// 	p.consume(token.RPAREN)
+	// } else if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LPAREN) {
+	// 	p.funcCall()
+	// } else {
+	// 	p.varRef()
+	// }
 }
