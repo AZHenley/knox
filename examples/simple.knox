@@ -1,3 +1,5 @@
 func foo() { 
-    var star : moon
+    while 7 < 5 {
+        stuff = 1 * (2+8)
+    }
 }
