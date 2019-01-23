@@ -1,6 +1,10 @@
 package ast
 
-import "knox/token"
+import (
+	"fmt"
+	"knox/token"
+	"strings"
+)
 
 // NodeType is a string.
 type NodeType string
@@ -18,9 +22,10 @@ const (
 	PROGRAM    = "PROGRAM"    // Variable children. One for each funcdecl.
 	BLOCK      = "BLOCK"      // Variable children. One for each statement.
 	EXPRESSION = "EXPRESSION" // One child. Tree of binary ops, unary ops, and primaries.
-	BINARYOP   = "BINARYOP"   // Two children.
-	UNARYOP    = "UNARYOP"    // One child.
-	VARDECL    = "VARDECL"    // Two or three children. Name, type, expression for assignment.
+	// TODO: Consider removing this.
+	BINARYOP = "BINARYOP" // Two children.
+	UNARYOP  = "UNARYOP"  // One child.
+	VARDECL  = "VARDECL"  // Two or three children. Name, type, expression for assignment.
 	// TODO: Consider making the third child a VARASSIGN.
 	VARTYPE = "VARTYPE" // One child. Name.
 	// TODO: Support lists.
@@ -42,3 +47,16 @@ const (
 	NIL            = "NIL"            // Leaf.
 	IDENT          = "IDENT"          // Leaf.
 )
+
+// Print AST.
+func Print(node Node) {
+	printUtil(node, 0)
+}
+
+func printUtil(node Node, depth int) {
+	var prefix = strings.Repeat(">", depth)
+	fmt.Printf("%s %s %s\n", prefix, node.Type, node.TokenStart.Literal)
+	for _, c := range node.Children {
+		printUtil(c, depth+1)
+	}
+}
