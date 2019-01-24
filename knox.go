@@ -16,6 +16,5 @@ func main() {
 	p := parser.New(l)
 	a := p.Program()
 
-	//fmt.Println(ast.Children)
 	ast.Print(a)
 }
