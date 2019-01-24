@@ -1,5 +1,5 @@
 func foo() { 
     while 7 < 5 {
-        stuff = 1 * (2+8)
+        stuff = 1 * (2+8) + y() + 7
     }
 }

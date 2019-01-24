@@ -29,7 +29,9 @@ comparison = addition {(">" | ">=" | "<" | "<=") addition}
 addition = multiplication {( "-" | "+" ) multiplication}
 multiplication = unary {( "/" | "*" ) unary}
 unary = (("!" | "-" | "+") unary) | postfix
-postfix = "(" expr ")" | primary        // Add funccall and indexop
+// dotop
+postfix = paran {"[" expr "]"} | paran argList
+paran = "(" expr ")" | primary        
 primary = ident | int | float | string | "false" | "true" | "nil" |
 
 // Missing... class, arrays of arrays, switch, newline/semicolon separators, some operators, ranges, lot of literals, else if, else, multiple assignment for multiple return values
