@@ -30,7 +30,7 @@ addition = multiplication {( "-" | "+" ) multiplication}
 multiplication = unary {( "/" | "*" ) unary}
 unary = (("!" | "-" | "+") unary) | postfix
 // dotop
-postfix = paran {"[" expr "]"} | paran argList
+postfix = paran ({"[" expr "]"} | [argList])
 paran = "(" expr ")" | primary        
 primary = ident | int | float | string | "false" | "true" | "nil" |
 

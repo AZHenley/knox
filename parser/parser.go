@@ -440,15 +440,19 @@ func (p *Parser) unary() ast.Node {
 }
 
 func (p *Parser) postfix() ast.Node {
-	var postNode ast.Node
-
-	postNode.Children = append(postNode.Children, p.paran())
+	var node ast.Node
+	node = p.paran()
 
 	if p.curTokenIs(token.LPAREN) {
+		var postNode ast.Node
+		postNode.Children = append(postNode.Children, node)
 		postNode.Type = ast.FUNCCALL
 		var nodes = p.argList()
 		postNode.Children = append(postNode.Children, nodes...)
-	} else {
+		return postNode
+	} else if p.curTokenIs(token.LBRACKET) {
+		var postNode ast.Node
+		postNode.Children = append(postNode.Children, node)
 		for p.curTokenIs(token.LBRACKET) {
 			postNode.Type = ast.VARREF
 			p.nextToken()
@@ -457,9 +461,9 @@ func (p *Parser) postfix() ast.Node {
 			}
 			p.consume(token.RBRACKET)
 		}
+		return postNode
 	}
-
-	return postNode
+	return node
 }
 
 func (p *Parser) paran() ast.Node {
