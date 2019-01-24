@@ -171,11 +171,11 @@ func (p *Parser) varDecl() ast.Node {
 	varNode.Children = append(varNode.Children, identNode)
 	varNode.Children = append(varNode.Children, p.varType())
 
-	if p.curTokenIs(token.ASSIGN) {
-		p.consume(token.ASSIGN)
-		varNode.Children = append(varNode.Children, p.expr())
-		// Does not handle array literal.
-	}
+	//if p.curTokenIs(token.ASSIGN) {
+	p.consume(token.ASSIGN)
+	varNode.Children = append(varNode.Children, p.expr())
+	// Does not handle array literal.
+	//}
 
 	return varNode
 }
@@ -250,7 +250,7 @@ func (p *Parser) varRef() ast.Node {
 
 	for p.curTokenIs(token.LBRACKET) {
 		p.nextToken()
-		p.expr()
+		refNode.Children = append(refNode.Children, p.expr())
 		p.consume(token.RBRACKET)
 	}
 

@@ -14,12 +14,12 @@ forStatement = "for" forClause block
 forClause = [statement] ";" [expr] ";" [statement]
 whileStatement = "while" expr block
 jumpStatement = "continue" | "break" | "return"
-varDecl = "let" ident ":" varType [assignOp expr]
+varDecl = "let" ident ":" varType assignOp expr
 varAssignment = varRef assignOp expr
-varRef = ident {"[" expr "]"}           // The [] should be outside of this rule.
+varRef = ident {"[" expr "]"}           // Maybe the [] should be outside of this rule.
 varType = ident {"[" [expr] "]"}
 funcCall = ident argList
-argList = "(" {expr ","} [expr] ")"     // The [] should be outside of this rule.
+argList = "(" {expr ","} [expr] ")"    
 
 
 expr = logical
