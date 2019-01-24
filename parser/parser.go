@@ -334,7 +334,6 @@ func (p *Parser) jumpStatement() ast.Node {
 	return statementNode
 }
 
-// Expression grammar based on Crafting Interpreters
 func (p *Parser) expr() ast.Node {
 	var exprNode ast.Node
 	exprNode.Type = ast.EXPRESSION
@@ -354,8 +353,7 @@ func (p *Parser) logical() ast.Node {
 		p.nextToken()
 		binaryNode.Children = append(binaryNode.Children, node)
 		binaryNode.Children = append(binaryNode.Children, p.equality())
-
-		return binaryNode
+		node = binaryNode
 	}
 	return node
 }
@@ -370,8 +368,7 @@ func (p *Parser) equality() ast.Node {
 		p.nextToken()
 		binaryNode.Children = append(binaryNode.Children, node)
 		binaryNode.Children = append(binaryNode.Children, p.comparison())
-
-		return binaryNode
+		node = binaryNode
 	}
 	return node
 }
@@ -386,8 +383,7 @@ func (p *Parser) comparison() ast.Node {
 		p.nextToken()
 		binaryNode.Children = append(binaryNode.Children, node)
 		binaryNode.Children = append(binaryNode.Children, p.addition())
-
-		return binaryNode
+		node = binaryNode
 	}
 	return node
 }
@@ -402,8 +398,7 @@ func (p *Parser) addition() ast.Node {
 		p.nextToken()
 		binaryNode.Children = append(binaryNode.Children, node)
 		binaryNode.Children = append(binaryNode.Children, p.multiplication())
-
-		return binaryNode
+		node = binaryNode
 	}
 	return node
 }
