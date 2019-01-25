@@ -356,12 +356,15 @@ func (p *Parser) whileStatement() ast.Node {
 	return statementNode
 }
 
+// jumpStatement = "continue" | "break" | "return" [expr {"," expr}]
 func (p *Parser) jumpStatement() ast.Node {
 	var statementNode ast.Node
 	statementNode.Type = ast.JUMPSTATEMENT
 	statementNode.TokenStart = p.curToken
-
 	p.nextToken()
+
+	// TODO: Need to check for newline or else return expr will eat whatever is next.
+	// TODO: Handle exprs after return.
 
 	return statementNode
 }
