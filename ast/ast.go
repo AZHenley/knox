@@ -38,7 +38,7 @@ const (
 	// TODO: Consider changing this.
 	FORSTATEMENT   = "FORSTATEMENT"   // Four children. Init, condition, afterthought, block.
 	WHILESTATEMENT = "WHILESTATEMENT" // Two children. Condition and block.
-	JUMPSTATEMENT  = "JUMPSTATEMENT"  // Leaf.
+	JUMPSTATEMENT  = "JUMPSTATEMENT"  // Variable children. Zero except for return. Return has zero or more expressions.
 	VARREF         = "VARREF"         // Variable children. Name and list of expressions for array indices.
 	FUNCCALL       = "FUNCCALL"       // Variable children. Name then one expression for each parameter.
 	INT            = "INT"            // Leaf.

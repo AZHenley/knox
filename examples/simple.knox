@@ -4,4 +4,5 @@ func foobar() void[] {
 
 func barfoo() (int[][][], string) {
     var a : int = 5;
+    return 5, blah()*2-1;
 }

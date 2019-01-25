@@ -367,9 +367,13 @@ func (p *Parser) jumpStatement() ast.Node {
 	statementNode.TokenStart = p.curToken
 	p.nextToken()
 
-	// TODO: Need to check for newline or else return expr will eat whatever is next.
-	// TODO: Handle exprs after return.
-
+	if !p.curTokenIs(token.SEMICOLON) {
+		statementNode.Children = append(statementNode.Children, p.expr())
+		for !p.curTokenIs(token.SEMICOLON) {
+			p.consume(token.COMMA)
+			statementNode.Children = append(statementNode.Children, p.expr())
+		}
+	}
 	return statementNode
 }
 
