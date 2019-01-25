@@ -1,6 +1,7 @@
 program = {funcDecl}
-funcDecl = "func" ident paramList ["out" paramList] block
+funcDecl = "func" ident paramList returnList block
 paramList = "(" {ident ":" varType ","} [ident ":" varType]  ")"
+returnList = varType | "(" varType {"," varType} ")"  // Return void or nothing?
 block = "{" {statement} "}"
 statement = funcCall
             | varDecl
@@ -14,11 +15,11 @@ ifStatement = "if" expr block
 forStatement = "for" forClause block
 forClause = [statement] ";" [expr] ";" [statement]
 whileStatement = "while" expr block
-jumpStatement = "continue" | "break" | "return"
+jumpStatement = "continue" | "break" | "return" [expr {"," expr}]
 varDecl = "var" ident ":" varType {"," ident : varType} "=" expr {"," expr}
 varAssignment = varRef {"," varRef} assignOp expr {"," expr}
-varRef = ident {"[" expr "]"}           // Maybe the [] should be outside of this rule.
-varType = ident {"[" [expr] "]"}
+varRef = ident {"[" expr "]"}           
+varType = ident {"[" "]"}
 funcCall = ident argList
 argList = "(" [expr {"," expr}] ")"    
 

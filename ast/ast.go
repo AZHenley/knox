@@ -28,12 +28,12 @@ const (
 	INDEXOP  = "INDEXOP"  // Variable children.
 	VARDECL  = "VARDECL"  // Two or three children. Name, type, expression for assignment.
 	// TODO: Consider making the third child a VARASSIGN.
-	VARTYPE = "VARTYPE" // One child. Name.
-	// TODO: Support lists.
+	VARTYPE   = "VARTYPE"   // Two children. Name and optionally the depth of lists.
 	VARASSIGN = "VARASSIGN" // Two children. Varref and expression.
-	FUNCDECL  = "FUNCDECL"  // Four children. Name, paramlist for params, paramlist for return, block.
+	FUNCDECL  = "FUNCDECL"  // Four children. Name, paramlist for params, returnlist for return, block.
 	PARAMLIST = "PARAMLIST" // Variable children. Pairs of name and type.
 	// TODO: Consider making the pairs a VARDECL node.
+	RETURNLIST  = "RETURNLIST"
 	IFSTATEMENT = "IFSTATEMENT" // Three children. Condition, if block, else block (chain elif/else).
 	// TODO: Consider changing this.
 	FORSTATEMENT   = "FORSTATEMENT"   // Four children. Init, condition, afterthought, block.

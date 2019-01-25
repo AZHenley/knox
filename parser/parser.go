@@ -76,6 +76,7 @@ func (p *Parser) Program() ast.Node {
 	return progNode
 }
 
+// funcDecl = "func" ident paramList returnList block
 func (p *Parser) funcDecl() ast.Node {
 	var funcNode ast.Node
 	funcNode.Type = ast.FUNCDECL
@@ -89,6 +90,7 @@ func (p *Parser) funcDecl() ast.Node {
 	p.consume(token.IDENT)
 
 	funcNode.Children = append(funcNode.Children, p.paramList())
+	funcNode.Children = append(funcNode.Children, p.returnList())
 	funcNode.Children = append(funcNode.Children, p.block())
 	return funcNode
 }
@@ -116,6 +118,26 @@ func (p *Parser) paramList() ast.Node {
 	}
 	p.consume(token.RPAREN)
 	return paramNode
+}
+
+// returnList = varType | "(" varType {"," varType} ")"
+func (p *Parser) returnList() ast.Node {
+	var returnNode ast.Node
+	returnNode.Type = ast.RETURNLIST
+
+	if !p.curTokenIs("(") {
+		returnNode.Children = append(returnNode.Children, p.varType())
+	} else {
+		p.consume(token.LPAREN)
+		returnNode.Children = append(returnNode.Children, p.varType())
+		for !p.curTokenIs(token.RPAREN) {
+			p.consume(token.COMMA)
+			returnNode.Children = append(returnNode.Children, p.varType())
+		}
+		p.nextToken()
+	}
+
+	return returnNode
 }
 
 func (p *Parser) block() ast.Node {
@@ -215,7 +237,7 @@ func (p *Parser) argList() []ast.Node {
 	return argNodes
 }
 
-// varType = ident {"[" [expr] "]"}
+// varType = ident {"[" "]"}
 func (p *Parser) varType() ast.Node {
 	var typeNode ast.Node
 	typeNode.Type = ast.VARTYPE
@@ -228,9 +250,10 @@ func (p *Parser) varType() ast.Node {
 
 	for p.curTokenIs(token.LBRACKET) {
 		p.nextToken()
-		if !p.curTokenIs(token.RBRACKET) {
-			p.expr()
-		}
+		//if !p.curTokenIs(token.RBRACKET) {
+		//p.expr()
+		//}
+		// TODO: Needs to do something with the number of [].
 		p.consume(token.RBRACKET)
 	}
 
