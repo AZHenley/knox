@@ -160,10 +160,13 @@ func (p *Parser) statement() ast.Node {
 
 	if p.curTokenIs(token.VAR) {
 		statementNode = p.varDecl()
+		p.consume(token.SEMICOLON)
 	} else if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LPAREN) {
 		statementNode = p.funcCall()
+		p.consume(token.SEMICOLON)
 	} else if p.curTokenIs(token.IDENT) {
 		statementNode = p.varAssignment()
+		p.consume(token.SEMICOLON)
 	} else if p.curTokenIs(token.IF) {
 		statementNode = p.ifStatement()
 	} else if p.curTokenIs(token.FOR) {
@@ -172,6 +175,7 @@ func (p *Parser) statement() ast.Node {
 		statementNode = p.whileStatement()
 	} else if p.curTokenIs(token.RETURN) || p.curTokenIs(token.CONTINUE) || p.curTokenIs(token.BREAK) {
 		statementNode = p.jumpStatement()
+		p.consume(token.SEMICOLON)
 	} else {
 		p.abortMsg("Expected statement.")
 	}
