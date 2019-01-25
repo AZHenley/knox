@@ -1,4 +1,4 @@
 func foobar() {
-    var x : int = foo("hello")
-    x[5] = 500 / 2
+    x = boss[3 * 50] / - foo("hello") * dog[3-1][2+1]
 }
+  

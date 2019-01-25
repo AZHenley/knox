@@ -5,6 +5,7 @@ block = "{" {statement} "}"
 statement = funcCall
             | varDecl
             | varAssignment
+            | mutliAssignment
             | ifStatement
             | forStatement
             | whileStatement
@@ -14,12 +15,12 @@ forStatement = "for" forClause block
 forClause = [statement] ";" [expr] ";" [statement]
 whileStatement = "while" expr block
 jumpStatement = "continue" | "break" | "return"
-varDecl = "let" ident ":" varType assignOp expr
-varAssignment = varRef assignOp expr
+varDecl = "var" ident ":" varType {"," ident : varType} "=" expr {"," expr}
+varAssignment = varRef {"," varRef} assignOp expr {"," expr}
 varRef = ident {"[" expr "]"}           // Maybe the [] should be outside of this rule.
 varType = ident {"[" [expr] "]"}
 funcCall = ident argList
-argList = "(" {expr ","} [expr] ")"    
+argList = "(" [expr {"," expr}] ")"    
 
 
 expr = logical
@@ -30,7 +31,7 @@ addition = multiplication {( "-" | "+" ) multiplication}
 multiplication = unary {( "/" | "*" ) unary}
 unary = (("!" | "-" | "+") unary) | postfix
 // dotop
-postfix = paran ({"[" expr "]"} | [argList])
+postfix = paran [argList] {"[" expr "]"} 
 paran = "(" expr ")" | primary        
 primary = ident | int | float | string | "false" | "true" | "nil" |
 

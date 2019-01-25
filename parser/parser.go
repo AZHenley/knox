@@ -414,7 +414,7 @@ func (p *Parser) multiplication() ast.Node {
 		binaryNode.Children = append(binaryNode.Children, node)
 		binaryNode.Children = append(binaryNode.Children, p.unary())
 
-		return binaryNode
+		node = binaryNode
 	}
 	return node
 }
@@ -444,19 +444,19 @@ func (p *Parser) postfix() ast.Node {
 		postNode.Type = ast.FUNCCALL
 		var nodes = p.argList()
 		postNode.Children = append(postNode.Children, nodes...)
-		return postNode
-	} else if p.curTokenIs(token.LBRACKET) {
+		node = postNode
+	}
+	if p.curTokenIs(token.LBRACKET) { // Setup for the first [
 		var postNode ast.Node
 		postNode.Children = append(postNode.Children, node)
+		postNode.Type = ast.INDEXOP
+
 		for p.curTokenIs(token.LBRACKET) {
-			postNode.Type = ast.VARREF
 			p.nextToken()
-			if !p.curTokenIs(token.RBRACKET) {
-				postNode.Children = append(postNode.Children, p.expr())
-			}
+			postNode.Children = append(postNode.Children, p.expr())
 			p.consume(token.RBRACKET)
 		}
-		return postNode
+		node = postNode
 	}
 	return node
 }

@@ -25,6 +25,7 @@ const (
 	// TODO: Consider removing this.
 	BINARYOP = "BINARYOP" // Two children.
 	UNARYOP  = "UNARYOP"  // One child.
+	INDEXOP  = "INDEXOP"  // Variable children.
 	VARDECL  = "VARDECL"  // Two or three children. Name, type, expression for assignment.
 	// TODO: Consider making the third child a VARASSIGN.
 	VARTYPE = "VARTYPE" // One child. Name.
