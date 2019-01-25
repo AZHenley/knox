@@ -5,6 +5,7 @@ import (
 	"knox/ast"
 	"knox/lexer"
 	"knox/token"
+	"strconv"
 )
 
 // Parser object.
@@ -177,7 +178,7 @@ func (p *Parser) statement() ast.Node {
 	return statementNode
 }
 
-// varDecl = "var" ident ":" type [assignOp expr]
+// varDecl = "var" ident ":" type assignOp expr
 func (p *Parser) varDecl() ast.Node {
 	var varNode ast.Node
 	varNode.Type = ast.VARDECL
@@ -248,13 +249,21 @@ func (p *Parser) varType() ast.Node {
 	typeNode.Children = append(typeNode.Children, identNode)
 	p.consume(token.IDENT)
 
+	// Counts number of [] pairs and creates INT AST node.
+	var listDepth int = 0
 	for p.curTokenIs(token.LBRACKET) {
 		p.nextToken()
-		//if !p.curTokenIs(token.RBRACKET) {
-		//p.expr()
-		//}
-		// TODO: Needs to do something with the number of [].
+		listDepth++
 		p.consume(token.RBRACKET)
+	}
+	if listDepth > 0 {
+		var intNode ast.Node
+		intNode.Type = ast.INT
+		var tok token.Token
+		tok.Type = token.INT
+		tok.Literal = strconv.Itoa(listDepth)
+		intNode.TokenStart = tok
+		typeNode.Children = append(typeNode.Children, intNode)
 	}
 
 	return typeNode
