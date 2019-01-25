@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	code, err := ioutil.ReadFile("examples/simple.knox")
+	code, err := ioutil.ReadFile("examples/basic.knox")
 	if err != nil {
 		panic(err)
 	}
