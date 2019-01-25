@@ -37,6 +37,7 @@ func (l *Lexer) readChar() {
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 	l.skipWhitespace()
+	l.checkComments()
 	switch l.ch {
 	case rune('='):
 		tok = newToken(token.ASSIGN, l.ch)
@@ -67,7 +68,7 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.SLASH, l.ch)
 	case rune('*'):
 		tok = newToken(token.ASTERISK, l.ch)
-	case rune('<'): // Does not handle LTEQ.
+	case rune('<'):
 		tok = newToken(token.LT, l.ch)
 		if l.peekChar() == '=' {
 			ch := l.ch
@@ -76,7 +77,7 @@ func (l *Lexer) NextToken() token.Token {
 		} else {
 			tok = newToken(token.LT, l.ch)
 		}
-	case rune('>'): // Does not handle GTEQ.
+	case rune('>'):
 		tok = newToken(token.GT, l.ch)
 		if l.peekChar() == '=' {
 			ch := l.ch
@@ -149,6 +150,20 @@ func (l *Lexer) readIdentifier() string {
 // skip white space
 func (l *Lexer) skipWhitespace() {
 	for isWhitespace(l.ch) {
+		l.readChar()
+	}
+}
+
+func (l *Lexer) checkComments() {
+	for l.ch == rune('/') && l.peekChar() == '/' {
+		l.skipComment()
+		l.skipWhitespace()
+	}
+}
+
+// Ignore comments.
+func (l *Lexer) skipComment() {
+	for l.ch != rune('\n') {
 		l.readChar()
 	}
 }
