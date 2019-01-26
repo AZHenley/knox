@@ -164,6 +164,8 @@ func (p *Parser) block() ast.Node {
 	}
 	p.consume(token.RBRACE)
 
+	p.curSymTable = st.Parent
+
 	return blockNode
 }
 
