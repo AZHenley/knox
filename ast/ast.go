@@ -57,6 +57,15 @@ func Print(node Node) {
 func printUtil(node Node, depth int) {
 	var prefix = strings.Repeat(">", depth)
 	fmt.Printf("%s %s %s\n", prefix, node.Type, node.TokenStart.Literal)
+
+	// Print symbols
+	if node.Type == PROGRAM || node.Type == BLOCK {
+		fmt.Printf("Symbols (%d): ", len(node.Symbols.Entries))
+		for key := range node.Symbols.Entries {
+			fmt.Print(key + " ")
+		}
+		fmt.Println("")
+	}
 	for _, c := range node.Children {
 		printUtil(c, depth+1)
 	}
