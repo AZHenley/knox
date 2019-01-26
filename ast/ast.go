@@ -14,7 +14,7 @@ type Node struct {
 	Type       NodeType
 	Children   []Node
 	TokenStart token.Token
-	//symbols symtable.SymTable // Only blocks get a symbol table.
+	Symbols    *SymTable // Only blocks get a symbol table.
 }
 
 // Predefined AST node types.
@@ -60,4 +60,19 @@ func printUtil(node Node, depth int) {
 	for _, c := range node.Children {
 		printUtil(c, depth+1)
 	}
+}
+
+// Moved SymTable into AST package to avoid circular depedency.
+
+// SymTable is a table for symbol entries.
+type SymTable struct {
+	Entries map[string]*Node
+	Parent  *SymTable
+}
+
+// NewSymTable creates an initialized symbol table.
+func NewSymTable() *SymTable {
+	s := &SymTable{}
+	s.Entries = make(map[string]*Node)
+	return s
 }

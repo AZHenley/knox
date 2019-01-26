@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"knox/ast"
 	"knox/lexer"
+
 	"knox/token"
 	"strconv"
 )
@@ -14,7 +15,7 @@ type Parser struct {
 	curToken  token.Token
 	peekToken token.Token
 	//errors    []string
-	//ast ast.ASTNode
+	curSymTable *ast.SymTable
 }
 
 // New lexer.
@@ -71,6 +72,11 @@ func (p *Parser) Program() ast.Node {
 	var progNode ast.Node
 	progNode.Type = ast.PROGRAM
 
+	st := ast.NewSymTable()
+	st.Parent = nil
+	p.curSymTable = st
+	progNode.Symbols = st
+
 	for !p.curTokenIs(token.EOF) {
 		progNode.Children = append(progNode.Children, p.funcDecl())
 	}
@@ -88,6 +94,7 @@ func (p *Parser) funcDecl() ast.Node {
 	identNode.Type = ast.IDENT
 	identNode.TokenStart = p.curToken
 	funcNode.Children = append(funcNode.Children, identNode)
+	p.curSymTable.Entries[p.curToken.Literal] = &funcNode
 	p.consume(token.IDENT)
 
 	funcNode.Children = append(funcNode.Children, p.paramList())
@@ -145,6 +152,11 @@ func (p *Parser) block() ast.Node {
 	var blockNode ast.Node
 	blockNode.Type = ast.BLOCK
 
+	st := ast.NewSymTable()
+	st.Parent = p.curSymTable
+	p.curSymTable = st
+	blockNode.Symbols = st
+
 	p.consume(token.LBRACE)
 	for !p.curTokenIs(token.RBRACE) {
 		//p.statement()
@@ -192,6 +204,7 @@ func (p *Parser) varDecl() ast.Node {
 	var identNode ast.Node
 	identNode.Type = ast.IDENT
 	identNode.TokenStart = p.curToken
+	p.curSymTable.Entries[p.curToken.Literal] = &varNode
 	p.consume(token.IDENT)
 	p.consume(token.COLON)
 
