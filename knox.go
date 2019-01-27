@@ -5,10 +5,11 @@ import (
 	"knox/ast"
 	"knox/lexer"
 	"knox/parser"
+	"knox/typechecker"
 )
 
 func main() {
-	code, err := ioutil.ReadFile("examples/basic.knox")
+	code, err := ioutil.ReadFile("examples/simple.knox")
 	if err != nil {
 		panic(err)
 	}
@@ -17,4 +18,8 @@ func main() {
 	a := p.Program()
 
 	ast.Print(a)
+
+	typechecker.Analyze(&a)
+	//cfa.Analyze(&a)
+
 }

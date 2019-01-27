@@ -46,6 +46,7 @@ const (
 	STRING         = "STRING"         // Leaf.
 	BOOL           = "BOOL"           // Leaf.
 	NIL            = "NIL"            // Leaf.
+	VOID           = "VOID"           // Leaf.
 	IDENT          = "IDENT"          // Leaf.
 )
 
