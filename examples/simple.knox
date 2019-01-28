@@ -1,8 +1,3 @@
 func foobar() void {
-    var test : int = 5;
-    var nope : bool = false;
-}
-
-func barfoo() (int[], string) {
-    var a : int = 5;
+    var test : int = true && false;
 }
