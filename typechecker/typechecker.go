@@ -5,6 +5,7 @@ import (
 	"knox/ast"
 	"knox/lexer"
 	"knox/token"
+	"strings"
 )
 
 // Analyze performs type checking on the entire AST.
@@ -16,7 +17,14 @@ func typecheck(node *ast.Node) {
 	// TODO: Check varassign and vardecl
 	for _, child := range node.Children {
 		if child.Type == ast.EXPRESSION {
-			getType(&child.Children[0])
+			exprType := strings.ToLower(getType(&child.Children[0]))
+			// TODO: Handle vardecl, varassign, if, while, for, return
+			if node.Type == ast.VARDECL {
+				leftType := declType(node)
+				if leftType != exprType {
+					abortMsg("Mismatched types.")
+				}
+			}
 		} else {
 			typecheck(&child)
 		}
@@ -28,7 +36,14 @@ func abortMsg(msg string) {
 	panic("Aborted.\n")
 }
 
-// TODO: This should probably be split up into methods and a class for each AST node type.
+// Get type from a declaration.
+func declType(node *ast.Node) string {
+	// Assuming this node is a vardecl
+	return node.Children[1].Children[0].TokenStart.Literal
+}
+
+// Get type from a symbol.
+
 // Get type from expression node.
 func getType(node *ast.Node) string {
 	switch node.Type {
