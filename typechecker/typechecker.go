@@ -19,18 +19,21 @@ func typecheck(node *ast.Node) {
 
 		if child.Type == ast.EXPRESSION {
 			exprType := strings.ToLower(getType(&child.Children[0]))
-			// TODO: Handle varassign, if, while, for, return
+			// TODO: Handle if, while, for, return
 			if node.Type == ast.VARDECL {
 				leftType := declType(node)
 				if leftType != exprType { // Do the types match?
-					abortMsg("Mismatched types.")
+					abortMsg("1Mismatched types.")
 				}
 			}
 			if node.Type == ast.VARASSIGN {
 				decl := child.Symbols.LookupSymbol(node.Children[0].Children[0].TokenStart.Literal)
+				if decl == nil {
+					abortMsg("Referencing undeclared variable.")
+				}
 				leftType := declType(decl)
 				if leftType != exprType { // Do the types match?
-					abortMsg("Mismatched types.")
+					abortMsg("2Mismatched types.")
 				}
 			}
 		} else {
@@ -42,6 +45,10 @@ func typecheck(node *ast.Node) {
 func abortMsg(msg string) {
 	fmt.Println("Type error: " + msg)
 	panic("Aborted.\n")
+}
+
+func compareTypes(a string, b string) bool {
+	return strings.ToLower(a) == strings.ToLower(b)
 }
 
 // Get type from a declaration.
@@ -69,19 +76,19 @@ func getType(node *ast.Node) string {
 	case ast.BINARYOP:
 		left := getType(&node.Children[0])
 		right := getType(&node.Children[1])
-		if left != right {
+		if !compareTypes(left, right) {
 			abortMsg("Mismatched types.")
 		}
 		if lexer.IsOperator([]rune(node.TokenStart.Literal)[0]) || node.TokenStart.Literal == ">=" || node.TokenStart.Literal == ">" || node.TokenStart.Literal == "<=" || node.TokenStart.Literal == "<" {
-			if left == ast.INT || left == ast.FLOAT {
+			if compareTypes(left, ast.INT) || compareTypes(left, ast.FLOAT) {
 				return string(left)
-			} else if node.TokenStart.Type == token.PLUS && left == ast.STRING {
+			} else if node.TokenStart.Type == token.PLUS && compareTypes(left, ast.STRING) {
 				return string(left)
 			} else {
 				abortMsg("Invalid operation.")
 			}
 		} else if node.TokenStart.Literal == "&&" || node.TokenStart.Literal == "||" {
-			if left != ast.BOOL || right != ast.BOOL {
+			if !compareTypes(left, ast.BOOL) {
 				abortMsg("Invalid operation.")
 			}
 		}
@@ -101,11 +108,12 @@ func getType(node *ast.Node) string {
 		return string(single)
 
 	case ast.VARREF:
-		// TODO
-		//name := node.Children[0].TokenStart.Literal
-		//isDeclared(name)
-		//look up type
-		return "INT"
+		name := node.Children[0].TokenStart.Literal
+		declNode := node.Symbols.LookupSymbol(name)
+		if declNode == nil {
+			abortMsg("Referencing undeclared variable.")
+		}
+		return declType(declNode)
 
 	case ast.FUNCCALL:
 		// TODO

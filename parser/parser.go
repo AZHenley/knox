@@ -299,6 +299,7 @@ func (p *Parser) varType() ast.Node {
 func (p *Parser) varRef() ast.Node {
 	var refNode ast.Node
 	refNode.Type = ast.VARREF
+	refNode.Symbols = p.curSymTable
 
 	var identNode ast.Node
 	identNode.Type = ast.IDENT
@@ -542,7 +543,7 @@ func (p *Parser) paran() ast.Node {
 	return paranNode
 }
 
-// primary = funcCall | varRef | INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")"
+// primary = varRef | INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")"
 func (p *Parser) primary() ast.Node {
 	var primaryNode ast.Node
 	primaryNode.TokenStart = p.curToken
@@ -558,6 +559,13 @@ func (p *Parser) primary() ast.Node {
 		primaryNode.Type = ast.BOOL
 	case token.NIL:
 		primaryNode.Type = ast.NIL
+	case token.IDENT:
+		primaryNode.Type = ast.VARREF
+		primaryNode.Symbols = p.curSymTable
+		var identNode ast.Node
+		identNode.Type = ast.IDENT
+		identNode.TokenStart = p.curToken
+		primaryNode.Children = append(primaryNode.Children, identNode)
 	}
 
 	p.nextToken()
