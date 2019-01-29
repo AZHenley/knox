@@ -94,7 +94,10 @@ func (p *Parser) funcDecl() ast.Node {
 	identNode.Type = ast.IDENT
 	identNode.TokenStart = p.curToken
 	funcNode.Children = append(funcNode.Children, identNode)
-	p.curSymTable.Entries[p.curToken.Literal] = &funcNode
+	alreadyExists := p.curSymTable.InsertSymbol(p.curToken.Literal, &funcNode)
+	if alreadyExists {
+		p.abortMsg("Variable already exists.")
+	}
 	p.consume(token.IDENT)
 
 	funcNode.Children = append(funcNode.Children, p.paramList())
@@ -200,13 +203,17 @@ func (p *Parser) statement() ast.Node {
 func (p *Parser) varDecl() ast.Node {
 	var varNode ast.Node
 	varNode.Type = ast.VARDECL
+	varNode.Symbols = p.curSymTable
 
 	p.consume(token.VAR)
 
 	var identNode ast.Node
 	identNode.Type = ast.IDENT
 	identNode.TokenStart = p.curToken
-	p.curSymTable.Entries[p.curToken.Literal] = &varNode
+	alreadyExists := p.curSymTable.InsertSymbol(p.curToken.Literal, &varNode)
+	if alreadyExists {
+		p.abortMsg("Variable already exists.")
+	}
 	p.consume(token.IDENT)
 	p.consume(token.COLON)
 
@@ -312,6 +319,7 @@ func (p *Parser) varRef() ast.Node {
 func (p *Parser) varAssignment() ast.Node {
 	var assignNode ast.Node
 	assignNode.Type = ast.VARASSIGN
+	assignNode.Symbols = p.curSymTable
 
 	assignNode.Children = append(assignNode.Children, p.varRef())
 	p.consume(token.ASSIGN)
@@ -395,6 +403,7 @@ func (p *Parser) jumpStatement() ast.Node {
 func (p *Parser) expr() ast.Node {
 	var exprNode ast.Node
 	exprNode.Type = ast.EXPRESSION
+	exprNode.Symbols = p.curSymTable // Make it easier for analyzers to do look ups.
 
 	exprNode.Children = append(exprNode.Children, p.logical())
 
