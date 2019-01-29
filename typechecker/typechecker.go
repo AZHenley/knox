@@ -16,12 +16,20 @@ func Analyze(node *ast.Node) {
 func typecheck(node *ast.Node) {
 	// TODO: Check varassign and vardecl
 	for _, child := range node.Children {
+
 		if child.Type == ast.EXPRESSION {
 			exprType := strings.ToLower(getType(&child.Children[0]))
-			// TODO: Handle vardecl, varassign, if, while, for, return
+			// TODO: Handle varassign, if, while, for, return
 			if node.Type == ast.VARDECL {
 				leftType := declType(node)
-				if leftType != exprType {
+				if leftType != exprType { // Do the types match?
+					abortMsg("Mismatched types.")
+				}
+			}
+			if node.Type == ast.VARASSIGN {
+				decl := child.Symbols.LookupSymbol(node.Children[0].Children[0].TokenStart.Literal)
+				leftType := declType(decl)
+				if leftType != exprType { // Do the types match?
 					abortMsg("Mismatched types.")
 				}
 			}
@@ -38,11 +46,22 @@ func abortMsg(msg string) {
 
 // Get type from a declaration.
 func declType(node *ast.Node) string {
-	// Assuming this node is a vardecl
-	return node.Children[1].Children[0].TokenStart.Literal
+	if node.Type == ast.VARDECL {
+		return node.Children[1].Children[0].TokenStart.Literal
+	} else if node.Type == ast.FUNCDECL {
+		// TODO
+	}
+	return ""
 }
 
 // Get type from a symbol.
+func getSymbolType(symbol string, st *ast.SymTable) string {
+	node := st.LookupSymbol(symbol)
+	if node != nil {
+		return declType(node)
+	}
+	return ""
+}
 
 // Get type from expression node.
 func getType(node *ast.Node) string {
@@ -96,9 +115,4 @@ func getType(node *ast.Node) string {
 		return string(node.Type)
 	}
 	return ""
-}
-
-// Check if symbol is declared.
-func isDeclared(symbol string) bool {
-	return false
 }
