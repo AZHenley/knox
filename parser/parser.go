@@ -94,9 +94,9 @@ func (p *Parser) funcDecl() ast.Node {
 	identNode.Type = ast.IDENT
 	identNode.TokenStart = p.curToken
 	funcNode.Children = append(funcNode.Children, identNode)
-	alreadyExists := p.curSymTable.InsertSymbol(p.curToken.Literal, &funcNode)
-	if alreadyExists {
-		p.abortMsg("Variable already exists.")
+	success := p.curSymTable.InsertSymbol(p.curToken.Literal, &funcNode)
+	if !success {
+		p.abortMsg("Function already exists.")
 	}
 	p.consume(token.IDENT)
 
@@ -210,8 +210,8 @@ func (p *Parser) varDecl() ast.Node {
 	var identNode ast.Node
 	identNode.Type = ast.IDENT
 	identNode.TokenStart = p.curToken
-	alreadyExists := p.curSymTable.InsertSymbol(p.curToken.Literal, &varNode)
-	if alreadyExists {
+	success := p.curSymTable.InsertSymbol(p.curToken.Literal, &varNode)
+	if !success {
 		p.abortMsg("Variable already exists.")
 	}
 	p.consume(token.IDENT)
