@@ -23,7 +23,7 @@ func typecheck(node *ast.Node) {
 			if node.Type == ast.VARDECL {
 				leftType := declType(node)
 				if leftType != exprType { // Do the types match?
-					abortMsg("1Mismatched types.")
+					abortMsg("Mismatched types.")
 				}
 			}
 			if node.Type == ast.VARASSIGN {
@@ -33,8 +33,14 @@ func typecheck(node *ast.Node) {
 				}
 				leftType := declType(decl)
 				if leftType != exprType { // Do the types match?
-					abortMsg("2Mismatched types.")
+					abortMsg("Mismatched types.")
 				}
+			}
+		} else if child.Type == ast.FUNCCALL { // Handle funccall outside of an expression.
+			name := child.Children[0].TokenStart.Literal
+			declNode := node.Symbols.LookupSymbol(name)
+			if declNode == nil {
+				abortMsg("Calling undeclared function.")
 			}
 		} else {
 			typecheck(&child)
@@ -56,7 +62,7 @@ func declType(node *ast.Node) string {
 	if node.Type == ast.VARDECL {
 		return node.Children[1].Children[0].TokenStart.Literal
 	} else if node.Type == ast.FUNCDECL {
-		// TODO
+		return node.Children[2].Children[0].Children[0].TokenStart.Literal // TODO: Handle multiple return values.
 	}
 	return ""
 }
@@ -116,8 +122,12 @@ func getType(node *ast.Node) string {
 		return declType(declNode)
 
 	case ast.FUNCCALL:
-		// TODO
-		return "INT"
+		name := node.Children[0].TokenStart.Literal
+		declNode := node.Symbols.LookupSymbol(name)
+		if declNode == nil {
+			abortMsg("Calling undeclared function.")
+		}
+		return declType(declNode)
 
 	case ast.INT, ast.FLOAT, ast.STRING, ast.BOOL, ast.NIL:
 		return string(node.Type)

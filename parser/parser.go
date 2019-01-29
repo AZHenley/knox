@@ -510,6 +510,7 @@ func (p *Parser) postfix() ast.Node {
 		var postNode ast.Node
 		postNode.Children = append(postNode.Children, node)
 		postNode.Type = ast.FUNCCALL
+		postNode.Symbols = p.curSymTable
 		var nodes = p.argList()
 		postNode.Children = append(postNode.Children, nodes...)
 		node = postNode
