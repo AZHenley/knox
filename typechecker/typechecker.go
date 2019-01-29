@@ -36,7 +36,7 @@ func typecheck(node *ast.Node) {
 					abortMsg("Mismatched types.")
 				}
 			}
-		} else if child.Type == ast.FUNCCALL { // Handle funccall outside of an expression.
+		} else if child.Type == ast.FUNCCALL { // Handles funccall outside of an expression.
 			name := child.Children[0].TokenStart.Literal
 			declNode := node.Symbols.LookupSymbol(name)
 			if declNode == nil {
