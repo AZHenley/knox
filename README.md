@@ -21,12 +21,11 @@ Example goes here.
  - No variable declaration blocks
  - No implicit casting
  - Variables must be initialized
- - Change syntax for variable and function declarations
- - Change loops?
- - Make else if/else syntax less strict
- - Slightly change type and struct syntax
- - Change iota syntax
- - Change &/* syntax?
+ - Different syntax for variable and function declarations
+ - C-style For and While loop syntax
+ - Allows whitespace between if and elseif blocks
+ - Different type and struct syntax
+ - Enum support
  - Add assertions
  - Method overloading?
  - Parameter generics?
@@ -34,7 +33,6 @@ Example goes here.
  - Named parameters?
  - Custom operators
  - Remove varargs?
- - No return values, only out parameters
  - defer?
  - Constructor? Destructor?
  - Change syntax for make/new
