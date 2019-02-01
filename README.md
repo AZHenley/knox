@@ -21,6 +21,7 @@ Example goes here.
  - No variable declaration blocks
  - No implicit casting
  - Variables must be initialized
+ - Semicolons required
  - Different syntax for variable and function declarations
  - C-style For and While loop syntax
  - Allows whitespace between if and elseif blocks
