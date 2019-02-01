@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"knox/ast"
+	"knox/emitter"
 	"knox/lexer"
 	"knox/parser"
 	"knox/typechecker"
@@ -21,5 +23,6 @@ func main() {
 
 	typechecker.Analyze(&a)
 	//cfa.Analyze(&a)
+	fmt.Print(emitter.Generate(&a))
 
 }
