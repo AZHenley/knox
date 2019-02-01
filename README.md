@@ -1,6 +1,6 @@
 # The Knox Programming Language
 
-Knox is an experiment in learning Go and learning more about compilers. The compiler is written in Go and generates Go.
+Knox is an experimental language for learning Go and exploring language design. The compiler is written in Go and generates Go. The compiler is entirely hand-written, from the lexer to the type checker.
 
 The principles and major features behind the design of Knox are:
  - Small language. Simple and consistent syntax with few constructs, as an alternative to Go.
