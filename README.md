@@ -13,7 +13,6 @@ The principles and major features behind the design of Knox are:
 ```
 Example goes here.
 ```
-## OLD...
 
 ## Comparison to Go:
  - No type inference
@@ -27,6 +26,8 @@ Example goes here.
  - Allows whitespace between if and elseif blocks
  - Different type and struct syntax
  - Enum support
+ 
+ 
  - Add assertions
  - Method overloading?
  - Parameter generics?
