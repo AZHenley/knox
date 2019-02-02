@@ -26,7 +26,15 @@ Example goes here.
  - Allows whitespace between if and elseif blocks
  - Different type and struct syntax
  - Enum support
+ - Classes instead of structs
+ - Classes are pass-by-reference
+ - Constructors
+ - Explicit interfaces only
+ - No pointers
+ - All return values must be used or explicitly thrown away
+ - No goto
  
+_
  
  - Add assertions
  - Parameter generics?
@@ -43,6 +51,9 @@ Example goes here.
  - Design by contracts?
  - Give a variable/type properties, like an int must be even or in some range
 
+
+## Decisions to make:
+ - Public/private fields?
 
 ## Decisions we made:
   - No optional, default, or named parameters
