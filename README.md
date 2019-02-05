@@ -1,19 +1,19 @@
 # The Knox Programming Language
 
-Knox is an experiment in learning Go and learning more about compilers. The compiler is written in Go and generates Go.
+Knox is an experimental language meant to help me learn Go and explore compiler design. The compiler is written in Go and generates Go. The compiler consists of a lexer, recurseive-descent parser, semantic analyzer, and code emitter.
 
-The principles and major features behind the design of Knox are:
- - Small language. Simple and consistent syntax with few constructs, as an alternative to Go.
+The principles behind the design of Knox are:
  - Explicitness. Explicit and unambiguous code is a priority, even over brevity. No surprises.
+ - Small language. Simple and consistent syntax with few constructs, as an alternative to Go.
  - Pass by reference. All complex types should be pass by reference and pointers should be hidden.
  - Convenient data structures. Lists and maps are first-class data structures that should be as easy as Python.
  - Operability. Use any Go library and produce Go libraries.
+ - Fast enough. Compiling time, execution time, and memory usage should be less than a 50% increase over Go.  
  - Well-behaved. Contracts, error handling, and unit testing are first-class constructs.
 
 ```
 Example goes here.
 ```
-## OLD...
 
 ## Comparison to Go:
  - No type inference
@@ -21,20 +21,26 @@ Example goes here.
  - No variable declaration blocks
  - No implicit casting
  - Variables must be initialized
- - Change syntax for variable and function declarations
- - Change loops?
- - Make else if/else syntax less strict
- - Slightly change type and struct syntax
- - Change iota syntax
- - Change &/* syntax?
+ - Semicolons required
+ - Different syntax for variable and function declarations
+ - C-style For and While loop syntax
+ - Allows whitespace between if and elseif blocks
+ - Different type and struct syntax
+ - Enum support
+ - Classes instead of structs
+ - Classes are pass-by-reference
+ - Constructors
+ - Explicit interfaces only
+ - No pointers
+ - All return values must be used or explicitly thrown away
+ - No goto
+ 
+_
+ 
  - Add assertions
- - Method overloading?
  - Parameter generics?
- - Optional parameters?
  - Named parameters?
- - Custom operators
  - Remove varargs?
- - No return values, only out parameters
  - defer?
  - Constructor? Destructor?
  - Change syntax for make/new
@@ -46,6 +52,9 @@ Example goes here.
  - Design by contracts?
  - Give a variable/type properties, like an int must be even or in some range
 
+
+## Decisions to make:
+ - Public/private fields?
 
 ## Decisions we made:
   - No optional, default, or named parameters
