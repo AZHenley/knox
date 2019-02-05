@@ -104,12 +104,12 @@ func getType(node *ast.Node) string {
 	case ast.UNARYOP:
 		single := getType(&node.Children[0])
 		if node.TokenStart.Type == token.BANG {
-			if single != ast.BOOL {
+			if !compareTypes(single, ast.BOOL) {
 				abortMsg("Invalid operation.")
 			}
 		}
-		if single != ast.INT && single != ast.FLOAT {
-			abortMsg("Invalid operation.")
+		if !compareTypes(single, ast.INT) && !compareTypes(single, ast.FLOAT) {
+			abortMsg("4Invalid operation.")
 		}
 		return string(single)
 
