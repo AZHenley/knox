@@ -2,7 +2,18 @@ package emitter
 
 import (
 	"knox/ast"
+	"strings"
 )
+
+// Emitter object.
+type Emitter struct {
+	output string
+	level  int
+}
+
+func (e *Emitter) emit(code string) {
+	e.output += strings.Repeat("\t", e.level) + code
+}
 
 // Generate outputs code given an AST.
 func Generate(node *ast.Node) string {
@@ -71,8 +82,14 @@ func statement(node *ast.Node) string {
 	switch node.Type {
 	case ast.VARDECL:
 		code = varDecl(node)
+	case ast.VARASSIGN:
+		code = varAssign(node)
 	}
 	return code
+}
+
+func varAssign(node *ast.Node) string {
+	return ""
 }
 
 func varDecl(node *ast.Node) string {
@@ -86,9 +103,20 @@ func expr(node *ast.Node) string {
 	if node.Type == ast.BINARYOP {
 		return "(" + expr(&node.Children[0]) + node.TokenStart.Literal + expr(&node.Children[1]) + ")"
 	} else if node.Type == ast.UNARYOP {
-		return ""
+		return "(" + node.TokenStart.Literal + expr(&node.Children[0]) + ")"
 	} else if node.Type == ast.FUNCCALL {
-		return ""
+		funcName := node.Children[0].TokenStart.Literal
+		var argList string
+		for index, child := range node.Children {
+			if index == 0 {
+				continue
+			}
+			argList += expr(&child.Children[0])
+			if index < len(node.Children)-1 {
+				argList += ", "
+			}
+		}
+		return funcName + "(" + argList + ")"
 	} else if node.Type == ast.EXPRESSION {
 		return expr(&node.Children[0])
 	} else { // Primary.
