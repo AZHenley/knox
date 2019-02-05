@@ -78,10 +78,20 @@ func statement(node *ast.Node) string {
 func varDecl(node *ast.Node) string {
 	varName := node.Children[0].TokenStart.Literal
 	varType := node.Children[1].TokenStart.Literal
-	varExpr := expr(&node.Children[2])
+	varExpr := expr(&node.Children[2].Children[0])
 	return "var " + varName + " " + varType + " = " + varExpr + "\n"
 }
 
 func expr(node *ast.Node) string {
-	return ""
+	if node.Type == ast.BINARYOP {
+		return expr(&node.Children[0]) + node.TokenStart.Literal + expr(&node.Children[1])
+	} else if node.Type == ast.UNARYOP {
+		return ""
+	} else if node.Type == ast.FUNCCALL {
+		return ""
+	} else if node.Type == ast.EXPRESSION {
+		return expr(&node.Children[0])
+	} else { // Primary.
+		return node.TokenStart.Literal
+	}
 }
