@@ -84,7 +84,7 @@ func varDecl(node *ast.Node) string {
 
 func expr(node *ast.Node) string {
 	if node.Type == ast.BINARYOP {
-		return expr(&node.Children[0]) + node.TokenStart.Literal + expr(&node.Children[1])
+		return "(" + expr(&node.Children[0]) + node.TokenStart.Literal + expr(&node.Children[1]) + ")"
 	} else if node.Type == ast.UNARYOP {
 		return ""
 	} else if node.Type == ast.FUNCCALL {
