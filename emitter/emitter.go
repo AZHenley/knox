@@ -58,8 +58,30 @@ func funcDecl(node *ast.Node) string {
 
 	// Body.
 	code += "{\n"
-	// TODO.
+	for _, s := range node.Children[3].Children {
+		code += statement(&s)
+	}
 	code += "}\n\n"
 
 	return code
+}
+
+func statement(node *ast.Node) string {
+	var code string
+	switch node.Type {
+	case ast.VARDECL:
+		code = varDecl(node)
+	}
+	return code
+}
+
+func varDecl(node *ast.Node) string {
+	varName := node.Children[0].TokenStart.Literal
+	varType := node.Children[1].TokenStart.Literal
+	varExpr := expr(&node.Children[2])
+	return "var " + varName + " " + varType + " = " + varExpr + "\n"
+}
+
+func expr(node *ast.Node) string {
+	return ""
 }
