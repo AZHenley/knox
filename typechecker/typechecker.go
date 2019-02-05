@@ -82,8 +82,9 @@ func getType(node *ast.Node) string {
 	case ast.BINARYOP:
 		left := getType(&node.Children[0])
 		right := getType(&node.Children[1])
+		fmt.Println(left + " - " + right)
 		if !compareTypes(left, right) {
-			abortMsg("Mismatched types.")
+			abortMsg("1Mismatched types.")
 		}
 		if lexer.IsOperator([]rune(node.TokenStart.Literal)[0]) || node.TokenStart.Literal == ">=" || node.TokenStart.Literal == ">" || node.TokenStart.Literal == "<=" || node.TokenStart.Literal == "<" {
 			if compareTypes(left, ast.INT) || compareTypes(left, ast.FLOAT) {
@@ -131,6 +132,10 @@ func getType(node *ast.Node) string {
 
 	case ast.INT, ast.FLOAT, ast.STRING, ast.BOOL, ast.NIL:
 		return string(node.Type)
+
+	case ast.EXPRESSION:
+		return getType(&node.Children[0])
 	}
+
 	return ""
 }
