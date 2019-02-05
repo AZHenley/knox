@@ -68,12 +68,18 @@ func funcDecl(node *ast.Node) string {
 	}
 
 	// Body.
+	code += block(&node.Children[3])
+
+	return code
+}
+
+func block(node *ast.Node) string {
+	var code string
 	code += "{\n"
-	for _, s := range node.Children[3].Children {
+	for _, s := range node.Children {
 		code += statement(&s)
 	}
 	code += "}\n\n"
-
 	return code
 }
 
@@ -84,19 +90,25 @@ func statement(node *ast.Node) string {
 		code = varDecl(node)
 	case ast.VARASSIGN:
 		code = varAssign(node)
+	case ast.JUMPSTATEMENT:
+		code = jumpStatement(node)
 	}
 	return code
 }
 
-func varAssign(node *ast.Node) string {
+func jumpStatement(node *ast.Node) string {
 	return ""
+}
+
+func varAssign(node *ast.Node) string {
+	return node.Children[0].Children[0].TokenStart.Literal + " = " + expr(&node.Children[1].Children[0]) + "\n"
 }
 
 func varDecl(node *ast.Node) string {
 	varName := node.Children[0].TokenStart.Literal
 	varType := node.Children[1].TokenStart.Literal
 	varExpr := expr(&node.Children[2].Children[0])
-	return "var " + varName + " " + varType + " = " + varExpr + "\n"
+	return "var " + varName + " " + varType + " := " + varExpr + "\n"
 }
 
 func expr(node *ast.Node) string {
