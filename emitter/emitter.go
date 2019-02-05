@@ -97,7 +97,14 @@ func statement(node *ast.Node) string {
 }
 
 func jumpStatement(node *ast.Node) string {
-	return ""
+	code := node.TokenStart.Literal + " "
+	for index, child := range node.Children {
+		code += expr(&child.Children[0])
+		if index < len(node.Children)-1 {
+			code += ", "
+		}
+	}
+	return code + "\n"
 }
 
 func varAssign(node *ast.Node) string {
