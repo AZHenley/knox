@@ -40,7 +40,7 @@ const (
 	WHILESTATEMENT = "WHILESTATEMENT" // Two children. Condition and block.
 	JUMPSTATEMENT  = "JUMPSTATEMENT"  // Variable children. Zero except for return. Return has zero or more expressions.
 	VARREF         = "VARREF"         // Variable children. Name and list of expressions for array indices.
-	FUNCCALL       = "FUNCCALL"       // Variable children. Name then one expression for each parameter.
+	FUNCCALL       = "FUNCCALL"       // Variable children. Name then one expression for each argument.
 	INT            = "INT"            // Leaf.
 	FLOAT          = "FLOAT"          // Leaf.
 	STRING         = "STRING"         // Leaf.
@@ -53,6 +53,7 @@ const (
 // Print AST.
 func Print(node Node) {
 	printUtil(node, 0)
+	fmt.Println("")
 }
 
 func printUtil(node Node, depth int) {
