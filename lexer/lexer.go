@@ -140,6 +140,7 @@ func newToken(tokenType token.TokenType, ch rune) token.Token {
 
 // read Identifier
 func (l *Lexer) readIdentifier() string {
+	// Already checked first ch for isDigit.
 	position := l.position
 	for isIdentifier(l.ch) {
 		l.readChar()
@@ -249,7 +250,7 @@ func (l *Lexer) peekChar() rune {
 
 // determinate ch is identifier or not
 func isIdentifier(ch rune) bool {
-	return !isDigit(ch) && !isWhitespace(ch) && !isBrace(ch) && !IsOperator(ch) && !isComparison(ch) && !isCompound(ch) && !isBrace(ch) && !isParen(ch) && !isBracket(ch) && !isEmpty(ch)
+	return !isWhitespace(ch) && !isBrace(ch) && !IsOperator(ch) && !isComparison(ch) && !isCompound(ch) && !isBrace(ch) && !isParen(ch) && !isBracket(ch) && !isEmpty(ch)
 }
 
 // is white space
