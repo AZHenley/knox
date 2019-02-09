@@ -11,7 +11,7 @@ statement = funcCall ";"
             | forStatement
             | whileStatement
             | jumpStatement ";"
-ifStatement = "if" expr block
+ifStatement = "if" expr block {"else" "if" expr block} ["else" block]
 forStatement = "for" forClause block
 forClause = [statement] ";" [expr] ";" [statement]
 whileStatement = "while" expr block
@@ -36,4 +36,4 @@ postfix = paran [argList] {"[" expr "]"}
 paran = "(" expr ")" | primary        
 primary = ident | int | float | string | "false" | "true" | "nil" |
 
-// Missing... class, switch, some operators, ranges, lot of literals, else if, else, multiple assignment
+// Missing... class, switch, some operators, ranges, lot of literals, else if, else, foreach, multiple assignment

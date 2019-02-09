@@ -338,6 +338,18 @@ func (p *Parser) ifStatement() ast.Node {
 	statementNode.Children = append(statementNode.Children, p.expr())
 	statementNode.Children = append(statementNode.Children, p.block())
 
+	for p.curTokenIs(token.ELSE) && p.peekTokenIs(token.IF) {
+		p.nextToken()
+		p.nextToken()
+		statementNode.Children = append(statementNode.Children, p.expr())
+		statementNode.Children = append(statementNode.Children, p.block())
+	}
+
+	if p.curTokenIs(token.ELSE) {
+		p.nextToken()
+		statementNode.Children = append(statementNode.Children, p.block())
+	}
+
 	return statementNode
 }
 

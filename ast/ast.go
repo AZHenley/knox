@@ -33,9 +33,8 @@ const (
 	FUNCDECL  = "FUNCDECL"  // Four children. Name, paramlist for params, returnlist for return, block.
 	PARAMLIST = "PARAMLIST" // Variable children. Pairs of name and type.
 	// TODO: Consider making the pairs a VARDECL node.
-	RETURNLIST  = "RETURNLIST"  //
-	IFSTATEMENT = "IFSTATEMENT" // Three children. Condition, if block, else block (chain elif/else).
-	// TODO: Consider changing this.
+	RETURNLIST     = "RETURNLIST"     //
+	IFSTATEMENT    = "IFSTATEMENT"    // Variable children. Condition and block for IF and zero or more for each ELSE IF and zero or one block for ELSE.
 	FORSTATEMENT   = "FORSTATEMENT"   // Four children. Init, condition, afterthought, block.
 	WHILESTATEMENT = "WHILESTATEMENT" // Two children. Condition and block.
 	JUMPSTATEMENT  = "JUMPSTATEMENT"  // Variable children. Zero except for return. Return has zero or more expressions.
