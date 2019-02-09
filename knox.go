@@ -22,6 +22,7 @@ func main() {
 	astFlag := flag.Bool("ast", false, "Print the AST.")
 	goFlag := flag.Bool("go", false, "Print the Go code.")
 	outFlag := flag.String("out", "", "Path for output files.")
+	nameFlag := flag.String("name", "", "Name for output executable.")
 	flag.Parse()
 	args := flag.Args()
 
@@ -66,10 +67,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	local := filepath.Dir(ex)
+	local := filepath.Dir(ex) // Get current path.
 	outputDir := path.Join(local, *outFlag)
-	outputFile := path.Join(outputDir, "out.go")
-	outputBin := path.Join(outputDir, "out.bin")
+	outputFile := path.Join(outputDir, "out.go") // TODO: Go files should use Knox file names.
+	binName := *nameFlag
+	if binName == "" {
+		binName = "out.bin"
+	}
+	outputBin := path.Join(outputDir, binName)
 	werr := ioutil.WriteFile(outputFile, []byte(output), 0644)
 	if werr != nil {
 		panic(werr)
