@@ -182,6 +182,9 @@ func expr(node *ast.Node) string {
 	} else if node.Type == ast.EXPRESSION {
 		return expr(&node.Children[0])
 	} else { // Primary.
+		if node.Type == ast.STRING {
+			return "\"" + node.TokenStart.Literal + "\""
+		}
 		return node.TokenStart.Literal
 	}
 }
