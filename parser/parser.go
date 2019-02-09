@@ -207,24 +207,28 @@ func (p *Parser) varDecl() ast.Node {
 
 	p.consume(token.VAR)
 
-	var identNode ast.Node
-	identNode.Type = ast.IDENT
-	identNode.TokenStart = p.curToken
-	success := p.curSymTable.InsertSymbol(p.curToken.Literal, &varNode)
-	if !success {
-		p.abortMsg("Variable already exists.")
+	for p.curTokenIs(token.IDENT) {
+		var identNode ast.Node
+		identNode.Type = ast.IDENT
+		identNode.TokenStart = p.curToken
+		success := p.curSymTable.InsertSymbol(p.curToken.Literal, &varNode)
+		if !success {
+			p.abortMsg("Variable already exists.")
+		}
+		p.consume(token.IDENT)
+		p.consume(token.COLON)
+
+		varNode.Children = append(varNode.Children, identNode)
+		varNode.Children = append(varNode.Children, p.varType())
+
+		if !p.curTokenIs(token.COMMA) {
+			break
+		}
+		p.consume(token.COMMA)
 	}
-	p.consume(token.IDENT)
-	p.consume(token.COLON)
 
-	varNode.Children = append(varNode.Children, identNode)
-	varNode.Children = append(varNode.Children, p.varType())
-
-	//if p.curTokenIs(token.ASSIGN) {
 	p.consume(token.ASSIGN)
 	varNode.Children = append(varNode.Children, p.expr())
-	// Does not handle array literal.
-	//}
 
 	return varNode
 }
@@ -322,7 +326,13 @@ func (p *Parser) varAssignment() ast.Node {
 	assignNode.Type = ast.VARASSIGN
 	assignNode.Symbols = p.curSymTable
 
-	assignNode.Children = append(assignNode.Children, p.varRef())
+	for p.curTokenIs(token.IDENT) {
+		assignNode.Children = append(assignNode.Children, p.varRef())
+		if !p.curTokenIs(token.COMMA) {
+			break
+		}
+		p.consume(token.COMMA)
+	}
 	p.consume(token.ASSIGN)
 	assignNode.Children = append(assignNode.Children, p.expr())
 
