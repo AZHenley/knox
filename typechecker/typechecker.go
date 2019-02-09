@@ -17,8 +17,8 @@ func typecheck(node *ast.Node) {
 	for _, child := range node.Children {
 
 		if child.Type == ast.EXPRESSION {
-			exprType := strings.ToLower(getType(&child.Children[0]))
-			// TODO: Handle if, while, for, return
+			exprType := getType(&child.Children[0])
+			// TODO: Handle for, return
 			if node.Type == ast.VARDECL {
 				leftType := declType(node)
 				if !compareTypes(leftType, exprType) { // Do the types match?
@@ -33,7 +33,7 @@ func typecheck(node *ast.Node) {
 				if !compareTypes(leftType, exprType) { // Do the types match?
 					abortMsg("Mismatched types.")
 				}
-			} else if node.Type == ast.IFSTATEMENT {
+			} else if node.Type == ast.IFSTATEMENT || node.Type == ast.WHILESTATEMENT {
 				if !compareTypes(exprType, ast.BOOL) {
 					abortMsg("Conditionals require boolean expressions.")
 				}
