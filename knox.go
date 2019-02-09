@@ -10,6 +10,7 @@ import (
 	"knox/parser"
 	"knox/typechecker"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"time"
@@ -66,10 +67,19 @@ func main() {
 		panic(err)
 	}
 	local := filepath.Dir(ex)
-	outputPath := path.Join(local, *outFlag, "out.go")
-	werr := ioutil.WriteFile(outputPath, []byte(output), 0644)
+	outputDir := path.Join(local, *outFlag)
+	outputFile := path.Join(outputDir, "out.go")
+	outputBin := path.Join(outputDir, "out.bin")
+	werr := ioutil.WriteFile(outputFile, []byte(output), 0644)
 	if werr != nil {
 		panic(werr)
+	}
+
+	// Invoke Go compiler.
+	cmd := exec.Command("go", "build", "-o", outputBin, outputFile)
+	_, sterr := cmd.Output()
+	if sterr != nil {
+		panic(sterr)
 	}
 
 	if *timeFlag {
