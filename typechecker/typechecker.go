@@ -14,7 +14,6 @@ func Analyze(node *ast.Node) {
 }
 
 func typecheck(node *ast.Node) {
-	// TODO: Check varassign and vardecl
 	for _, child := range node.Children {
 
 		if child.Type == ast.EXPRESSION {
@@ -22,18 +21,21 @@ func typecheck(node *ast.Node) {
 			// TODO: Handle if, while, for, return
 			if node.Type == ast.VARDECL {
 				leftType := declType(node)
-				if leftType != exprType { // Do the types match?
+				if !compareTypes(leftType, exprType) { // Do the types match?
 					abortMsg("Mismatched types.")
 				}
-			}
-			if node.Type == ast.VARASSIGN {
+			} else if node.Type == ast.VARASSIGN {
 				decl := child.Symbols.LookupSymbol(node.Children[0].Children[0].TokenStart.Literal)
 				if decl == nil {
 					abortMsg("Referencing undeclared variable.")
 				}
 				leftType := declType(decl)
-				if leftType != exprType { // Do the types match?
+				if !compareTypes(leftType, exprType) { // Do the types match?
 					abortMsg("Mismatched types.")
+				}
+			} else if node.Type == ast.IFSTATEMENT {
+				if !compareTypes(exprType, ast.BOOL) {
+					abortMsg("Conditionals require boolean expressions.")
 				}
 			}
 		} else if child.Type == ast.FUNCCALL { // Handles funccall outside of an expression.
