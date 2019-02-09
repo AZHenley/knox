@@ -162,14 +162,30 @@ func jumpStatement(node *ast.Node) string {
 }
 
 func varAssign(node *ast.Node) string {
-	return node.Children[0].Children[0].TokenStart.Literal + " = " + expr(&node.Children[1].Children[0]) + "\n"
+	code := ""
+	for i := 0; i < len(node.Children)-1; i++ {
+		code += node.Children[i].Children[0].TokenStart.Literal
+		if i+1 < len(node.Children)-1 {
+			code += ", "
+		}
+	}
+	return code + " = " + expr(&node.Children[len(node.Children)-1].Children[0]) + "\n"
 }
 
 func varDecl(node *ast.Node) string {
-	varName := node.Children[0].TokenStart.Literal
-	varType := node.Children[1].TokenStart.Literal
-	varExpr := expr(&node.Children[2].Children[0])
-	return varName + " " + varType + " := " + varExpr + "\n"
+	code := ""
+	for i := 0; i < len(node.Children)-1; i += 2 {
+		varName := node.Children[i].TokenStart.Literal
+		//varType := node.Children[1].TokenStart.Literal
+		code += varName
+		if i+2 < len(node.Children)-1 {
+			code += ", "
+		}
+	}
+
+	varExpr := expr(&node.Children[len(node.Children)-1].Children[0])
+	//return varName + " " + varType + " := " + varExpr + "\n"
+	return code + " := " + varExpr + "\n"
 }
 
 func expr(node *ast.Node) string {
