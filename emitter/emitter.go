@@ -107,8 +107,25 @@ func statement(node *ast.Node) string {
 		code = whileStatement(node)
 	case ast.JUMPSTATEMENT:
 		code = jumpStatement(node)
+	case ast.FUNCCALL:
+		code = funcCall(node) + "\n"
 	}
 	return code
+}
+
+func funcCall(node *ast.Node) string {
+	funcName := node.Children[0].TokenStart.Literal
+	var argList string
+	for index, child := range node.Children {
+		if index == 0 {
+			continue
+		}
+		argList += expr(&child.Children[0])
+		if index < len(node.Children)-1 {
+			argList += ", "
+		}
+	}
+	return funcName + "(" + argList + ")"
 }
 
 func ifStatement(node *ast.Node) string {
@@ -161,18 +178,7 @@ func expr(node *ast.Node) string {
 	} else if node.Type == ast.UNARYOP {
 		return "(" + node.TokenStart.Literal + expr(&node.Children[0]) + ")"
 	} else if node.Type == ast.FUNCCALL {
-		funcName := node.Children[0].TokenStart.Literal
-		var argList string
-		for index, child := range node.Children {
-			if index == 0 {
-				continue
-			}
-			argList += expr(&child.Children[0])
-			if index < len(node.Children)-1 {
-				argList += ", "
-			}
-		}
-		return funcName + "(" + argList + ")"
+		return funcCall(node)
 	} else if node.Type == ast.EXPRESSION {
 		return expr(&node.Children[0])
 	} else { // Primary.
