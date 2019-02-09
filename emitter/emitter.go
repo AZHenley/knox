@@ -83,6 +83,17 @@ func block(node *ast.Node) string {
 	return code
 }
 
+// Special block without newline.
+func blockIf(node *ast.Node) string {
+	var code string
+	code += "{\n"
+	for _, s := range node.Children {
+		code += statement(&s)
+	}
+	code += "}"
+	return code
+}
+
 func statement(node *ast.Node) string {
 	var code string
 	switch node.Type {
@@ -90,10 +101,30 @@ func statement(node *ast.Node) string {
 		code = varDecl(node)
 	case ast.VARASSIGN:
 		code = varAssign(node)
+	case ast.IFSTATEMENT:
+		code = ifStatement(node)
 	case ast.JUMPSTATEMENT:
 		code = jumpStatement(node)
 	}
 	return code
+}
+
+func ifStatement(node *ast.Node) string {
+	// TODO: Block will not put else if and else on correct line.
+
+	code := "if "
+	code += expr(&node.Children[0]) + " " + blockIf(&node.Children[1]) // Condition and block
+
+	for i := 2; i < len(node.Children); i += 2 {
+		if i+1 != len(node.Children) { // Else if
+			code += " else if " + expr(&node.Children[i]) + " " + blockIf(&node.Children[i+1])
+
+		} else { // Else
+			code += " else " + blockIf(&node.Children[i])
+		}
+	}
+
+	return code + "\n"
 }
 
 func jumpStatement(node *ast.Node) string {
