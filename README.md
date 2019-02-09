@@ -3,9 +3,9 @@
 Knox is an experimental language meant to help me learn Go and explore compiler design. The compiler is written in Go and generates Go. The compiler consists of a lexer, recurseive-descent parser, semantic analyzer, and code emitter.
 
 The principles behind the design of Knox are:
- - Explicitness. Explicit and unambiguous code is a priority, even over brevity. No surprises.
- - Small language. Simple and consistent syntax with few constructs, as an alternative to Go.
+ - Explicitness. Explicit and unambiguous code is a priority, even over brevity. No surprises.  
  - Pass by reference. All complex types should be pass by reference and pointers should be hidden.
+ - Small language. Simple and consistent syntax with few constructs, as an alternative to Go.
  - Convenient data structures. Lists and maps are first-class data structures that should be as easy as Python.
  - Operability. Use any Go library and produce Go libraries.
  - Fast enough. Compiling time, execution time, and memory usage should be less than a 50% increase over Go.  
@@ -34,6 +34,7 @@ Example goes here.
  - No pointers
  - All return values must be used or explicitly thrown away
  - No goto
+ - Multiple assignment is only for multiple return values
  
 _
  
