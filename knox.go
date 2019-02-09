@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"knox/ast"
@@ -12,7 +13,17 @@ import (
 )
 
 func main() {
-	code, err := ioutil.ReadFile("examples/simple.knox")
+	// Flags
+	timeFlag := flag.Bool("time", false, "Print the time taken by each compiler phase.")
+	astFlag := flag.Bool("ast", false, "Print the AST.")
+	goFlag := flag.Bool("go", false, "Print the Go code.")
+	flag.Parse()
+	args := flag.Args()
+
+	if len(args) == 0 {
+		panic("Specify file to be compiled.")
+	}
+	code, err := ioutil.ReadFile(args[0]) // TODO: Support multiple files.
 	if err != nil {
 		panic(err)
 	}
@@ -23,7 +34,9 @@ func main() {
 	a := p.Program()
 	elapsedParsing := time.Since(start)
 
-	ast.Print(a)
+	if *astFlag {
+		ast.Print(a)
+	}
 
 	start = time.Now()
 	typechecker.Analyze(&a)
@@ -35,9 +48,13 @@ func main() {
 	output := emitter.Generate(&a)
 	elapsedEmitting := time.Since(start)
 
-	fmt.Println(output)
+	if *goFlag {
+		fmt.Println(output)
+	}
 
-	fmt.Println(elapsedParsing)
-	fmt.Println(elapsedTypeChecking)
-	fmt.Println(elapsedEmitting)
+	if *timeFlag {
+		fmt.Println(elapsedParsing)
+		fmt.Println(elapsedTypeChecking)
+		fmt.Println(elapsedEmitting)
+	}
 }
