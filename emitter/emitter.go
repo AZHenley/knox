@@ -21,7 +21,7 @@ func Generate(node *ast.Node) string {
 }
 
 func header() string {
-	return "package main\n\nimport (\n\t\"fmt\"\n)\n\n"
+	return "package main\n\n" //import (\n\t\"fmt\"\n)\n\n"
 }
 
 func program(node *ast.Node) string {
@@ -130,7 +130,7 @@ func ifStatement(node *ast.Node) string {
 }
 
 func whileStatement(node *ast.Node) string {
-	return "while " + expr(&node.Children[0]) + " " + blockIf(&node.Children[1]) + "\n"
+	return "for " + expr(&node.Children[0]) + " " + blockIf(&node.Children[1]) + "\n"
 }
 
 func jumpStatement(node *ast.Node) string {
@@ -152,7 +152,7 @@ func varDecl(node *ast.Node) string {
 	varName := node.Children[0].TokenStart.Literal
 	varType := node.Children[1].TokenStart.Literal
 	varExpr := expr(&node.Children[2].Children[0])
-	return "var " + varName + " " + varType + " := " + varExpr + "\n"
+	return varName + " " + varType + " := " + varExpr + "\n"
 }
 
 func expr(node *ast.Node) string {
