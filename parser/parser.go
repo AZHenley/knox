@@ -359,30 +359,16 @@ func (p *Parser) forStatement() ast.Node {
 	statementNode.Type = ast.FORSTATEMENT
 
 	p.consume(token.FOR)
-	statementNode.Children = append(statementNode.Children, p.forClause()...)
+	// TODO: Make this part reuse code from varDecl.
+	p.consume(token.VAR)
+	p.consume(token.IDENT)
+	p.consume(token.COLON)
+	p.consume(token.IDENT) // TODO: Vartype.
+	p.consume(token.IN)
+	statementNode.Children = append(statementNode.Children, p.expr())
 	statementNode.Children = append(statementNode.Children, p.block())
 
 	return statementNode
-}
-
-// forClause = [statement] ";" [expr] ";" [statement]
-func (p *Parser) forClause() []ast.Node {
-	var nodes []ast.Node
-
-	// TODO: Need to return 3 AST nodes in all cases.
-	if !p.curTokenIs(token.SEMICOLON) {
-		nodes = append(nodes, p.statement())
-	}
-	p.consume(token.SEMICOLON)
-	if !p.curTokenIs(token.SEMICOLON) {
-		nodes = append(nodes, p.expr())
-	}
-	p.consume(token.SEMICOLON)
-	if !p.curTokenIs(token.LBRACE) {
-		nodes = append(nodes, p.statement())
-	}
-
-	return nodes
 }
 
 func (p *Parser) whileStatement() ast.Node {
