@@ -8,6 +8,17 @@ import (
 	"strings"
 )
 
+// Internal representation of a type.
+type typeObj struct {
+	fullName    string    // Name of this type (and all inner types)
+	isPrimitive bool      // Is this type a primitive (int, float, string, rune, byte, bool)
+	isContainer bool      // Is this type a container (list, map, address)
+	isClass     bool      // Is this a user-defined class
+	isEnum      bool      // Is this an enum
+	isTypedef   bool      // Is this a typedef
+	inner       []typeObj // Inner types. TODO: Make this a slice of pointers of typeObj.
+}
+
 // Analyze performs type checking on the entire AST.
 func Analyze(node *ast.Node) {
 	typecheck(node)
@@ -20,11 +31,13 @@ func typecheck(node *ast.Node) {
 			exprType := getType(&child.Children[0])
 			// TODO: Handle for, return
 			if node.Type == ast.VARDECL {
+				// TODO: Handle multiple assignment.
 				leftType := declType(node)
 				if !compareTypes(leftType, exprType) { // Do the types match?
 					abortMsg("Mismatched types.")
 				}
 			} else if node.Type == ast.VARASSIGN {
+				// TODO: Handle multiple assignment.
 				decl := child.Symbols.LookupSymbol(node.Children[0].Children[0].TokenStart.Literal)
 				if decl == nil {
 					abortMsg("Referencing undeclared variable.")
@@ -39,6 +52,7 @@ func typecheck(node *ast.Node) {
 				}
 			}
 		} else if child.Type == ast.FUNCCALL { // Handles funccall outside of an expression.
+			// TODO: Are the return values used?
 			name := child.Children[0].TokenStart.Literal
 			declNode := node.Symbols.LookupSymbol(name)
 			if declNode == nil {

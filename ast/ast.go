@@ -12,7 +12,7 @@ type NodeType string
 // Node is for the AST.
 type Node struct {
 	Type       NodeType
-	Children   []Node
+	Children   []Node // TODO: Should this be a slice of pointers of Nodes?
 	TokenStart token.Token
 	Symbols    *SymTable // Only blocks get a symbol table.
 }
@@ -22,20 +22,19 @@ const (
 	PROGRAM    = "PROGRAM"    // Variable children. One for each funcdecl.
 	BLOCK      = "BLOCK"      // Variable children. One for each statement.
 	EXPRESSION = "EXPRESSION" // One child. Tree of binary ops, unary ops, and primaries.
-	// TODO: Consider removing this.
-	BINARYOP = "BINARYOP" // Two children.
-	UNARYOP  = "UNARYOP"  // One child.
-	INDEXOP  = "INDEXOP"  // Variable children.
-	VARDECL  = "VARDECL"  // Three children. Name, type, expression for assignment.
+	BINARYOP   = "BINARYOP"   // Two children.
+	UNARYOP    = "UNARYOP"    // One child.
+	INDEXOP    = "INDEXOP"    // Variable children.
+	VARDECL    = "VARDECL"    // Variable children. Name and type for each variable, then expression.
 	// TODO: Consider making the third child a VARASSIGN.
-	VARTYPE   = "VARTYPE"   // Two children. Name and optionally the depth of lists.
-	VARASSIGN = "VARASSIGN" // Two children. Varref and expression.
+	VARTYPE   = "VARTYPE"   // Variable children. Name and optionally a child for each inner type.
+	VARASSIGN = "VARASSIGN" // Variable children children. One or more Varref and one expression.
 	FUNCDECL  = "FUNCDECL"  // Four children. Name, paramlist for params, returnlist for return, block.
 	PARAMLIST = "PARAMLIST" // Variable children. Pairs of name and type.
 	// TODO: Consider making the pairs a VARDECL node.
 	RETURNLIST     = "RETURNLIST"     //
 	IFSTATEMENT    = "IFSTATEMENT"    // Variable children. Condition and block for IF and zero or more for each ELSE IF and zero or one block for ELSE.
-	FORSTATEMENT   = "FORSTATEMENT"   // Four children. Init, condition, afterthought, block.
+	FORSTATEMENT   = "FORSTATEMENT"   // Three children. Varref, expr, and  block.
 	WHILESTATEMENT = "WHILESTATEMENT" // Two children. Condition and block.
 	JUMPSTATEMENT  = "JUMPSTATEMENT"  // Variable children. Zero except for return. Return has zero or more expressions.
 	VARREF         = "VARREF"         // Variable children. Name and list of expressions for array indices.
