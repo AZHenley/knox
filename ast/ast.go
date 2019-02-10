@@ -34,7 +34,7 @@ const (
 	// TODO: Consider making the pairs a VARDECL node.
 	RETURNLIST     = "RETURNLIST"     //
 	IFSTATEMENT    = "IFSTATEMENT"    // Variable children. Condition and block for IF and zero or more for each ELSE IF and zero or one block for ELSE.
-	FORSTATEMENT   = "FORSTATEMENT"   // Three children. Varref, expr, and  block.
+	FORSTATEMENT   = "FORSTATEMENT"   // Three children. Vardecl, expr, and  block.
 	WHILESTATEMENT = "WHILESTATEMENT" // Two children. Condition and block.
 	JUMPSTATEMENT  = "JUMPSTATEMENT"  // Variable children. Zero except for return. Return has zero or more expressions.
 	VARREF         = "VARREF"         // Variable children. Name and list of expressions for array indices.
