@@ -72,7 +72,7 @@ func main() {
 	outputFile := path.Join(outputDir, "out.go") // TODO: Go files should use Knox file names.
 	binName := *nameFlag
 	if binName == "" {
-		binName = "out.bin"
+		binName = "out"
 	}
 	outputBin := path.Join(outputDir, binName)
 	werr := ioutil.WriteFile(outputFile, []byte(output), 0644)
