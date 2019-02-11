@@ -15,10 +15,11 @@ ifStatement = "if" expr block {"else" "if" expr block} ["else" block]
 forStatement = "for" "var" ident ":" varType "in" expr block
 whileStatement = "while" expr block
 jumpStatement = "continue" | "break" | "return" [expr {"," expr}]
-varDecl = "var" ident ":" varType {"," ident : varType} "=" expr {"," expr} 
-varAssignment = varRef {"," varRef} assignOp expr {"," expr} 
+varDecl = "var" ident ":" varType {"," ident : varType} "=" expr 
+varAssignment = varRef {"," varRef} assignOp expr
 varRef = ident {"[" expr "]"}           
-varType = ident {"[" "]"}
+varType = ident | "[" varType "]" | ident "[" varType {"," varType} "]"
+// Tuples? "[" varType {"," varType} "]"
 funcCall = ident argList
 argList = "(" [expr {"," expr}] ")"    
 

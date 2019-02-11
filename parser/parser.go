@@ -6,7 +6,6 @@ import (
 	"knox/lexer"
 
 	"knox/token"
-	"strconv"
 )
 
 // Parser object.
@@ -268,7 +267,7 @@ func (p *Parser) argList() []ast.Node {
 	return argNodes
 }
 
-// varType = ident {"[" "]"}
+// varType = ident | "[" varType "]" | ident "[" varType {"," varType} "]"
 func (p *Parser) varType() ast.Node {
 	var typeNode ast.Node
 	typeNode.Type = ast.VARTYPE
@@ -277,25 +276,24 @@ func (p *Parser) varType() ast.Node {
 	identNode.Type = ast.IDENT
 	identNode.TokenStart = p.curToken
 	typeNode.Children = append(typeNode.Children, identNode)
-	p.consume(token.IDENT)
 
-	// Counts number of [] pairs and creates INT AST node.
-	var listDepth int = 0
-	for p.curTokenIs(token.LBRACKET) {
-		p.nextToken()
-		listDepth++
+	if p.curTokenIs(token.IDENT) && !p.peekTokenIs(token.LBRACKET) { // simple type
+		p.consume(token.IDENT)
+	} else if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LBRACKET) { // container
+		p.consume(token.IDENT)
+		p.consume(token.LBRACKET)
+
+		typeNode.Children = append(typeNode.Children, p.varType())
+		for !p.curTokenIs(token.RBRACKET) {
+			p.consume(token.COMMA)
+			typeNode.Children = append(typeNode.Children, p.varType())
+		}
+		p.consume(token.RBRACKET)
+	} else if p.curTokenIs(token.LBRACKET) { // list
+		p.consume(token.LBRACKET)
+		typeNode.Children = append(typeNode.Children, p.varType())
 		p.consume(token.RBRACKET)
 	}
-	if listDepth > 0 {
-		var intNode ast.Node
-		intNode.Type = ast.INT
-		var tok token.Token
-		tok.Type = token.INT
-		tok.Literal = strconv.Itoa(listDepth)
-		intNode.TokenStart = tok
-		typeNode.Children = append(typeNode.Children, intNode)
-	}
-
 	return typeNode
 }
 
