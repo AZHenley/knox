@@ -39,6 +39,7 @@ const (
 	JUMPSTATEMENT  = "JUMPSTATEMENT"  // Variable children. Zero except for return. Return has zero or more expressions.
 	VARREF         = "VARREF"         // Variable children. Name and list of expressions for array indices.
 	FUNCCALL       = "FUNCCALL"       // Variable children. Name then one expression for each argument.
+	NEW            = "NEW"            // One child. Vartype.
 	INT            = "INT"            // Leaf.
 	FLOAT          = "FLOAT"          // Leaf.
 	STRING         = "STRING"         // Leaf.

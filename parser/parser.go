@@ -503,9 +503,8 @@ func (p *Parser) unary() ast.Node {
 		unaryNode.Children = append(unaryNode.Children, p.unary())
 
 		return unaryNode
-	} else {
-		return p.postfix()
 	}
+	return p.postfix()
 }
 
 func (p *Parser) postfix() ast.Node {
@@ -544,10 +543,22 @@ func (p *Parser) paran() ast.Node {
 		paranNode = p.expr()
 		p.consume(token.RPAREN)
 	} else {
-		paranNode = p.primary()
+		paranNode = p.special()
 	}
 
 	return paranNode
+}
+
+func (p *Parser) special() ast.Node {
+	if p.curTokenIs(token.NEW) {
+		p.nextToken()
+		var newNode ast.Node
+		newNode.Type = ast.NEW
+		newNode.Children = append(newNode.Children, p.varType())
+		return newNode
+	} else {
+		return p.primary()
+	}
 }
 
 // primary = varRef | INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")"
