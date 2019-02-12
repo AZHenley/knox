@@ -32,8 +32,10 @@ addition = multiplication {( "-" | "+" ) multiplication}
 multiplication = unary {( "/" | "*" ) unary}
 unary = (("!" | "-" | "+") unary) | postfix
 // dotop
-postfix = paran [argList] {"[" expr "]"} 
-paran = "(" expr ")" | primary        
+postfix = paran "[" expr "]" | paran argList | paran
+paran = "(" expr ")" | special
+special = primary | "new" varType        
+// postfix and paran have bugs
 primary = ident | int | float | string | "false" | "true" | "nil" |
 
-// Missing... class, switch, some operators, ranges, lot of literals, else if, else, foreach, multiple assignment
+// Missing... class, switch, some operators, ranges, lot of literals, function pointers
