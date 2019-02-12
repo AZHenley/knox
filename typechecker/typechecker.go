@@ -12,7 +12,7 @@ import (
 type typeObj struct {
 	fullName    string    // Name of this type (and all inner types)
 	isPrimitive bool      // Is this type a primitive (int, float, string, rune, byte, bool)
-	isContainer bool      // Is this type a container (list, map, address)
+	isContainer bool      // Is this type a container (list, map, address, etc.)
 	isClass     bool      // Is this a user-defined class
 	isEnum      bool      // Is this an enum
 	isTypedef   bool      // Is this a typedef
@@ -57,6 +57,8 @@ func typecheck(node *ast.Node) {
 			if node.Type == ast.VARDECL {
 				// TODO: Handle multiple assignment.
 				leftType := declType2(node)
+				fmt.Println(leftType.fullName)
+				fmt.Println(exprType.fullName)
 				if !compareTypes2(leftType, exprType) { // Do the types match?
 					abortMsg("Mismatched types.")
 				}
@@ -121,12 +123,65 @@ func declType(node *ast.Node) string {
 // Get type from a declaration.
 func declType2(node *ast.Node) *typeObj {
 	if node.Type == ast.VARDECL {
-		return stringToType(node.Children[1].Children[0].TokenStart.Literal)
+		//return stringToType(node.Children[1].Children[0].TokenStart.Literal)
+		return buildTypeObj(&node.Children[1])
 	} else if node.Type == ast.FUNCDECL {
 		return stringToType(node.Children[2].Children[0].Children[0].TokenStart.Literal) // TODO: Handle multiple return values.
 	}
 	abortMsg("Unknown type error.")
 	return nil
+}
+
+// Builds up a type obj recursively given a varType AST node.
+func buildTypeObj(node *ast.Node) *typeObj {
+	obj := &typeObj{}
+
+	if isSimple(node) {
+		obj.isPrimitive = isPrimitiveType(node)
+		obj.isClass = !obj.isPrimitive
+		obj.fullName = getName(node)
+		return obj
+	} else if isList(node) {
+		obj.isContainer = true
+		obj.inner = append(obj.inner, *buildTypeObj(&node.Children[1]))
+		obj.fullName = "[" + obj.inner[0].fullName + "]"
+		return obj
+	} else { // Complex type
+		obj.isContainer = true
+		obj.fullName = getName(node) + "["
+		for i := 1; i < len(node.Children); i++ {
+			obj.inner = append(obj.inner, *buildTypeObj(&node.Children[i]))
+			obj.fullName += obj.inner[i-1].fullName
+			if i+1 < len(node.Children) {
+				obj.fullName += ","
+			}
+		}
+		obj.fullName += "]"
+		return obj
+	}
+}
+
+func isList(node *ast.Node) bool {
+	if len(node.Children) == 2 && getName(node) == "[" {
+		return true
+	}
+	return false
+}
+
+func isPrimitiveType(node *ast.Node) bool {
+	literal := getName(node)
+	return literal == "bool" || literal == "string" || literal == "int" || literal == "float"
+}
+
+func isSimple(node *ast.Node) bool {
+	if len(node.Children) == 1 {
+		return true
+	}
+	return false
+}
+
+func getName(node *ast.Node) string {
+	return node.Children[0].TokenStart.Literal
 }
 
 // // Get type from a symbol.
@@ -169,9 +224,14 @@ func getType(node *ast.Node) *typeObj {
 			if !compareTypes2(single, typeBOOL) {
 				abortMsg("Invalid operation.")
 			}
-		}
-		if !compareTypes2(single, typeINT) && !compareTypes2(single, typeFLOAT) {
-			abortMsg("Invalid operation.")
+		} else if node.TokenStart.Type == token.PLUS || node.TokenStart.Type == token.MINUS {
+			if !compareTypes2(single, typeINT) && !compareTypes2(single, typeFLOAT) {
+				abortMsg("Invalid operation.")
+			}
+		} else if node.TokenStart.Type == token.NEW {
+			//if !compareTypes2(single, typeBOOL) {
+			//	abortMsg("Invalid operation.")
+			//}
 		}
 		return single
 
@@ -190,6 +250,9 @@ func getType(node *ast.Node) *typeObj {
 			abortMsg("Calling undeclared function.")
 		}
 		return declType2(declNode)
+
+	case ast.NEW:
+		return buildTypeObj(&node.Children[0])
 
 	case ast.INT:
 		return typeINT
