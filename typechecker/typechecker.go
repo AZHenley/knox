@@ -254,6 +254,22 @@ func getType(node *ast.Node) *typeObj {
 	case ast.NEW:
 		return buildTypeObj(&node.Children[0])
 
+	case ast.LIST:
+		obj := &typeObj{}
+		obj.isContainer = true
+		obj.fullName = "["
+		itemType := ""
+		for i, item := range node.Children {
+			obj.inner = append(obj.inner, *getType(&item))
+			if obj.inner[i].fullName != itemType && itemType != "" { // Check if all items are same type.
+				abortMsg("Mismatched types in list literal.")
+			}
+			itemType = obj.inner[i].fullName
+		}
+		// TODO: Handle if no items.
+		obj.fullName += itemType + "]"
+		return obj
+
 	case ast.INT:
 		return typeINT
 	case ast.FLOAT:
