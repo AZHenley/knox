@@ -412,9 +412,30 @@ func (p *Parser) expr() ast.Node {
 	exprNode.Type = ast.EXPRESSION
 	exprNode.Symbols = p.curSymTable // Make it easier for analyzers to do look ups.
 
-	exprNode.Children = append(exprNode.Children, p.logical())
+	if p.curTokenIs(token.LBRACKET) { // List literal
+		exprNode.Children = append(exprNode.Children, p.list())
+		return exprNode
+	}
 
+	// Any other expression.
+	exprNode.Children = append(exprNode.Children, p.logical())
 	return exprNode
+}
+
+func (p *Parser) list() ast.Node {
+	var listNode ast.Node
+	listNode.Type = ast.LIST
+
+	p.consume(token.LBRACKET)
+	for !p.curTokenIs(token.RBRACKET) {
+		listNode.Children = append(listNode.Children, p.expr())
+		if p.curTokenIs(token.COMMA) { // TODO: This currently allows a comma proceeded by rbracket.
+			p.consume(token.COMMA)
+		}
+	}
+	p.consume(token.RBRACKET)
+
+	return listNode
 }
 
 func (p *Parser) logical() ast.Node {

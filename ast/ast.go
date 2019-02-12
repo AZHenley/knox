@@ -40,6 +40,7 @@ const (
 	VARREF         = "VARREF"         // Variable children. Name and list of expressions for array indices.
 	FUNCCALL       = "FUNCCALL"       // Variable children. Name then one expression for each argument.
 	NEW            = "NEW"            // One child. Vartype.
+	LIST           = "LIST"           // Variable children. Expressions.
 	INT            = "INT"            // Leaf.
 	FLOAT          = "FLOAT"          // Leaf.
 	STRING         = "STRING"         // Leaf.

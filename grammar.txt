@@ -24,7 +24,8 @@ funcCall = ident argList
 argList = "(" [expr {"," expr}] ")"    
 
 
-expr = logical
+expr = logical | listLiteral
+listLiteral = "[" [expr {"," expr}] "]"
 logical = equality {("&&" | "||") equality}
 equality = comparison {("!=" | "==") comparison } ;
 comparison = addition {(">" | ">=" | "<" | "<=") addition}
