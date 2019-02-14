@@ -49,6 +49,7 @@ const (
 	FOR       = "FOR"
 	IN        = "IN"
 	WHILE     = "WHILE"
+	NEW       = "NEW"
 	EQ        = "=="
 	NOTEQ     = "!="
 	STRING    = "STRING"
@@ -72,6 +73,7 @@ var keywords = map[string]TokenType{
 	"for":      FOR,
 	"in":       IN,
 	"while":    WHILE,
+	"new":      NEW,
 	"nil":      NIL,
 }
 
