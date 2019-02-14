@@ -111,14 +111,26 @@ func (p *Parser) paramList() ast.Node {
 
 	p.consume(token.LPAREN)
 	for !p.curTokenIs(token.RPAREN) {
+
+		var varNode ast.Node
+		varNode.Type = ast.VARDECL
+		varNode.Symbols = p.curSymTable
+
 		var identNode ast.Node
 		identNode.Type = ast.IDENT
 		identNode.TokenStart = p.curToken
+
+		success := p.curSymTable.InsertSymbol(p.curToken.Literal, &varNode)
+		if !success {
+			p.abortMsg("Variable already exists.")
+		}
+
 		p.consume(token.IDENT)
 		p.consume(token.COLON)
 
-		paramNode.Children = append(paramNode.Children, identNode)
-		paramNode.Children = append(paramNode.Children, p.varType())
+		varNode.Children = append(varNode.Children, identNode)
+		varNode.Children = append(varNode.Children, p.varType())
+		paramNode.Children = append(paramNode.Children, varNode)
 		if p.curTokenIs(token.COMMA) {
 			p.consume(token.COMMA)
 			if p.curTokenIs(token.RPAREN) { // No comma before paren.
