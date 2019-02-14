@@ -39,12 +39,12 @@ func funcDecl(node *ast.Node) string {
 	code := "func " + node.Children[0].TokenStart.Literal + "("
 
 	// Parameters.
-	for i := 0; i < len(node.Children[1].Children); i += 2 {
-		paramName := node.Children[1].Children[i].TokenStart.Literal
-		paramType := node.Children[1].Children[i+1].Children[0].TokenStart.Literal
+	for i := 0; i < len(node.Children[1].Children); i++ {
+		paramName := node.Children[1].Children[i].Children[0].TokenStart.Literal
+		paramType := node.Children[1].Children[i].Children[1].Children[0].TokenStart.Literal
 		code += paramName + " " + paramType
 
-		if i+2 < len(node.Children[1].Children) {
+		if i+1 < len(node.Children[1].Children) {
 			code += ", "
 		}
 	}
