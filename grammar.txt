@@ -1,4 +1,6 @@
-program = {funcDecl}
+program = {funcDecl | classDecl}
+classDecl = "class" ident classBlock
+classBlock = "{" {varDecl | funcDecl} "}"
 funcDecl = "func" ident paramList returnList block
 paramList = "(" {ident ":" varType ","} [ident ":" varType]  ")"
 returnList = varType | "(" varType {"," varType} ")"  // Return void or nothing?
@@ -36,7 +38,7 @@ unary = (("!" | "-" | "+") unary) | postfix
 postfix = paran "[" expr "]" | paran argList | paran
 paran = "(" expr ")" | special
 special = primary | "new" varType        
-// postfix and paran have bugs
+// postfix and paran may have bugs
 primary = ident | int | float | string | "false" | "true" | "nil" |
 
 // Missing... class, switch, some operators, ranges, lot of literals, function pointers

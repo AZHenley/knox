@@ -20,6 +20,7 @@ type Node struct {
 // Predefined AST node types.
 const (
 	PROGRAM    = "PROGRAM"    // Variable children. One for each funcdecl.
+	CLASS      = "CLASS"      // Variable children. One for each funcdecl and vardecl.
 	BLOCK      = "BLOCK"      // Variable children. One for each statement.
 	EXPRESSION = "EXPRESSION" // One child. Tree of binary ops, unary ops, and primaries.
 	BINARYOP   = "BINARYOP"   // Two children.

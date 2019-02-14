@@ -77,22 +77,75 @@ func (p *Parser) Program() ast.Node {
 	progNode.Symbols = st
 
 	for !p.curTokenIs(token.EOF) {
-		progNode.Children = append(progNode.Children, p.funcDecl())
+		if p.curTokenIs(token.FUNCTION) {
+			progNode.Children = append(progNode.Children, p.funcDecl())
+		} else if p.curTokenIs(token.CLASS) {
+			progNode.Children = append(progNode.Children, p.classDecl())
+		} else {
+			p.abortMsg("Expected function or class.")
+		}
+
 	}
 	return progNode
+}
+
+// classDecl = "class" ident classBlock
+func (p *Parser) classDecl() ast.Node {
+	var classNode ast.Node
+	classNode.Type = ast.CLASS
+	p.consume(token.CLASS)
+
+	var identNode ast.Node
+	identNode.Type = ast.IDENT
+	identNode.TokenStart = p.curToken
+	classNode.Children = append(classNode.Children, identNode)
+
+	success := p.curSymTable.InsertSymbol(p.curToken.Literal, &classNode)
+	if !success {
+		p.abortMsg("Class already exists.")
+	}
+	p.consume(token.IDENT)
+
+	classNode.Children = append(classNode.Children, p.classBlock())
+	return classNode
+}
+
+// classBlock = "{" {varDecl | funcDecl} "}"
+func (p *Parser) classBlock() ast.Node {
+	var blockNode ast.Node
+	blockNode.Type = ast.BLOCK
+
+	st := ast.NewSymTable()
+	st.Parent = p.curSymTable
+	p.curSymTable = st
+	blockNode.Symbols = st
+
+	p.consume(token.LBRACE)
+	for !p.curTokenIs(token.RBRACE) {
+		if p.curTokenIs(token.VAR) {
+			blockNode.Children = append(blockNode.Children, p.varDecl())
+		} else if p.curTokenIs(token.FUNCTION) {
+			blockNode.Children = append(blockNode.Children, p.funcDecl())
+		}
+	}
+	p.consume(token.RBRACE)
+
+	p.curSymTable = st.Parent
+
+	return blockNode
 }
 
 // funcDecl = "func" ident paramList returnList block
 func (p *Parser) funcDecl() ast.Node {
 	var funcNode ast.Node
 	funcNode.Type = ast.FUNCDECL
-
 	p.consume(token.FUNCTION)
 
 	var identNode ast.Node
 	identNode.Type = ast.IDENT
 	identNode.TokenStart = p.curToken
 	funcNode.Children = append(funcNode.Children, identNode)
+
 	success := p.curSymTable.InsertSymbol(p.curToken.Literal, &funcNode)
 	if !success {
 		p.abortMsg("Function already exists.")

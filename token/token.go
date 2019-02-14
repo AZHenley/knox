@@ -37,6 +37,7 @@ const (
 	RPAREN    = ")"
 	LBRACE    = "{"
 	RBRACE    = "}"
+	CLASS     = "CLASS"
 	FUNCTION  = "FUNCTION"
 	VAR       = "VAR"
 	TRUE      = "TRUE"
@@ -61,6 +62,7 @@ const (
 
 // reversed keywords
 var keywords = map[string]TokenType{
+	"class":    CLASS,
 	"func":     FUNCTION,
 	"var":      VAR,
 	"true":     TRUE,
