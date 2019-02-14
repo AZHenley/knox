@@ -5,12 +5,12 @@ import (
 	"knox/ast"
 	"knox/lexer"
 	"knox/token"
-	"strings"
 )
 
 // Internal representation of a type.
 type typeObj struct {
 	fullName    string    // Name of this type (and all inner types)
+	isFunction  bool      // Is this a function
 	isPrimitive bool      // Is this type a primitive (int, float, string, rune, byte, bool)
 	isContainer bool      // Is this type a container (list, map, address, etc.)
 	isClass     bool      // Is this a user-defined class
@@ -26,6 +26,8 @@ var typeSTRING *typeObj
 var typeLIST *typeObj
 var typeMAP *typeObj
 var typeADDRESS *typeObj
+
+var currentFunc *ast.Node
 
 // Analyze performs type checking on the entire AST.
 func Analyze(node *ast.Node) {
@@ -56,10 +58,8 @@ func typecheck(node *ast.Node) {
 			// TODO: Handle for, return
 			if node.Type == ast.VARDECL {
 				// TODO: Handle multiple assignment.
-				leftType := declType2(node)
-				fmt.Println(leftType.fullName)
-				fmt.Println(exprType.fullName)
-				if !compareTypes2(leftType, exprType) { // Do the types match?
+				leftType := declType(node)
+				if !compareTypes(leftType, exprType) { // Do the types match?
 					abortMsg("Mismatched types.")
 				}
 			} else if node.Type == ast.VARASSIGN {
@@ -68,22 +68,32 @@ func typecheck(node *ast.Node) {
 				if decl == nil {
 					abortMsg("Referencing undeclared variable.")
 				}
-				leftType := declType2(decl)
-				if !compareTypes2(leftType, exprType) { // Do the types match?
+				leftType := declType(decl)
+				if !compareTypes(leftType, exprType) { // Do the types match?
 					abortMsg("Mismatched types.")
 				}
 			} else if node.Type == ast.IFSTATEMENT || node.Type == ast.WHILESTATEMENT {
-				if !compareTypes2(exprType, typeBOOL) {
+				if !compareTypes(exprType, typeBOOL) {
 					abortMsg("Conditionals require boolean expressions.")
 				}
 			}
 		} else if child.Type == ast.FUNCCALL { // Handles funccall outside of an expression.
+			// TODO: Are the arguments the correct type?
 			// TODO: Are the return values used?
 			name := child.Children[0].TokenStart.Literal
 			declNode := node.Symbols.LookupSymbol(name)
 			if declNode == nil {
 				abortMsg("Calling undeclared function.")
 			}
+		} else if child.Type == ast.JUMPSTATEMENT {
+			if child.TokenStart.Literal == "return" {
+				// TODO: Support multiple return types.
+				if !compareTypes(getType(&child.Children[0]), getType(&currentFunc.Children[2])) {
+					abortMsg("Incorrect return type.")
+				}
+			}
+		} else if child.Type == ast.FUNCDECL {
+			currentFunc = &child
 		} else {
 			typecheck(&child)
 		}
@@ -95,11 +105,7 @@ func abortMsg(msg string) {
 	panic("Aborted.\n")
 }
 
-func compareTypes(a string, b string) bool {
-	return strings.ToLower(a) == strings.ToLower(b)
-}
-
-func compareTypes2(a *typeObj, b *typeObj) bool {
+func compareTypes(a *typeObj, b *typeObj) bool {
 	return a.fullName == b.fullName
 }
 
@@ -110,22 +116,11 @@ func stringToType(prim string) *typeObj {
 }
 
 // Get type from a declaration.
-func declType(node *ast.Node) string {
-	if node.Type == ast.VARDECL {
-		return node.Children[1].Children[0].TokenStart.Literal
-	} else if node.Type == ast.FUNCDECL {
-		return node.Children[2].Children[0].Children[0].TokenStart.Literal // TODO: Handle multiple return values.
-	}
-	return "" // Should never happen?
-}
-
-// TODO: This needs to build up the typeobj.
-// Get type from a declaration.
-func declType2(node *ast.Node) *typeObj {
+func declType(node *ast.Node) *typeObj {
 	if node.Type == ast.VARDECL {
 		//return stringToType(node.Children[1].Children[0].TokenStart.Literal)
 		return buildTypeObj(&node.Children[1])
-	} else if node.Type == ast.FUNCDECL {
+	} else if node.Type == ast.FUNCDECL { // TODO: Redo this.
 		return stringToType(node.Children[2].Children[0].Children[0].TokenStart.Literal) // TODO: Handle multiple return values.
 	}
 	abortMsg("Unknown type error.")
@@ -184,34 +179,25 @@ func getName(node *ast.Node) string {
 	return node.Children[0].TokenStart.Literal
 }
 
-// // Get type from a symbol.
-// func getSymbolType(symbol string, st *ast.SymTable) string {
-// 	node := st.LookupSymbol(symbol)
-// 	if node != nil {
-// 		return declType(node)
-// 	}
-// 	return ""
-// }
-
 // Get type from expression node.
 func getType(node *ast.Node) *typeObj {
 	switch node.Type {
 	case ast.BINARYOP:
 		left := getType(&node.Children[0])
 		right := getType(&node.Children[1])
-		if !compareTypes2(left, right) {
+		if !compareTypes(left, right) {
 			abortMsg("Mismatched types.")
 		}
 		if lexer.IsOperator([]rune(node.TokenStart.Literal)[0]) || node.TokenStart.Literal == ">=" || node.TokenStart.Literal == ">" || node.TokenStart.Literal == "<=" || node.TokenStart.Literal == "<" {
-			if compareTypes2(left, typeINT) || compareTypes2(left, typeFLOAT) {
+			if compareTypes(left, typeINT) || compareTypes(left, typeFLOAT) {
 				return left
-			} else if node.TokenStart.Type == token.PLUS && compareTypes2(left, typeSTRING) {
+			} else if node.TokenStart.Type == token.PLUS && compareTypes(left, typeSTRING) {
 				return left
 			} else {
 				abortMsg("Invalid operation.")
 			}
 		} else if node.TokenStart.Literal == "&&" || node.TokenStart.Literal == "||" {
-			if !compareTypes2(left, typeBOOL) {
+			if !compareTypes(left, typeBOOL) {
 				abortMsg("Invalid operation.")
 			}
 		}
@@ -221,15 +207,15 @@ func getType(node *ast.Node) *typeObj {
 	case ast.UNARYOP:
 		single := getType(&node.Children[0])
 		if node.TokenStart.Type == token.BANG {
-			if !compareTypes2(single, typeBOOL) {
+			if !compareTypes(single, typeBOOL) {
 				abortMsg("Invalid operation.")
 			}
 		} else if node.TokenStart.Type == token.PLUS || node.TokenStart.Type == token.MINUS {
-			if !compareTypes2(single, typeINT) && !compareTypes2(single, typeFLOAT) {
+			if !compareTypes(single, typeINT) && !compareTypes(single, typeFLOAT) {
 				abortMsg("Invalid operation.")
 			}
 		} else if node.TokenStart.Type == token.NEW {
-			//if !compareTypes2(single, typeBOOL) {
+			//if !compareTypes(single, typeBOOL) {
 			//	abortMsg("Invalid operation.")
 			//}
 		}
@@ -241,15 +227,16 @@ func getType(node *ast.Node) *typeObj {
 		if declNode == nil {
 			abortMsg("Referencing undeclared variable.")
 		}
-		return declType2(declNode)
+		return declType(declNode)
 
 	case ast.FUNCCALL:
+		// TODO: Are the arguments the correct type?
 		name := node.Children[0].TokenStart.Literal
 		declNode := node.Symbols.LookupSymbol(name)
 		if declNode == nil {
 			abortMsg("Calling undeclared function.")
 		}
-		return declType2(declNode)
+		return declType(declNode)
 
 	case ast.NEW:
 		return buildTypeObj(&node.Children[0])
