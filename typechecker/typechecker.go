@@ -52,7 +52,6 @@ func setup() {
 
 func typecheck(node *ast.Node) {
 	for _, child := range node.Children {
-
 		if child.Type == ast.EXPRESSION {
 			exprType := getType(&child.Children[0])
 			// TODO: Handle for, return
@@ -88,12 +87,15 @@ func typecheck(node *ast.Node) {
 		} else if child.Type == ast.JUMPSTATEMENT {
 			if child.TokenStart.Literal == "return" {
 				// TODO: Support multiple return types.
-				if !compareTypes(getType(&child.Children[0]), getType(&currentFunc.Children[2])) {
+				returnType := buildTypeList(&child)
+				funcReturnType := buildReturnList(&currentFunc.Children[2])
+				if !compareTypes(returnType, funcReturnType) {
 					abortMsg("Incorrect return type.")
 				}
 			}
 		} else if child.Type == ast.FUNCDECL {
 			currentFunc = &child
+			typecheck(&child)
 		} else {
 			typecheck(&child)
 		}
@@ -154,6 +156,32 @@ func buildTypeObj(node *ast.Node) *typeObj {
 		obj.fullName += "]"
 		return obj
 	}
+}
+
+// Build a list of types from expressions.
+func buildTypeList(node *ast.Node) *typeObj {
+	obj := &typeObj{}
+	for index, expr := range node.Children {
+		obj.inner = append(obj.inner, *getType(&expr))
+		obj.fullName += obj.inner[index].fullName
+		if index+1 < len(node.Children) {
+			obj.fullName += ","
+		}
+	}
+	return obj
+}
+
+// Build a list of types from func decl return.
+func buildReturnList(node *ast.Node) *typeObj {
+	obj := &typeObj{}
+	for index, ret := range node.Children {
+		obj.inner = append(obj.inner, *buildTypeObj(&ret))
+		obj.fullName += obj.inner[index].fullName
+		if index+1 < len(node.Children) {
+			obj.fullName += ","
+		}
+	}
+	return obj
 }
 
 func isList(node *ast.Node) bool {
