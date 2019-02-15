@@ -57,6 +57,7 @@ const (
 	LBRACKET  = "["
 	RBRACKET  = "]"
 	COLON     = ":"
+	DOT       = "."
 	NIL       = "NIL"
 )
 

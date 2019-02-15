@@ -25,8 +25,11 @@ const (
 	EXPRESSION = "EXPRESSION" // One child. Tree of binary ops, unary ops, and primaries.
 	BINARYOP   = "BINARYOP"   // Two children.
 	UNARYOP    = "UNARYOP"    // One child.
-	INDEXOP    = "INDEXOP"    // Variable children.
-	VARDECL    = "VARDECL"    // Variable children. Name and type for each variable, then expression.
+	INDEXOP    = "INDEXOP"    // Two children.
+	// TODO: Consider making this a binaryop.
+	DOTOP = "DOTOP" // Two children.
+	// TODO: Consider making this a binaryop.
+	VARDECL = "VARDECL" // Variable children. Name and type for each variable, then expression.
 	// TODO: Consider making the third child a VARASSIGN.
 	VARTYPE   = "VARTYPE"   // Variable children. Name and optionally a child for each inner type.
 	VARASSIGN = "VARASSIGN" // Variable children children. One or more Varref and one expression.
@@ -40,15 +43,16 @@ const (
 	JUMPSTATEMENT  = "JUMPSTATEMENT"  // Variable children. Zero except for return. Return has zero or more expressions.
 	VARREF         = "VARREF"         // Variable children. Name and list of expressions for array indices.
 	FUNCCALL       = "FUNCCALL"       // Variable children. Name then one expression for each argument.
-	NEW            = "NEW"            // One child. Vartype.
-	LIST           = "LIST"           // Variable children. Expressions.
-	INT            = "INT"            // Leaf.
-	FLOAT          = "FLOAT"          // Leaf.
-	STRING         = "STRING"         // Leaf.
-	BOOL           = "BOOL"           // Leaf.
-	NIL            = "NIL"            // Leaf.
-	VOID           = "VOID"           // Leaf.
-	IDENT          = "IDENT"          // Leaf.
+	// TODO: Consider making this a binaryop. Name and arglist.
+	NEW    = "NEW"    // One child. Vartype.
+	LIST   = "LIST"   // Variable children. Expressions.
+	INT    = "INT"    // Leaf.
+	FLOAT  = "FLOAT"  // Leaf.
+	STRING = "STRING" // Leaf.
+	BOOL   = "BOOL"   // Leaf.
+	NIL    = "NIL"    // Leaf.
+	VOID   = "VOID"   // Leaf.
+	IDENT  = "IDENT"  // Leaf.
 )
 
 // Print AST.
