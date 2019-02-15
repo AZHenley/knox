@@ -213,24 +213,33 @@ func getType(node *ast.Node) *typeObj {
 	case ast.BINARYOP:
 		left := getType(&node.Children[0])
 		right := getType(&node.Children[1])
-		if !compareTypes(left, right) {
+
+		if !compareTypes(left, right) { // All ops require left and right types be same.
 			abortMsg("Mismatched types.")
 		}
-		if lexer.IsOperator([]rune(node.TokenStart.Literal)[0]) || node.TokenStart.Literal == ">=" || node.TokenStart.Literal == ">" || node.TokenStart.Literal == "<=" || node.TokenStart.Literal == "<" {
-			if compareTypes(left, typeINT) || compareTypes(left, typeFLOAT) {
+		if lexer.IsOperator([]rune(node.TokenStart.Literal)[0]) {
+			if compareTypes(left, typeINT) || compareTypes(left, typeFLOAT) { // Math ops work on numbers.
 				return left
-			} else if node.TokenStart.Type == token.PLUS && compareTypes(left, typeSTRING) {
+			} else if node.TokenStart.Type == token.PLUS && compareTypes(left, typeSTRING) { // + works on strings.
 				return left
 			} else {
 				abortMsg("Invalid operation.")
 			}
+		} else if node.TokenStart.Literal == ">=" || node.TokenStart.Literal == ">" || node.TokenStart.Literal == "<=" || node.TokenStart.Literal == "<" { // Comparison ops work on numbers, but return a bool.
+			if compareTypes(left, typeINT) || compareTypes(left, typeFLOAT) {
+				return typeBOOL
+			} else {
+				abortMsg("Invalid operation.")
+			}
+		} else if node.TokenStart.Literal == "==" {
+			return typeBOOL
 		} else if node.TokenStart.Literal == "&&" || node.TokenStart.Literal == "||" {
 			if !compareTypes(left, typeBOOL) {
 				abortMsg("Invalid operation.")
 			}
+			return typeBOOL
 		}
-
-		return left
+		return left // Will this ever be reached?
 
 	case ast.UNARYOP:
 		single := getType(&node.Children[0])
