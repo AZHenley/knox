@@ -593,30 +593,46 @@ func (p *Parser) unary() ast.Node {
 	return p.postfix()
 }
 
+// postfix = paran {"[" expr "]" | argList | "." ident}
 func (p *Parser) postfix() ast.Node {
 	var node ast.Node
 	node = p.paran()
 
-	if p.curTokenIs(token.LPAREN) {
-		var postNode ast.Node
-		postNode.Children = append(postNode.Children, node)
-		postNode.Type = ast.FUNCCALL
-		postNode.Symbols = p.curSymTable
-		var nodes = p.argList()
-		postNode.Children = append(postNode.Children, nodes...)
-		node = postNode
-	}
-	if p.curTokenIs(token.LBRACKET) { // Setup for the first [
-		var postNode ast.Node
-		postNode.Children = append(postNode.Children, node)
-		postNode.Type = ast.INDEXOP
+	for p.curTokenIs(token.LBRACKET) || p.curTokenIs(token.LPAREN) || p.curTokenIs(token.DOT) {
+		if p.curTokenIs(token.LPAREN) {
+			var postNode ast.Node
+			postNode.Children = append(postNode.Children, node)
+			postNode.Type = ast.FUNCCALL
+			postNode.Symbols = p.curSymTable
 
-		for p.curTokenIs(token.LBRACKET) {
+			var nodes = p.argList()
+			postNode.Children = append(postNode.Children, nodes...)
+
+			node = postNode
+		} else if p.curTokenIs(token.LBRACKET) {
+			var postNode ast.Node
+			postNode.Children = append(postNode.Children, node)
+			postNode.Type = ast.INDEXOP
+
 			p.nextToken()
 			postNode.Children = append(postNode.Children, p.expr())
 			p.consume(token.RBRACKET)
+
+			node = postNode
+		} else if p.curTokenIs(token.DOT) {
+			var postNode ast.Node
+			postNode.Children = append(postNode.Children, node)
+			postNode.Type = ast.DOTOP
+
+			p.nextToken()
+			var identNode ast.Node
+			identNode.Type = ast.IDENT
+			identNode.TokenStart = p.curToken
+			postNode.Children = append(postNode.Children, identNode)
+			p.consume(token.IDENT)
+
+			node = postNode
 		}
-		node = postNode
 	}
 	return node
 }

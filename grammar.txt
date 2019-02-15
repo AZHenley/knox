@@ -27,18 +27,16 @@ argList = "(" [expr {"," expr}] ")"
 
 
 expr = logical | listLiteral
-listLiteral = "[" [expr {"," expr}] "]"
+listLiteral = "[" [expr {"," expr}] "]"  // Should this be a primary?
 logical = equality {("&&" | "||") equality}
 equality = comparison {("!=" | "==") comparison } ;
 comparison = addition {(">" | ">=" | "<" | "<=") addition}
 addition = multiplication {( "-" | "+" ) multiplication}
 multiplication = unary {( "/" | "*" ) unary}
 unary = (("!" | "-" | "+") unary) | postfix
-// dotop
-postfix = paran "[" expr "]" | paran argList | paran
-paran = "(" expr ")" | special
-special = primary | "new" varType        
-// postfix and paran may have bugs
+postfix = paran {"[" expr "]" | argList | "." ident}
+paran = "(" expr ")" | special 
+special = primary | "new" varType | "typeof" "(" expr ")"       
 primary = ident | int | float | string | "false" | "true" | "nil" |
 
-// Missing... class, switch, some operators, ranges, lot of literals, function pointers
+// Missing... switch, dot operator, contracts, typedef, typeof operator, several literals (byte, hex, rune, char), function pointers, import, module, concurrency
