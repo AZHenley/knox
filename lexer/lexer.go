@@ -68,6 +68,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.SLASH, l.ch)
 	case rune('*'):
 		tok = newToken(token.ASTERISK, l.ch)
+	case rune('.'):
+		tok = newToken(token.DOT, l.ch)
 	case rune('<'):
 		tok = newToken(token.LT, l.ch)
 		if l.peekChar() == '=' {
@@ -115,8 +117,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.RBRACKET, l.ch)
 	case rune(':'):
 		tok = newToken(token.COLON, l.ch)
-	case rune('.'):
-		return l.readFloat()
+	//case rune('.'):
+	//return l.readFloat()
 	case rune(0):
 		tok.Literal = ""
 		tok.Type = token.EOF
