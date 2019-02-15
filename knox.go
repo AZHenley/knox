@@ -23,6 +23,7 @@ func main() {
 	goFlag := flag.Bool("go", false, "Print the Go code.")
 	outFlag := flag.String("out", "", "Path for output files.")
 	nameFlag := flag.String("name", "", "Name for output executable.")
+	binaryFlag := flag.Bool("binary", true, "Generates executable.")
 	flag.Parse()
 	args := flag.Args()
 
@@ -36,7 +37,7 @@ func main() {
 
 	// Lex, parse, and generate the AST.
 	start := time.Now()
-	l := lexer.New(string(code))
+	l := lexer.New(string(code) + "\n")
 	p := parser.New(l)
 	a := p.Program()
 	elapsedParsing := time.Since(start)
@@ -81,10 +82,12 @@ func main() {
 	}
 
 	// Invoke Go compiler.
-	cmd := exec.Command("go", "build", "-o", outputBin, outputFile)
-	_, sterr := cmd.Output()
-	if sterr != nil {
-		panic(sterr)
+	if *binaryFlag {
+		cmd := exec.Command("go", "build", "-o", outputBin, outputFile)
+		_, sterr := cmd.Output()
+		if sterr != nil {
+			panic(sterr)
+		}
 	}
 
 	if *timeFlag {
