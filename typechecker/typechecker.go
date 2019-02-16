@@ -64,8 +64,8 @@ func typecheck(node *ast.Node) {
 
 				leftType := declType(node)
 
-				fmt.Println("Left: " + leftType.fullName)
-				fmt.Println("Right: " + exprType.fullName)
+				//fmt.Println("Left: " + leftType.fullName)
+				//fmt.Println("Right: " + exprType.fullName)
 
 				if !compareTypes(leftType, exprType) { // Do the types match?
 					abortMsgf("Mismatched types: %s and %s", leftType.fullName, exprType.fullName)
@@ -192,7 +192,6 @@ func buildTypeList(node *ast.Node) *typeObj {
 // Build a list of types from func decl return.
 func buildReturnList(node *ast.Node) *typeObj {
 	obj := &typeObj{}
-	fmt.Println(node.Type)
 	for index, ret := range node.Children {
 		obj.inner = append(obj.inner, *buildTypeObj(&ret))
 		obj.fullName += obj.inner[index].fullName
@@ -278,22 +277,19 @@ func getType(node *ast.Node) *typeObj {
 		return single
 
 	case ast.INDEXOP:
-		// TODO: Check that left is a list or a map.
-		// TODO: If list, then right should be int. Return inner type of left.
-		// TODO: If map, then right should be first inner type of left. Return second inner type of right.
+		// Check that left is a list or a map.
+		// If list, then right should be int. Return inner type of left.
+		// If map, then right should be first inner type of left. Return second inner type of right.
 		left := getType(&node.Children[0])
-		fmt.Println("TESTL" + left.fullName)
 		right := getType(&node.Children[1])
-		fmt.Println("TESTR" + right.fullName)
 
-		fmt.Println(left.isList)
 		if left.isList {
 			if !compareTypes(right, typeINT) {
 				abortMsg("List index must be int.")
 			}
-			fmt.Println("TESTI")
-			fmt.Println("TESTI" + left.inner[0].fullName)
 			return &left.inner[0]
+		} else if left.isMap {
+
 		} else {
 			abortMsg("Invalid operation.")
 		}
@@ -307,13 +303,26 @@ func getType(node *ast.Node) *typeObj {
 		return declType(declNode)
 
 	case ast.FUNCCALL:
-		// TODO: Are the arguments the correct type?
 		name := node.Children[0].TokenStart.Literal
 		declNode := node.Symbols.LookupSymbol(name)
 		if declNode == nil {
 			abortMsg("Calling undeclared function.")
 		}
-		return &declType(declNode).inner[0] // TODO: This will not work for multiple return.
+
+		// Check number of args to number of params.
+		if len(node.Children)-1 != len(declNode.Children[1].Children) {
+			abortMsg("Incorrect number of arguments.")
+		}
+		// Check types of args to types of params.
+		for i := 1; i < len(node.Children); i++ {
+			argType := getType(&node.Children[i])
+			expectedType := declType(&declNode.Children[1].Children[i-1])
+			if !compareTypes(argType, expectedType) {
+				abortMsgf("Mismatched type in function argument.")
+			}
+		}
+
+		return &declType(declNode).inner[0] // TODO: This will not work for multiple return...
 
 	case ast.NEW:
 		return buildTypeObj(&node.Children[0])
