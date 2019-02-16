@@ -16,6 +16,7 @@ type typeObj struct {
 	isContainer bool // Is this type a container (list, map, address, etc.)
 	isList      bool
 	isMap       bool
+	isMulti     bool      // Is this a set of types (used for multiple return)
 	isClass     bool      // Is this a user-defined class
 	isEnum      bool      // Is this an enum
 	isTypedef   bool      // Is this a typedef
@@ -135,8 +136,11 @@ func declType(node *ast.Node) *typeObj {
 	if node.Type == ast.VARDECL {
 		//return stringToType(node.Children[1].Children[0].TokenStart.Literal)
 		return buildTypeObj(&node.Children[1])
-	} else if node.Type == ast.FUNCDECL { // TODO: Redo this.
-		return stringToType(node.Children[2].Children[0].Children[0].TokenStart.Literal) // TODO: Handle multiple return values.
+	} else if node.Type == ast.FUNCDECL {
+		// Currently this always returns a functions return type
+		// TODO: Does this handle multiple return?
+		return buildReturnList(&node.Children[2])
+
 	}
 	abortMsg("Unknown type error.")
 	return nil
@@ -188,6 +192,7 @@ func buildTypeList(node *ast.Node) *typeObj {
 // Build a list of types from func decl return.
 func buildReturnList(node *ast.Node) *typeObj {
 	obj := &typeObj{}
+	fmt.Println(node.Type)
 	for index, ret := range node.Children {
 		obj.inner = append(obj.inner, *buildTypeObj(&ret))
 		obj.fullName += obj.inner[index].fullName
@@ -276,20 +281,22 @@ func getType(node *ast.Node) *typeObj {
 		// TODO: Check that left is a list or a map.
 		// TODO: If list, then right should be int. Return inner type of left.
 		// TODO: If map, then right should be first inner type of left. Return second inner type of right.
-		fmt.Println("HERE WE GO")
-
 		left := getType(&node.Children[0])
+		fmt.Println("TESTL" + left.fullName)
 		right := getType(&node.Children[1])
+		fmt.Println("TESTR" + right.fullName)
 
-		fmt.Println(&node.Children[0])
-
+		fmt.Println(left.isList)
 		if left.isList {
 			if !compareTypes(right, typeINT) {
 				abortMsg("List index must be int.")
 			}
+			fmt.Println("TESTI")
+			fmt.Println("TESTI" + left.inner[0].fullName)
 			return &left.inner[0]
+		} else {
+			abortMsg("Invalid operation.")
 		}
-		return nil
 
 	case ast.VARREF:
 		name := node.Children[0].TokenStart.Literal
@@ -306,11 +313,7 @@ func getType(node *ast.Node) *typeObj {
 		if declNode == nil {
 			abortMsg("Calling undeclared function.")
 		}
-		fmt.Println("GOING AROUND" + name)
-		fmt.Println(declNode.Type)
-		p := declType(declNode)
-		fmt.Println(p)
-		return declType(declNode)
+		return &declType(declNode).inner[0] // TODO: This will not work for multiple return.
 
 	case ast.NEW:
 		return buildTypeObj(&node.Children[0])
@@ -318,6 +321,7 @@ func getType(node *ast.Node) *typeObj {
 	case ast.LIST:
 		obj := &typeObj{}
 		obj.isContainer = true
+		obj.isList = true
 		obj.fullName = "["
 		itemType := ""
 		for i, item := range node.Children {
