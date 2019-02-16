@@ -9,10 +9,13 @@ import (
 
 // Internal representation of a type.
 type typeObj struct {
-	fullName    string    // Name of this type (and all inner types)
-	isFunction  bool      // Is this a function
-	isPrimitive bool      // Is this type a primitive (int, float, string, rune, byte, bool)
-	isContainer bool      // Is this type a container (list, map, address, etc.)
+	fullName string // Name of this type (and all inner types)
+	//name        string // Name of this outer type
+	isFunction  bool // Is this a function
+	isPrimitive bool // Is this type a primitive (int, float, string, rune, byte, bool)
+	isContainer bool // Is this type a container (list, map, address, etc.)
+	isList      bool
+	isMap       bool
 	isClass     bool      // Is this a user-defined class
 	isEnum      bool      // Is this an enum
 	isTypedef   bool      // Is this a typedef
@@ -57,9 +60,14 @@ func typecheck(node *ast.Node) {
 			// TODO: Handle for, return
 			if node.Type == ast.VARDECL {
 				// TODO: Handle multiple assignment.
+
 				leftType := declType(node)
+
+				fmt.Println("Left: " + leftType.fullName)
+				fmt.Println("Right: " + exprType.fullName)
+
 				if !compareTypes(leftType, exprType) { // Do the types match?
-					abortMsg("Mismatched types.")
+					abortMsgf("Mismatched types: %s and %s", leftType.fullName, exprType.fullName)
 				}
 			} else if node.Type == ast.VARASSIGN {
 				// TODO: Handle multiple assignment.
@@ -69,7 +77,7 @@ func typecheck(node *ast.Node) {
 				}
 				leftType := declType(decl)
 				if !compareTypes(leftType, exprType) { // Do the types match?
-					abortMsg("Mismatched types.")
+					abortMsgf("Mismatched types: %s and %s", leftType.fullName, exprType.fullName)
 				}
 			} else if node.Type == ast.IFSTATEMENT || node.Type == ast.WHILESTATEMENT {
 				if !compareTypes(exprType, typeBOOL) {
@@ -107,6 +115,11 @@ func abortMsg(msg string) {
 	panic("Aborted.\n")
 }
 
+func abortMsgf(msg string, args ...interface{}) {
+	fmt.Printf("Type error: "+msg+"\n", args...)
+	panic("Aborted.\n")
+}
+
 func compareTypes(a *typeObj, b *typeObj) bool {
 	return a.fullName == b.fullName
 }
@@ -140,6 +153,7 @@ func buildTypeObj(node *ast.Node) *typeObj {
 		return obj
 	} else if isList(node) {
 		obj.isContainer = true
+		obj.isList = true
 		obj.inner = append(obj.inner, *buildTypeObj(&node.Children[1]))
 		obj.fullName = "[" + obj.inner[0].fullName + "]"
 		return obj
@@ -215,7 +229,7 @@ func getType(node *ast.Node) *typeObj {
 		right := getType(&node.Children[1])
 
 		if !compareTypes(left, right) { // All ops require left and right types be same.
-			abortMsg("Mismatched types.")
+			abortMsgf("Mismatched types: %s and %s", left.fullName, right.fullName)
 		}
 		if lexer.IsOperator([]rune(node.TokenStart.Literal)[0]) {
 			if compareTypes(left, typeINT) || compareTypes(left, typeFLOAT) { // Math ops work on numbers.
@@ -258,6 +272,25 @@ func getType(node *ast.Node) *typeObj {
 		}
 		return single
 
+	case ast.INDEXOP:
+		// TODO: Check that left is a list or a map.
+		// TODO: If list, then right should be int. Return inner type of left.
+		// TODO: If map, then right should be first inner type of left. Return second inner type of right.
+		fmt.Println("HERE WE GO")
+
+		left := getType(&node.Children[0])
+		right := getType(&node.Children[1])
+
+		fmt.Println(&node.Children[0])
+
+		if left.isList {
+			if !compareTypes(right, typeINT) {
+				abortMsg("List index must be int.")
+			}
+			return &left.inner[0]
+		}
+		return nil
+
 	case ast.VARREF:
 		name := node.Children[0].TokenStart.Literal
 		declNode := node.Symbols.LookupSymbol(name)
@@ -273,6 +306,10 @@ func getType(node *ast.Node) *typeObj {
 		if declNode == nil {
 			abortMsg("Calling undeclared function.")
 		}
+		fmt.Println("GOING AROUND" + name)
+		fmt.Println(declNode.Type)
+		p := declType(declNode)
+		fmt.Println(p)
 		return declType(declNode)
 
 	case ast.NEW:
