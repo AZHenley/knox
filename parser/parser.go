@@ -477,30 +477,8 @@ func (p *Parser) expr() ast.Node {
 	exprNode.Type = ast.EXPRESSION
 	exprNode.Symbols = p.curSymTable // Make it easier for analyzers to do look ups.
 
-	if p.curTokenIs(token.LBRACKET) { // List literal
-		exprNode.Children = append(exprNode.Children, p.list())
-		return exprNode
-	}
-
-	// Any other expression.
 	exprNode.Children = append(exprNode.Children, p.logical())
 	return exprNode
-}
-
-func (p *Parser) list() ast.Node {
-	var listNode ast.Node
-	listNode.Type = ast.LIST
-
-	p.consume(token.LBRACKET)
-	for !p.curTokenIs(token.RBRACKET) {
-		listNode.Children = append(listNode.Children, p.expr())
-		if p.curTokenIs(token.COMMA) { // TODO: This currently allows a comma proceeded by rbracket.
-			p.consume(token.COMMA)
-		}
-	}
-	p.consume(token.RBRACKET)
-
-	return listNode
 }
 
 func (p *Parser) logical() ast.Node {
@@ -663,7 +641,23 @@ func (p *Parser) special() ast.Node {
 	}
 }
 
-// primary = varRef | INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")"
+func (p *Parser) listLiteral() ast.Node {
+	var listNode ast.Node
+	listNode.Type = ast.LIST
+
+	p.consume(token.LBRACKET)
+	for !p.curTokenIs(token.RBRACKET) {
+		listNode.Children = append(listNode.Children, p.expr())
+		if p.curTokenIs(token.COMMA) { // TODO: This currently allows a comma proceeded by rbracket.
+			p.consume(token.COMMA)
+		}
+	}
+	p.consume(token.RBRACKET)
+
+	return listNode
+}
+
+// primary = varRef | INT | FLOAT | STRING | "false" | "true" | "nil" | "(" expr ")" | listLiteral
 func (p *Parser) primary() ast.Node {
 	var primaryNode ast.Node
 	primaryNode.TokenStart = p.curToken
@@ -686,6 +680,8 @@ func (p *Parser) primary() ast.Node {
 		identNode.Type = ast.IDENT
 		identNode.TokenStart = p.curToken
 		primaryNode.Children = append(primaryNode.Children, identNode)
+	case token.LBRACKET:
+		return p.listLiteral()
 	}
 
 	p.nextToken()

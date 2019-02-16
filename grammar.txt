@@ -27,7 +27,6 @@ argList = "(" [expr {"," expr}] ")"
 
 
 expr = logical | listLiteral
-listLiteral = "[" [expr {"," expr}] "]"  // Should this be a primary?
 logical = equality {("&&" | "||") equality}
 equality = comparison {("!=" | "==") comparison } ;
 comparison = addition {(">" | ">=" | "<" | "<=") addition}
@@ -37,6 +36,7 @@ unary = (("!" | "-" | "+") unary) | postfix
 postfix = paran {"[" expr "]" | argList | "." ident}
 paran = "(" expr ")" | special 
 special = primary | "new" varType | "typeof" "(" expr ")"       
-primary = ident | int | float | string | "false" | "true" | "nil" |
+listLiteral = "[" [expr {"," expr}] "]"
+primary = ident | int | float | string | "false" | "true" | "nil" | listLiteral
 
 // Missing... switch, dot operator, contracts, typedef, typeof operator, several literals (byte, hex, rune, char), function pointers, import, module, concurrency
