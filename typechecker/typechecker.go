@@ -104,7 +104,8 @@ func typecheck(node *ast.Node) {
 				// TODO: Support multiple return types.
 				returnType := buildTypeList(&child)
 				funcReturnType := buildReturnList(&currentFunc.Children[2])
-				if !compareTypes(returnType, funcReturnType) {
+				if compareTypes(funcReturnType, typeVOID) && returnType.fullName == "" { // Check for return; and void type.
+				} else if !compareTypes(returnType, funcReturnType) {
 					abortMsg("Incorrect return type.")
 				}
 			}
