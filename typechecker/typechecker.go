@@ -23,6 +23,7 @@ type typeObj struct {
 	inner       []typeObj // Inner types. TODO: Make this a slice of pointers of typeObj.
 }
 
+var typeVOID *typeObj
 var typeBOOL *typeObj
 var typeINT *typeObj
 var typeFLOAT *typeObj
@@ -40,6 +41,7 @@ func Analyze(node *ast.Node) {
 }
 
 func setup() {
+	typeVOID = &typeObj{}
 	typeBOOL = &typeObj{}
 	typeINT = &typeObj{}
 	typeFLOAT = &typeObj{}
@@ -48,6 +50,7 @@ func setup() {
 	typeINT.isPrimitive = true
 	typeFLOAT.isPrimitive = true
 	typeSTRING.isPrimitive = true
+	typeVOID.fullName = "void"
 	typeBOOL.fullName = "bool"
 	typeINT.fullName = "int"
 	typeFLOAT.fullName = "float"
@@ -86,12 +89,15 @@ func typecheck(node *ast.Node) {
 				}
 			}
 		} else if child.Type == ast.FUNCCALL { // Handles funccall outside of an expression.
-			// TODO: Are the arguments the correct type?
-			// TODO: Are the return values used?
 			name := child.Children[0].TokenStart.Literal
 			declNode := node.Symbols.LookupSymbol(name)
-			if declNode == nil {
-				abortMsg("Calling undeclared function.")
+
+			// Compare types between args and params.
+			checkFuncCall(&child, declNode)
+
+			// Check that nothing is returned.
+			if len(declType(declNode).inner) > 1 || !compareTypes(&declType(declNode).inner[0], typeVOID) {
+				abortMsg("Function call return values must be used.")
 			}
 		} else if child.Type == ast.JUMPSTATEMENT {
 			if child.TokenStart.Literal == "return" {
@@ -225,6 +231,32 @@ func getName(node *ast.Node) string {
 	return node.Children[0].TokenStart.Literal
 }
 
+func checkFuncCall(node *ast.Node, declNode *ast.Node) {
+	name := node.Children[0].TokenStart.Literal
+	if name == "print" {
+		return
+	}
+
+	//declNode := node.Symbols.LookupSymbol(name)
+	// TODO: Remove the "print" check after std library is added.
+	if declNode == nil {
+		abortMsgf("Calling undeclared function: %s", name)
+	}
+
+	// Check number of args to number of params.
+	if len(node.Children)-1 != len(declNode.Children[1].Children) {
+		abortMsg("Incorrect number of arguments.")
+	}
+	// Check types of args to types of params.
+	for i := 1; i < len(node.Children); i++ {
+		argType := getType(&node.Children[i])
+		expectedType := declType(&declNode.Children[1].Children[i-1])
+		if !compareTypes(argType, expectedType) {
+			abortMsgf("Mismatched type in function argument.")
+		}
+	}
+}
+
 // Get type from expression node.
 func getType(node *ast.Node) *typeObj {
 	switch node.Type {
@@ -305,22 +337,8 @@ func getType(node *ast.Node) *typeObj {
 	case ast.FUNCCALL:
 		name := node.Children[0].TokenStart.Literal
 		declNode := node.Symbols.LookupSymbol(name)
-		if declNode == nil {
-			abortMsg("Calling undeclared function.")
-		}
 
-		// Check number of args to number of params.
-		if len(node.Children)-1 != len(declNode.Children[1].Children) {
-			abortMsg("Incorrect number of arguments.")
-		}
-		// Check types of args to types of params.
-		for i := 1; i < len(node.Children); i++ {
-			argType := getType(&node.Children[i])
-			expectedType := declType(&declNode.Children[1].Children[i-1])
-			if !compareTypes(argType, expectedType) {
-				abortMsgf("Mismatched type in function argument.")
-			}
-		}
+		checkFuncCall(node, declNode)
 
 		return &declType(declNode).inner[0] // TODO: This will not work for multiple return...
 
