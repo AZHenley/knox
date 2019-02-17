@@ -306,8 +306,8 @@ func (p *Parser) funcCall() ast.Node {
 	identNode.Type = ast.IDENT
 	identNode.TokenStart = p.curToken
 	p.consume(token.IDENT)
-
 	funcNode.Children = append(funcNode.Children, identNode)
+
 	var nodes = p.argList()
 	funcNode.Children = append(funcNode.Children, nodes...)
 
@@ -543,7 +543,7 @@ func (p *Parser) addition() ast.Node {
 
 func (p *Parser) multiplication() ast.Node {
 	var node = p.unary()
-	for p.curTokenIs(token.ASTERISK) || p.curTokenIs(token.SLASH) {
+	for p.curTokenIs(token.ASTERISK) || p.curTokenIs(token.SLASH) || p.curTokenIs(token.PERCENT) {
 		var binaryNode ast.Node
 		binaryNode.Type = ast.BINARYOP
 		binaryNode.TokenStart = p.curToken

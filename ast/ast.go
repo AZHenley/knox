@@ -34,7 +34,7 @@ const (
 	VARTYPE   = "VARTYPE"   // Variable children. Name and optionally a child for each inner type.
 	VARASSIGN = "VARASSIGN" // Variable children children. One or more Varref and one expression.
 	FUNCDECL  = "FUNCDECL"  // Four children. Name, paramlist for params, returnlist for return, block.
-	PARAMLIST = "PARAMLIST" // Variable children. Pairs of name and type.
+	PARAMLIST = "PARAMLIST" // Variable children.
 	// TODO: Consider making the pairs a VARDECL node.
 	RETURNLIST     = "RETURNLIST"     //
 	IFSTATEMENT    = "IFSTATEMENT"    // Variable children. Condition and block for IF and zero or more for each ELSE IF and zero or one block for ELSE.
