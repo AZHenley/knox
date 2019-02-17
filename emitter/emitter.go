@@ -21,15 +21,22 @@ func Generate(node *ast.Node) string {
 }
 
 func header() string {
-	return "package main\n\n" //import (\n\t\"fmt\"\n)\n\n"
+	code := ""
+	code += "package main\n\n"
+	code += "import (\n\t\"fmt\"\n)\n\n"
+	return code
 }
 
 func program(node *ast.Node) string {
 	var code string
 	code += header()
 
-	for _, funcNode := range node.Children {
-		code += funcDecl(&funcNode)
+	for _, child := range node.Children {
+		if child.Type == ast.FUNCDECL {
+			code += funcDecl(&child)
+		} else if child.Type == ast.CLASS {
+
+		}
 	}
 
 	return code
@@ -115,6 +122,12 @@ func statement(node *ast.Node) string {
 
 func funcCall(node *ast.Node) string {
 	funcName := node.Children[0].TokenStart.Literal
+
+	// TODO: Remove this once Go modules can be imported.
+	if funcName == "print" {
+		funcName = "fmt.Println"
+	}
+
 	var argList string
 	for index, child := range node.Children {
 		if index == 0 {
