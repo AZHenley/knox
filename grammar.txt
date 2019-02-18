@@ -14,7 +14,7 @@ statement = funcCall ";"
             | whileStatement
             | jumpStatement ";"
 ifStatement = "if" expr block {"else" "if" expr block} ["else" block]
-forStatement = "for" "var" ident ":" varType "in" expr block
+forStatement = "for" ident ":" varType "in" expr block
 whileStatement = "while" expr block
 jumpStatement = "continue" | "break" | "return" [expr {"," expr}]
 varDecl = "var" ident ":" varType {"," ident : varType} "=" expr 
@@ -39,4 +39,4 @@ special = primary | "new" varType | "typeof" "(" expr ")"
 listLiteral = "[" [expr {"," expr}] "]"
 primary = ident | int | float | string | "false" | "true" | "nil" | listLiteral
 
-// Missing... switch, dot operator, contracts, typedef, typeof operator, several literals (byte, hex, rune, char), function pointers, import, module, concurrency
+// Missing... interfaces, switch, contracts, typedef, typeof operator, casting, several literals (byte, hex, rune, char), function pointers, import, module, concurrency

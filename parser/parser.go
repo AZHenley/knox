@@ -433,7 +433,7 @@ func (p *Parser) forStatement() ast.Node {
 
 	p.consume(token.FOR)
 	// TODO: Make this part reuse code from varDecl.
-	p.consume(token.VAR)
+	//p.consume(token.VAR)
 	p.consume(token.IDENT)
 	p.consume(token.COLON)
 	p.consume(token.IDENT) // TODO: Vartype.
