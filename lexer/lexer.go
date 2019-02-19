@@ -256,7 +256,11 @@ func (l *Lexer) peekChar() rune {
 
 // determinate ch is identifier or not
 func isIdentifier(ch rune) bool {
-	return !isWhitespace(ch) && !isBrace(ch) && !IsOperator(ch) && !isComparison(ch) && !isCompound(ch) && !isBrace(ch) && !isParen(ch) && !isBracket(ch) && !isEmpty(ch)
+	return !isWhitespace(ch) && !isBrace(ch) && !IsOperator(ch) && !isComparison(ch) && !isCompound(ch) && !isBrace(ch) && !isParen(ch) && !isBracket(ch) && !isEmpty(ch) && !isDot(ch)
+}
+
+func isDot(ch rune) bool {
+	return ch == rune('.')
 }
 
 // is white space
