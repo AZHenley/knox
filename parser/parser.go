@@ -155,6 +155,16 @@ func (p *Parser) funcDecl() ast.Node {
 	funcNode.Children = append(funcNode.Children, p.paramList())
 	funcNode.Children = append(funcNode.Children, p.returnList())
 	funcNode.Children = append(funcNode.Children, p.block())
+
+	// Insert all params into block's symtable
+	for _, param := range funcNode.Children[1].Children {
+		param.Symbols = funcNode.Children[3].Symbols
+		success := funcNode.Children[3].Symbols.InsertSymbol(param.Children[0].TokenStart.Literal, &param)
+		if !success {
+			p.abortMsg("Variable already exists.")
+		}
+	}
+
 	return funcNode
 }
 
@@ -167,16 +177,16 @@ func (p *Parser) paramList() ast.Node {
 
 		var varNode ast.Node
 		varNode.Type = ast.VARDECL
-		varNode.Symbols = p.curSymTable
+		//varNode.Symbols = p.curSymTable
 
 		var identNode ast.Node
 		identNode.Type = ast.IDENT
 		identNode.TokenStart = p.curToken
 
-		success := p.curSymTable.InsertSymbol(p.curToken.Literal, &varNode)
-		if !success {
-			p.abortMsg("Variable already exists.")
-		}
+		//success := p.curSymTable.InsertSymbol(p.curToken.Literal, &varNode)
+		//if !success {
+		//	p.abortMsg("Variable already exists.")
+		//}
 
 		p.consume(token.IDENT)
 		p.consume(token.COLON)
