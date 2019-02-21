@@ -77,7 +77,7 @@ func typecheck(node *ast.Node) {
 				// TODO: Handle multiple assignment.
 				decl := child.Symbols.LookupSymbol(node.Children[0].Children[0].TokenStart.Literal)
 				if decl == nil {
-					abortMsg("Referencing undeclared variable.")
+					abortMsgf("Referencing undeclared variable: %s", node.Children[0].Children[0].TokenStart.Literal)
 				}
 				leftType := declType(decl)
 				if !compareTypes(leftType, exprType) { // Do the types match?
@@ -96,7 +96,7 @@ func typecheck(node *ast.Node) {
 			checkFuncCall(&child, declNode)
 
 			// Check that nothing is returned.
-			if len(declType(declNode).inner) > 1 || !compareTypes(&declType(declNode).inner[0], typeVOID) {
+			if name != "print" && (len(declType(declNode).inner) > 1 || !compareTypes(&declType(declNode).inner[0], typeVOID)) {
 				abortMsg("Function call return values must be used.")
 			}
 		} else if child.Type == ast.JUMPSTATEMENT {
@@ -147,7 +147,8 @@ func declType(node *ast.Node) *typeObj {
 		// Currently this always returns a functions return type
 		// TODO: Does this handle multiple return?
 		return buildReturnList(&node.Children[2])
-
+	} else if node.Type == ast.CLASS {
+		// return
 	}
 	abortMsg("Unknown type error.")
 	return nil
@@ -234,6 +235,9 @@ func getName(node *ast.Node) string {
 
 func checkFuncCall(node *ast.Node, declNode *ast.Node) {
 	name := node.Children[0].TokenStart.Literal
+	if name == "" {
+		name = node.Children[0].Children[1].TokenStart.Literal
+	}
 	if name == "print" {
 		return
 	}
@@ -256,6 +260,21 @@ func checkFuncCall(node *ast.Node, declNode *ast.Node) {
 			abortMsgf("Mismatched type in function argument.")
 		}
 	}
+}
+
+// Look up a func's declaration given a ref, handling the dot operator.
+func lookUpDecl(node ast.Node) *ast.Node {
+	if node.Type == ast.IDENT {
+		name := node.Children[0].TokenStart.Literal
+		declNode := node.Symbols.LookupSymbol(name)
+		return declNode
+	} else if node.Type == ast.DOTOP {
+		left := getType(&node.Children[0])
+		typeDeclNode := node.Symbols.LookupSymbol(left.fullName)
+		methodDecl := typeDeclNode.Symbols.LookupSymbol(node.Children[1].TokenStart.Literal)
+		return methodDecl
+	}
+	return nil // Can't happen?
 }
 
 // Get type from expression node.
@@ -331,13 +350,14 @@ func getType(node *ast.Node) *typeObj {
 		name := node.Children[0].TokenStart.Literal
 		declNode := node.Symbols.LookupSymbol(name)
 		if declNode == nil {
-			abortMsg("Referencing undeclared variable.")
+			abortMsgf("Referencing undeclared variable: %s", name)
 		}
 		return declType(declNode)
 
 	case ast.FUNCCALL:
-		name := node.Children[0].TokenStart.Literal
-		declNode := node.Symbols.LookupSymbol(name)
+		//name := node.Children[0].TokenStart.Literal // TODO: Handle dot op.
+		//declNode := node.Symbols.LookupSymbol(name)
+		declNode := lookUpDecl(node.Children[0])
 
 		checkFuncCall(node, declNode)
 

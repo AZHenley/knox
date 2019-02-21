@@ -42,7 +42,7 @@ const (
 	WHILESTATEMENT = "WHILESTATEMENT" // Two children. Condition and block.
 	JUMPSTATEMENT  = "JUMPSTATEMENT"  // Variable children. Zero except for return. Return has zero or more expressions.
 	VARREF         = "VARREF"         // Variable children. Name and list of expressions for array indices.
-	FUNCCALL       = "FUNCCALL"       // Variable children. Name then one expression for each argument.
+	FUNCCALL       = "FUNCCALL"       // Variable children. Name then one expression for each argument.  // Name is now VARREF instead of Name?
 	// TODO: Consider making this a binaryop. Name and arglist.
 	NEW    = "NEW"    // One child. Vartype.
 	LIST   = "LIST"   // Variable children. Expressions.
