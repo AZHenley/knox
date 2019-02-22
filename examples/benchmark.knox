@@ -1,0 +1,44 @@
+func foobar(foo : int, bar : string) (int, bool) {
+}
+
+func barfoo(a : int, b : int) int {
+
+}
+
+func testing() void {
+    var x : int = 1 + 2 * 3;
+    var foo : int = 1 * 2 + 3;
+    var catdog : int = - barfoo("hello", 5) - 5;
+    x = 3;
+    return x, catdog * 3;
+}
+
+func foobarr(foo : int, bar : string) (int, bool) {
+}
+
+func barfoor2(a : int, b : int) int {
+
+}
+
+func testingr() void {
+    var xr : int = 1 + 2 * 3;
+    var fooo : int = 1 * 2 + 3;
+    var catdogg : int = - barfoo("hello", 5) - 5;
+    xr = 3;
+    return xr, catdogg * 3;
+}
+
+func foobarrr(foo : int, bar : string) (int, bool) {
+}
+
+func barfoooo(a : int, b : int) int {
+
+}
+
+func testingrr() void {
+    var xrr : int = 1 + 2 * 3;
+    var foorr : int = 1 * 2 + 3;
+    var catdoggg : int = - barfoo("hello", 5) - 5;
+    xrr = 3;
+    return xrr, catdoggg * 3;
+}

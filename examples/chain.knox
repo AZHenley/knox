@@ -1,0 +1,11 @@
+func main() void {
+    var bar : [int] = [1,2,3];
+    var foo : int = [1,2,3][0];
+    //var puppy : [int] = hello(1,0);
+    //var puppyy : int = hello(5, 6)[0];
+    //hello(0,0);
+}
+
+func hello(a : int, b : int) int {
+    return;
+}

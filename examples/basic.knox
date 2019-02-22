@@ -1,5 +1,5 @@
 // comment
-func foobar(a: b, b:c) void { }
+func foobar(a: b, c:d) void { }
 func barbar() (int, int, int) {
     // h h h
     // blah
@@ -16,3 +16,18 @@ func barbar() (int, int, int) {
     }
     return 10, 9, 8;
 }
+
+class person {
+    var foo : int = 0;
+    //var bar : [bool] = new [];
+    //var zyx : [int, float, bool] = new [];
+    //var zzz : map[string, int] = new map;
+    //var xyz : address[boss] = new address;
+    //var yyy : map[string, map[string, [int]]] = new map;
+
+
+    func something() bool {
+        return false
+    }
+}
+

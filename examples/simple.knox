@@ -1,3 +1,27 @@
-func foobar() void {
-    var test : int = true && false;
+
+
+func foobar(foo : int, bar : string) (int, bool) {
+    while true {
+
+    }
+    return 5, false;
 }
+
+func barfoo(a : int, b : int) int {
+    if true {
+
+    } else if false {
+
+    } else if true {
+
+    } else {
+
+    }
+    return 5;
+}
+
+func main() void {
+    var x : int, y : bool = foobar(5, "hello");
+    x,y = foobar(1, "bye");
+}
+

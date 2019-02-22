@@ -1,0 +1,19 @@
+// Examples of features that will exist in Knox.
+
+subtype EvenPositive : int {
+    EvenPositive % 2 == 0;
+    EvenPositive >= 0;
+}
+
+class Foobar {
+    var numbers : [EvenPositive] = [2, 10, 60, 80, 100];
+    var table : map[string, int] = {};
+
+    func Sum() (bool, EvenPositive) {
+        var sum : EvenPositive = 0;
+        for x in self.numbers {
+            sum = sum + x;
+        }
+        return true, sum;
+    }
+}

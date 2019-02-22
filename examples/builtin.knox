@@ -1,0 +1,5 @@
+func main () void {
+    var foo : [int] = [1, 2, 3];
+    foo.sort();
+}
+

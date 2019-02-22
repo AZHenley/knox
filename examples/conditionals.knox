@@ -1,0 +1,16 @@
+func main() void {
+    if true || false {
+
+    } else if false {
+
+    } else {
+
+    }
+    while false {
+        bar(1,2);
+    }
+}
+
+func bar(a : int, b : int) int {
+    return a + b;
+}

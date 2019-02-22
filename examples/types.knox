@@ -1,0 +1,10 @@
+func xyz() (int, bool, string) {
+    var y : string = "hello";
+    var x : [int] = new [int];
+    var z : map[int, bool] = new map[int, bool];
+    var w : [bool] = [true, false, true];
+    //var ww : [bool] = [];
+    var www : [bool] = new [bool];
+
+    return 1, false, "hello";
+}
