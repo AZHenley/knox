@@ -90,7 +90,7 @@ func block(node *ast.Node) string {
 	return code
 }
 
-// Special block without newline.
+// Block without newline.
 func blockIf(node *ast.Node) string {
 	var code string
 	code += "{\n"
