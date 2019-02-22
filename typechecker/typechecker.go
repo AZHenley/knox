@@ -9,11 +9,11 @@ import (
 
 // Internal representation of a type.
 type typeObj struct {
-	fullName string // Name of this type (and all inner types)
-	//name        string // Name of this outer type
-	isFunction  bool // Is this a function
-	isPrimitive bool // Is this type a primitive (int, float, string, rune, byte, bool)
-	isContainer bool // Is this type a container (list, map, address, etc.)
+	fullName    string // Name of this type (and all inner types)
+	name        string // Name of this outer type
+	isFunction  bool   // Is this a function
+	isPrimitive bool   // Is this type a primitive (int, float, string, rune, byte, bool)
+	isContainer bool   // Is this type a container (list, map, address, etc.)
 	isList      bool
 	isMap       bool
 	isMulti     bool      // Is this a set of types (used for multiple return)
@@ -269,9 +269,21 @@ func lookUpDecl(node ast.Node) *ast.Node {
 		declNode := node.Symbols.LookupSymbol(name)
 		return declNode
 	} else if node.Type == ast.DOTOP {
+		// TODO: Handle chain of dotops
 		left := getType(&node.Children[0])
-		typeDeclNode := node.Symbols.LookupSymbol(left.fullName)
-		methodDecl := typeDeclNode.Symbols.LookupSymbol(node.Children[1].TokenStart.Literal)
+		var name string
+		if left.name == "[" { // Special case for builtin list functions
+			name = "list"
+		} else {
+			name = left.name
+		}
+		typeDeclNode := node.Symbols.LookupSymbol(name) // Class decl
+		if typeDeclNode == nil {
+			abortMsgf("Undeclared type: %s", name)
+		}
+		fmt.Println("RAWR" + node.Children[1].TokenStart.Literal)
+		fmt.Println(typeDeclNode.Symbols)
+		methodDecl := typeDeclNode.Children[1].Symbols.LookupSymbol(node.Children[1].TokenStart.Literal)
 		return methodDecl
 	}
 	return nil // Can't happen?
@@ -370,6 +382,7 @@ func getType(node *ast.Node) *typeObj {
 		obj := &typeObj{}
 		obj.isContainer = true
 		obj.isList = true
+		obj.name = "["
 		obj.fullName = "["
 		itemType := ""
 		for i, item := range node.Children {
