@@ -1,2 +1,2 @@
-./knox -time -ast -go -out="output" examples/fizzbuzz.knox
+./knox -time -ast -go -out="output" examples/builtin.knox
 ./output/out
