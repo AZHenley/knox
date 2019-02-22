@@ -5,7 +5,7 @@ funcDecl = "func" ident paramList returnList block
 paramList = "(" {ident ":" varType ","} [ident ":" varType]  ")"
 returnList = varType | "(" varType {"," varType} ")"  // Return void or nothing?
 block = "{" {statement} "}"
-statement = funcCall ";"
+statement = expr ";"
             | varDecl ";"
             | varAssignment ";"
             | mutliAssignment ";"
@@ -26,7 +26,7 @@ funcCall = ident argList
 argList = "(" [expr {"," expr}] ")"    
 
 
-expr = logical | listLiteral
+expr = logical
 logical = equality {("&&" | "||") equality}
 equality = comparison {("!=" | "==") comparison } ;
 comparison = addition {(">" | ">=" | "<" | "<=") addition}

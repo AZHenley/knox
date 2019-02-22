@@ -252,9 +252,9 @@ func (p *Parser) statement() ast.Node {
 	if p.curTokenIs(token.VAR) {
 		statementNode = p.varDecl()
 		p.consume(token.SEMICOLON)
-	} else if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LPAREN) {
-		statementNode = p.funcCall()
-		p.consume(token.SEMICOLON)
+		//} else if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LPAREN) {
+		//statementNode = p.funcCall()
+		//p.consume(token.SEMICOLON)
 	} else if p.curTokenIs(token.IDENT) {
 		statementNode = p.varAssignment()
 		p.consume(token.SEMICOLON)
@@ -268,7 +268,8 @@ func (p *Parser) statement() ast.Node {
 		statementNode = p.jumpStatement()
 		p.consume(token.SEMICOLON)
 	} else {
-		p.abortMsg("Expected statement.")
+		statementNode = p.expr()
+		//p.abortMsg("Expected statement.")
 	}
 	return statementNode
 }
