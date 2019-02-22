@@ -269,6 +269,7 @@ func (p *Parser) statement() ast.Node {
 		p.consume(token.SEMICOLON)
 	} else {
 		statementNode = p.expr()
+
 		//p.abortMsg("Expected statement.")
 	}
 	return statementNode
