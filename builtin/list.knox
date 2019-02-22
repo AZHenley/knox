@@ -1,0 +1,10 @@
+class list {
+    func append(x : int) void {}
+    func insert(index : int, x : int) void {}
+    func length() int { return -1; }
+    func sort() void {}
+    func reverse() void {}
+    func remove(index : int) bool { return false; }
+    func contains(x : int) bool { return false; }
+    // find, findAll
+}

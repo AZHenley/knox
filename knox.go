@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"knox/ast"
+	"knox/builtin"
 	"knox/emitter"
 	"knox/lexer"
 	"knox/parser"
@@ -31,6 +32,7 @@ func main() {
 		panic("Specify file to be compiled.")
 	}
 	code, err := ioutil.ReadFile(args[0]) // TODO: Support multiple files.
+	//code, err := ioutil.ReadFile("examples/chain.knox")
 	if err != nil {
 		panic(err)
 	}
@@ -41,6 +43,9 @@ func main() {
 	p := parser.New(l)
 	a := p.Program()
 	elapsedParsing := time.Since(start)
+
+	// Builtin functions.
+	a = *builtin.Init(&a)
 
 	if *astFlag {
 		ast.Print(a)

@@ -611,6 +611,7 @@ func (p *Parser) postfix() ast.Node {
 			var postNode ast.Node
 			postNode.Children = append(postNode.Children, node)
 			postNode.Type = ast.DOTOP
+			postNode.Symbols = p.curSymTable
 
 			p.nextToken()
 			var identNode ast.Node
