@@ -145,7 +145,6 @@ func stringToType(prim string) *typeObj {
 
 // Get type from a declaration.
 func declType(node *ast.Node) *typeObj {
-	fmt.Println("DECL:", node.Type)
 	if node.Type == ast.VARDECL {
 		//return stringToType(node.Children[1].Children[0].TokenStart.Literal)
 		return buildTypeObj(&node.Children[1])
@@ -288,19 +287,15 @@ func lookUpDecl(node ast.Node) *ast.Node {
 		} else {
 			name = left.name
 		}
-		fmt.Println("DEBUGGING: ", left.fullName, left.name)
 		typeDeclNode := node.Symbols.LookupSymbol(name) // Class decl
 		if typeDeclNode == nil {
 			abortMsgf("Undeclared type: %s", name)
 		}
-		fmt.Println("RAWR" + node.Children[1].TokenStart.Literal)
-		fmt.Println(typeDeclNode.Symbols)
 		methodDecl := typeDeclNode.Children[1].Symbols.LookupSymbol(node.Children[1].TokenStart.Literal)
 		return methodDecl
 	} else if node.Type == ast.EXPRESSION {
 		return lookUpDecl(node)
 	}
-	fmt.Println("CAN HAPPEN")
 	return nil // Can't happen?
 }
 
@@ -379,15 +374,12 @@ func getType(node *ast.Node) *typeObj {
 		if declNode == nil {
 			abortMsgf("Referencing undeclared variable: %s", name)
 		}
-		aaa := declType(declNode)
-		fmt.Println("VARREF: ", aaa.fullName)
 		return declType(declNode)
 
 	case ast.FUNCCALL:
 		//name := node.Children[0].TokenStart.Literal // TODO: Handle dot op.
 		//declNode := node.Symbols.LookupSymbol(name)
 		declNode := lookUpDecl(node.Children[0])
-		fmt.Println("DEBUGGING: ", node.Children[0].TokenStart.Literal)
 
 		checkFuncCall(node, declNode)
 
