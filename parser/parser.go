@@ -255,9 +255,9 @@ func (p *Parser) statement() ast.Node {
 		//} else if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.LPAREN) {
 		//statementNode = p.funcCall()
 		//p.consume(token.SEMICOLON)
-	} else if p.curTokenIs(token.IDENT) {
-		statementNode = p.varAssignment()
-		p.consume(token.SEMICOLON)
+		//} else if p.curTokenIs(token.IDENT) {
+		//	statementNode = p.varAssignment()
+		//	p.consume(token.SEMICOLON)
 	} else if p.curTokenIs(token.IF) {
 		statementNode = p.ifStatement()
 	} else if p.curTokenIs(token.FOR) {
@@ -268,8 +268,31 @@ func (p *Parser) statement() ast.Node {
 		statementNode = p.jumpStatement()
 		p.consume(token.SEMICOLON)
 	} else {
-		statementNode = p.expr()
+		// expr | varAssignment | multiAssignment
+		// expr {"," expr} {"=" expr {"," expr}} ";"
+		// If just an expr, then return leftexpr (type checker will expect a funccall somewhere inside), else return assignment.
+		exprNode := p.expr()
 
+		for p.curTokenIs(token.COMMA) {
+			// TODO multiple assignment
+		}
+		if p.curTokenIs(token.ASSIGN) { // assignment
+			var assignNode ast.Node
+			assignNode.Type = ast.VARASSIGN
+			assignNode.Symbols = p.curSymTable
+			assignNode.Children = append(assignNode.Children, exprNode)
+
+			p.consume(token.ASSIGN)
+			assignNode.Children = append(assignNode.Children, p.expr())
+			statementNode = assignNode
+		} else { // funccall
+			var leftNode ast.Node
+			leftNode.Type = ast.LEFTEXPR
+			leftNode.Children = append(leftNode.Children, exprNode)
+			statementNode = leftNode
+		}
+
+		p.consume(token.SEMICOLON)
 		//p.abortMsg("Expected statement.")
 	}
 	return statementNode

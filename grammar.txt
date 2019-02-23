@@ -18,11 +18,10 @@ forStatement = "for" ident ":" varType "in" expr block
 whileStatement = "while" expr block
 jumpStatement = "continue" | "break" | "return" [expr {"," expr}]
 varDecl = "var" ident ":" varType {"," ident : varType} "=" expr 
-varAssignment = varRef {"," varRef} assignOp expr
-varRef = ident {"[" expr "]"}           
+varAssignment = expr {"," expr} assignOp expr
+varRef = expr {"[" expr "]"}  // REMOVE         
 varType = ident | "[" varType "]" | ident "[" varType {"," varType} "]"
 // Tuples? "[" varType {"," varType} "]"
-funcCall = ident argList
 argList = "(" [expr {"," expr}] ")"    
 
 

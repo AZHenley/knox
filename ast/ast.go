@@ -41,18 +41,19 @@ const (
 	FORSTATEMENT   = "FORSTATEMENT"   // Three children. Vardecl, expr, and  block.
 	WHILESTATEMENT = "WHILESTATEMENT" // Two children. Condition and block.
 	JUMPSTATEMENT  = "JUMPSTATEMENT"  // Variable children. Zero except for return. Return has zero or more expressions.
-	VARREF         = "VARREF"         // Variable children. Name and list of expressions for array indices.
-	FUNCCALL       = "FUNCCALL"       // Variable children. Name then one expression for each argument.  // Name is now VARREF instead of Name?
+	VARREF         = "VARREF"         // Variable children. Name and list of expressions for array indices. TODO: Update this.
+	FUNCCALL       = "FUNCCALL"       // Variable children. Name then one expression for each argument.  TODO: Update this.
 	// TODO: Consider making this a binaryop. Name and arglist.
-	NEW    = "NEW"    // One child. Vartype.
-	LIST   = "LIST"   // Variable children. Expressions.
-	INT    = "INT"    // Leaf.
-	FLOAT  = "FLOAT"  // Leaf.
-	STRING = "STRING" // Leaf.
-	BOOL   = "BOOL"   // Leaf.
-	NIL    = "NIL"    // Leaf.
-	VOID   = "VOID"   // Leaf.
-	IDENT  = "IDENT"  // Leaf.
+	LEFTEXPR = "LEFTEXPR" // One child. Expr.
+	NEW      = "NEW"      // One child. Vartype.
+	LIST     = "LIST"     // Variable children. Expressions.
+	INT      = "INT"      // Leaf.
+	FLOAT    = "FLOAT"    // Leaf.
+	STRING   = "STRING"   // Leaf.
+	BOOL     = "BOOL"     // Leaf.
+	NIL      = "NIL"      // Leaf.
+	VOID     = "VOID"     // Leaf.
+	IDENT    = "IDENT"    // Leaf.
 )
 
 // Print AST.
