@@ -44,12 +44,12 @@ func main() {
 	a := p.Program()
 	elapsedParsing := time.Since(start)
 
-	// Builtin functions.
-	a = *builtin.Init(&a)
-
 	if *astFlag {
 		ast.Print(a)
 	}
+
+	// Builtin functions.
+	a = *builtin.Init(&a)
 
 	// Type check.
 	start = time.Now()
