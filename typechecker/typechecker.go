@@ -88,17 +88,17 @@ func typecheck(node *ast.Node) {
 					abortMsg("Conditionals require boolean expressions.")
 				}
 			}
-		} else if child.Type == ast.FUNCCALL { // Handles funccall outside of an expression.
-			name := child.Children[0].TokenStart.Literal
-			declNode := node.Symbols.LookupSymbol(name)
+			// } else if child.Type == ast.FUNCCALL { // Handles funccall outside of an expression.
+			// 	name := child.Children[0].TokenStart.Literal
+			// 	declNode := node.Symbols.LookupSymbol(name)
 
-			// Compare types between args and params.
-			checkFuncCall(&child, declNode)
+			// 	// Compare types between args and params.
+			// 	checkFuncCall(&child, declNode)
 
-			// Check that nothing is returned.
-			if name != "print" && (len(declType(declNode).inner) > 1 || !compareTypes(&declType(declNode).inner[0], typeVOID)) {
-				abortMsg("Function call return values must be used.")
-			}
+			// 	// Check that nothing is returned.
+			// 	if name != "print" && (len(declType(declNode).inner) > 1 || !compareTypes(&declType(declNode).inner[0], typeVOID)) {
+			// 		abortMsg("Function call return values must be used.")
+			// 	}
 		} else if child.Type == ast.JUMPSTATEMENT {
 			if child.TokenStart.Literal == "return" {
 				// TODO: Support multiple return types.
@@ -112,6 +112,11 @@ func typecheck(node *ast.Node) {
 		} else if child.Type == ast.FUNCDECL {
 			currentFunc = &child
 			typecheck(&child)
+		} else if child.Type == ast.LEFTEXPR {
+			only := getType(&child.Children[0])
+			if !compareTypes(only, typeVOID) {
+				abortMsg("Expression must be of void type.")
+			}
 		} else {
 			typecheck(&child)
 		}
@@ -140,6 +145,7 @@ func stringToType(prim string) *typeObj {
 
 // Get type from a declaration.
 func declType(node *ast.Node) *typeObj {
+	fmt.Println("DECL:", node.Type)
 	if node.Type == ast.VARDECL {
 		//return stringToType(node.Children[1].Children[0].TokenStart.Literal)
 		return buildTypeObj(&node.Children[1])
@@ -167,6 +173,7 @@ func buildTypeObj(node *ast.Node) *typeObj {
 		obj.isContainer = true
 		obj.isList = true
 		obj.inner = append(obj.inner, *buildTypeObj(&node.Children[1]))
+		obj.name = "["
 		obj.fullName = "[" + obj.inner[0].fullName + "]"
 		return obj
 	} else { // Complex type
@@ -265,6 +272,10 @@ func checkFuncCall(node *ast.Node, declNode *ast.Node) {
 // Look up a func's declaration given a ref, handling the dot operator.
 func lookUpDecl(node ast.Node) *ast.Node {
 	if node.Type == ast.IDENT {
+		name := node.TokenStart.Literal
+		declNode := node.Symbols.LookupSymbol(name)
+		return declNode
+	} else if node.Type == ast.VARREF {
 		name := node.Children[0].TokenStart.Literal
 		declNode := node.Symbols.LookupSymbol(name)
 		return declNode
@@ -277,6 +288,7 @@ func lookUpDecl(node ast.Node) *ast.Node {
 		} else {
 			name = left.name
 		}
+		fmt.Println("DEBUGGING: ", left.fullName, left.name)
 		typeDeclNode := node.Symbols.LookupSymbol(name) // Class decl
 		if typeDeclNode == nil {
 			abortMsgf("Undeclared type: %s", name)
@@ -285,7 +297,10 @@ func lookUpDecl(node ast.Node) *ast.Node {
 		fmt.Println(typeDeclNode.Symbols)
 		methodDecl := typeDeclNode.Children[1].Symbols.LookupSymbol(node.Children[1].TokenStart.Literal)
 		return methodDecl
+	} else if node.Type == ast.EXPRESSION {
+		return lookUpDecl(node)
 	}
+	fmt.Println("CAN HAPPEN")
 	return nil // Can't happen?
 }
 
@@ -364,12 +379,15 @@ func getType(node *ast.Node) *typeObj {
 		if declNode == nil {
 			abortMsgf("Referencing undeclared variable: %s", name)
 		}
+		aaa := declType(declNode)
+		fmt.Println("VARREF: ", aaa.fullName)
 		return declType(declNode)
 
 	case ast.FUNCCALL:
 		//name := node.Children[0].TokenStart.Literal // TODO: Handle dot op.
 		//declNode := node.Symbols.LookupSymbol(name)
 		declNode := lookUpDecl(node.Children[0])
+		fmt.Println("DEBUGGING: ", node.Children[0].TokenStart.Literal)
 
 		checkFuncCall(node, declNode)
 
