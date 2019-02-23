@@ -1,0 +1,5 @@
+// stl should be a module, not a class.
+class stl {
+    func print(x : string) void {}
+    func range(start : int, end : int, step : int) [int] { return [0]; }
+}

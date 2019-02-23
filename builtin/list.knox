@@ -6,5 +6,7 @@ class list {
     func reverse() void {}
     func remove(index : int) bool { return false; }
     func contains(x : int) bool { return false; }
+    func range(pos : int, len : int) [int] { return [0]; }
     // find, findAll
+    // Replace the ints with anys
 }

@@ -12,37 +12,20 @@ import (
 // Init setups the builtin.
 func Init(node *ast.Node) *ast.Node {
 
-	//listClass := createListFuncs()
-	// b := createClass("[", node.Symbols)
+	node = createBuiltin("list", node)
+	node = createBuiltin("stl", node)
 
-	// //bb := createFunction("append")
+	return node
+}
 
-	// l1 := lexer.New("class list { func append(x : int) void {} func}")
-	// p1 := parser.New(l1)
-	// a1 := p1.Program().Children[0]
-
-	// ast.Print(a1)
-
-	// l := lexer.New("func append(x : int) void {}" + "\n")
-	// p := parser.New(l)
-	// a := p.Program().Children[0]
-
-	// ast.Print(*b)
-	// ast.Print(a)
-
-	// Create all the functions and attach them to b
-	// Attach b to node
-
-	code, err := ioutil.ReadFile("builtin/list.knox") // TODO: Support multiple files.
-	//code, err := ioutil.ReadFile("examples/chain.knox")
+func createBuiltin(name string, node *ast.Node) *ast.Node {
+	code, err := ioutil.ReadFile("builtin/" + name + ".knox")
 	if err != nil {
 		panic(err)
 	}
 	l := lexer.New(string(code) + "\n")
 	p := parser.New(l)
 	a := p.Program()
-
-	// TODO: Build builtin first in case user's program conflicts.
 
 	// Merge global symtables
 	for key, val := range a.Symbols.Entries {

@@ -140,6 +140,7 @@ func compareTypes(a *typeObj, b *typeObj) bool {
 func stringToType(prim string) *typeObj {
 	primitive := &typeObj{}
 	primitive.fullName = prim
+	primitive.name = prim
 	return primitive
 }
 
@@ -153,7 +154,8 @@ func declType(node *ast.Node) *typeObj {
 		// TODO: Does this handle multiple return?
 		return buildReturnList(&node.Children[2])
 	} else if node.Type == ast.CLASS {
-		// return
+		return stringToType(node.Children[0].TokenStart.Literal)
+		// TODO: Build an actual type object from this.
 	}
 	abortMsg("Unknown type error.")
 	return nil
@@ -287,10 +289,13 @@ func lookUpDecl(node ast.Node) *ast.Node {
 		} else {
 			name = left.name
 		}
+
+		fmt.Println("QWERTY: ", name)
 		typeDeclNode := node.Symbols.LookupSymbol(name) // Class decl
 		if typeDeclNode == nil {
 			abortMsgf("Undeclared type: %s", name)
 		}
+
 		methodDecl := typeDeclNode.Children[1].Symbols.LookupSymbol(node.Children[1].TokenStart.Literal)
 		return methodDecl
 	} else if node.Type == ast.EXPRESSION {
