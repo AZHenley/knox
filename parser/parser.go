@@ -298,6 +298,35 @@ func (p *Parser) statement() ast.Node {
 	return statementNode
 }
 
+// Part of a varDecl, only used in for loops
+func (p *Parser) varDeclPiece() ast.Node {
+	var varNode ast.Node
+	varNode.Type = ast.VARDECL
+	varNode.Symbols = p.curSymTable
+
+	for p.curTokenIs(token.IDENT) {
+		var identNode ast.Node
+		identNode.Type = ast.IDENT
+		identNode.TokenStart = p.curToken
+		success := p.curSymTable.InsertSymbol(p.curToken.Literal, &varNode)
+		if !success {
+			p.abortMsg("Variable already exists.")
+		}
+		p.consume(token.IDENT)
+		p.consume(token.COLON)
+
+		varNode.Children = append(varNode.Children, identNode)
+		varNode.Children = append(varNode.Children, p.varType())
+
+		if !p.curTokenIs(token.COMMA) {
+			break
+		}
+		p.consume(token.COMMA)
+	}
+
+	return varNode
+}
+
 // varDecl = "var" ident ":" type assignOp expr
 func (p *Parser) varDecl() ast.Node {
 	var varNode ast.Node
@@ -469,9 +498,10 @@ func (p *Parser) forStatement() ast.Node {
 	p.consume(token.FOR)
 	// TODO: Make this part reuse code from varDecl.
 	//p.consume(token.VAR)
-	p.consume(token.IDENT)
-	p.consume(token.COLON)
-	p.consume(token.IDENT) // TODO: Vartype.
+	//p.consume(token.IDENT)
+	//p.consume(token.COLON)
+	//p.consume(token.IDENT) // TODO: Vartype.
+	statementNode.Children = append(statementNode.Children, p.varDeclPiece())
 	p.consume(token.IN)
 	statementNode.Children = append(statementNode.Children, p.expr())
 	statementNode.Children = append(statementNode.Children, p.block())

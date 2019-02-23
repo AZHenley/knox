@@ -73,6 +73,9 @@ func typecheck(node *ast.Node) {
 				if !compareTypes(leftType, exprType) { // Do the types match?
 					abortMsgf("Mismatched types: %s and %s", leftType.fullName, exprType.fullName)
 				}
+				if leftType.isClass && !child.Symbols.IsDeclared(leftType.name) {
+					abortMsgf("Undeclared type: %s", leftType.name)
+				}
 			} else if node.Type == ast.VARASSIGN {
 				// TODO: Handle multiple assignment.
 				decl := child.Symbols.LookupSymbol(node.Children[0].Children[0].TokenStart.Literal)
@@ -109,6 +112,18 @@ func typecheck(node *ast.Node) {
 					abortMsg("Incorrect return type.")
 				}
 			}
+		} else if node.Type == ast.FORSTATEMENT {
+			// TODO: Right should be a list. Left type should be right inner type.
+			left := declType(&node.Children[0])
+			right := getType(&node.Children[1])
+			fmt.Println("FGHJK", right.fullName, right.isList, right.isClass, right.isPrimitive)
+			if !right.isList && !right.isMap {
+				abortMsg("For loop requires a list or map.")
+			}
+			if !compareTypes(left, &right.inner[0]) {
+				abortMsg("For loop element is incorrect type.")
+			}
+
 		} else if child.Type == ast.FUNCDECL {
 			currentFunc = &child
 			typecheck(&child)
@@ -153,9 +168,9 @@ func declType(node *ast.Node) *typeObj {
 		// Currently this always returns a functions return type
 		// TODO: Does this handle multiple return?
 		return buildReturnList(&node.Children[2])
-	} else if node.Type == ast.CLASS {
-		return stringToType(node.Children[0].TokenStart.Literal)
-		// TODO: Build an actual type object from this.
+	} else if node.Type == ast.CLASS { // TODO: Is this code ever used??
+		classType := stringToType(node.Children[0].TokenStart.Literal)
+		return classType
 	}
 	abortMsg("Unknown type error.")
 	return nil
@@ -169,6 +184,7 @@ func buildTypeObj(node *ast.Node) *typeObj {
 		obj.isPrimitive = isPrimitiveType(node)
 		obj.isClass = !obj.isPrimitive
 		obj.fullName = getName(node)
+		obj.name = obj.fullName
 		return obj
 	} else if isList(node) {
 		obj.isContainer = true
@@ -179,7 +195,8 @@ func buildTypeObj(node *ast.Node) *typeObj {
 		return obj
 	} else { // Complex type
 		obj.isContainer = true
-		obj.fullName = getName(node) + "["
+		obj.name = getName(node)
+		obj.fullName = obj.name + "["
 		for i := 1; i < len(node.Children); i++ {
 			obj.inner = append(obj.inner, *buildTypeObj(&node.Children[i]))
 			obj.fullName += obj.inner[i-1].fullName
@@ -290,7 +307,6 @@ func lookUpDecl(node ast.Node) *ast.Node {
 			name = left.name
 		}
 
-		fmt.Println("QWERTY: ", name)
 		typeDeclNode := node.Symbols.LookupSymbol(name) // Class decl
 		if typeDeclNode == nil {
 			abortMsgf("Undeclared type: %s", name)
