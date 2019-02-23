@@ -1,5 +1,8 @@
 func main () void {
     var foo : [int] = [1, 2, 3];
     foo.sort();
+    foo.append(4);
+    var bar : int = foo[0];
+    stl.print("hi");
 }
 
