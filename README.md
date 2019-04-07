@@ -8,7 +8,7 @@ The principles behind the design of Knox are:
  - Small language. Simple and consistent syntax with few constructs, as an alternative to Go.
  - Convenient data structures. Lists and maps are first-class data structures that should be as easy as Python.
  - Operability. Use any Go library and produce Go libraries.
- - Fast enough. Compiling time, execution time, and memory usage should be less than a 50% increase over Go.  
+ - Fast enough. Compiling time, execution time, and memory usage should be less than a 25% increase over Go.  
  - Well-behaved. Contracts, error handling, and unit testing are first-class constructs.
 
 ```
