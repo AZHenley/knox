@@ -34,6 +34,9 @@ func fizzbuzz(n : int) void {
 ```
 
 ## Comparison to Go:
+ - Classes instead of structs
+ - Classes are pass-by-reference
+ - Ada-style type constraints
  - No type inference
  - No short form of variable declarations
  - No variable declaration blocks
@@ -45,9 +48,6 @@ func fizzbuzz(n : int) void {
  - Allows whitespace between if and elseif blocks
  - Different type and struct syntax
  - Enum support
- - Classes instead of structs
- - Classes are pass-by-reference
- - Ada-style type constraints
  - Constructors
  - Explicit interfaces only
  - No pointers
