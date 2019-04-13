@@ -1,14 +1,15 @@
 # The Knox Programming Language
 
-Knox is an experimental language meant to help me learn Go and explore compiler design. The compiler is written in Go and generates Go. The compiler consists of a lexer, recurseive-descent parser, semantic analyzer, and code emitter.
+Knox is an experimental language meant to help me learn Go and explore compiler design. The compiler is written in Go and generates C. The compiler consists of a lexer, recurseive-descent parser, semantic analyzer, and code emitter.
 
 The principles behind the design of Knox are:
  - Explicitness. Explicit and unambiguous code is a priority, even over brevity. No surprises.  
  - Pass by reference. All complex types should be pass by reference and pointers should be hidden.
  - Small language. Simple and consistent syntax with few constructs, as an alternative to Go.
- - Convenient data structures. Lists and maps are first-class data structures that should be as easy as Python.
- - Operability. Use any Go library and produce Go libraries.
- - Fast enough. Compiling time, execution time, and memory usage should be less than a 25% increase over Go.  
+ - Convenient data structures. Strings, lists, and maps are first-class data structures that should be as easy as Python.
+ - Operability. Use any C library and produce C libraries.
+ - Automatic reference counting. Avoid manual memory management without garbage collection pauses.
+ - Fast enough. Compiling time, execution time, and memory usage should be comparable to Go.  
  - Well-behaved. Contracts, error handling, and unit testing are first-class constructs.
 
 ```
