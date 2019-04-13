@@ -1,7 +1,6 @@
 package emitter
 
 import (
-	"fmt"
 	"knox/ast"
 	"strings"
 )
@@ -63,13 +62,16 @@ func funcDecl(node *ast.Node) string {
 		}
 		code += ") "
 	} else if len(node.Children[2].Children) == 1 {
-		// TODO: This isn't working.
 		returnType := node.Children[2].Children[0].Children[0].TokenStart.Literal
+		// Knox allows main to be void or int but C requires int.
+		if node.Children[0].TokenStart.Literal == "main" {
+			returnType = "int"
+		}
 		code += returnType + " "
 	}
 
 	// Function name.
-	code = node.Children[0].TokenStart.Literal + "("
+	code += node.Children[0].TokenStart.Literal + "("
 
 	// Parameters.
 	for i := 0; i < len(node.Children[1].Children); i++ {
@@ -161,8 +163,6 @@ func funcCall(node *ast.Node) string {
 	// Either a package or a method.
 
 	// TODO: Handle builtin functions in a better way.
-	fmt.Println("#$%")
-	fmt.Println(node.Children[0].Children[0])
 	if node.Children[0].Children[0].TokenStart.Literal == "stl" {
 		switch node.Children[0].Children[1].TokenStart.Literal {
 		case "print":
