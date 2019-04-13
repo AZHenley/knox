@@ -4,7 +4,7 @@ Knox is an experimental language meant to help me learn Go and explore compiler 
 
 The principles behind the design of Knox are:
  - Explicitness. Explicit and unambiguous code is a priority, even over brevity. No surprises.  
- - Pass by reference. All complex types should be pass by reference and pointers should be hidden.
+ - Pass by reference. All complex types should be pass by reference and pointers should be hidden, like Java and C#.
  - Small language. Simple and consistent syntax with few constructs, as an alternative to Go.
  - Convenient data structures. Strings, lists, and maps are first-class data structures that should be as easy as Python.
  - Operability. Use any C library and produce C libraries.
