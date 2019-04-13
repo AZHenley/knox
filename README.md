@@ -17,18 +17,16 @@ func main() void {
 }
 
 func fizzbuzz(n : int) void {
-    var i : int = 1;
-    while i <= n {
+    for i : int in stl.range(1,10,1) {
         if i%15 == 0 {
-            print("FizzBuzz");
+            stl.print("FizzBuzz");
         } else if i%3 == 0 {
-            print("Fizz");
+            stl.print("Fizz");
         } else if i%5 == 0 {
-            print("Buzz");
+            stl.print("Buzz");
         } else {
-            print(i);
+            stl.print(i);
         }
-        i = i + 1;
     }
 }
 ```
