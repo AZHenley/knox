@@ -33,7 +33,7 @@ func fizzbuzz(n : int) void {
 
 ## Comparison to Go:
  - Classes instead of structs
- - Classes are pass-by-reference
+ - Objects are pass-by-reference
  - Ada-style type constraints
  - No type inference
  - No short form of variable declarations
@@ -42,12 +42,11 @@ func fizzbuzz(n : int) void {
  - Variables must be initialized
  - Semicolons required
  - Different syntax for variable and function declarations
- - C-style For and While loop syntax
+ - Python-style While and For loops
  - Allows whitespace between if and elseif blocks
- - Different type and struct syntax
  - Enum support
  - Constructors
- - Explicit interfaces only
+ - Classes must explicitly implement interfaces
  - No pointers
  - All return values must be used or explicitly thrown away
  - No goto
