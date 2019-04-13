@@ -6,14 +6,10 @@ import (
 	"strings"
 )
 
-// Emitter object.
-type Emitter struct {
-	output string
-	level  int
-}
+var level = 0
 
-func (e *Emitter) emit(code string) {
-	e.output += strings.Repeat("\t", e.level) + code
+func indent() string {
+	return strings.Repeat("\t", level)
 }
 
 // Generate outputs code given an AST.
@@ -90,22 +86,26 @@ func funcDecl(node *ast.Node) string {
 
 func block(node *ast.Node) string {
 	var code string
+	level++
 	code += "{\n"
 	for _, s := range node.Children {
-		code += statement(&s)
+		code += indent() + statement(&s)
 	}
-	code += "}\n\n"
+	level--
+	code += indent() + "}\n\n"
 	return code
 }
 
 // Block without newline.
 func blockIf(node *ast.Node) string {
 	var code string
+	level++
 	code += "{\n"
 	for _, s := range node.Children {
-		code += statement(&s)
+		code += indent() + statement(&s)
 	}
-	code += "}"
+	level--
+	code += indent() + "}"
 	return code
 }
 
