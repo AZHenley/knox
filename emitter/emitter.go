@@ -7,6 +7,7 @@ import (
 )
 
 var level = 0
+var prototypes []string
 
 func indent() string {
 	return strings.Repeat("\t", level)
@@ -27,9 +28,9 @@ func header() string {
 // TODO: Main needs to return int.
 
 func program(node *ast.Node) string {
-	var code string
-	code += header()
+	head := header()
 
+	var code string
 	for _, child := range node.Children {
 		if child.Type == ast.FUNCDECL {
 			code += funcDecl(&child)
@@ -38,7 +39,13 @@ func program(node *ast.Node) string {
 		}
 	}
 
-	return code
+	// Generate function prototypes since C requires functions to be declared before use.
+	for _, prototype := range prototypes {
+		head += prototype + "\n"
+	}
+	head += "\n"
+
+	return head + code
 }
 
 func funcDecl(node *ast.Node) string {
@@ -56,6 +63,7 @@ func funcDecl(node *ast.Node) string {
 		}
 		code += ") "
 	} else if len(node.Children[2].Children) == 1 {
+		// TODO: This isn't working.
 		returnType := node.Children[2].Children[0].Children[0].TokenStart.Literal
 		code += returnType + " "
 	}
@@ -76,10 +84,13 @@ func funcDecl(node *ast.Node) string {
 			code += ", "
 		}
 	}
-	code += ") "
+	code += ")"
+
+	// Save this as the prototype.
+	prototypes = append(prototypes, code+";")
 
 	// Body.
-	code += block(&node.Children[3])
+	code += " " + block(&node.Children[3])
 
 	return code
 }
