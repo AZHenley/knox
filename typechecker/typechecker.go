@@ -263,12 +263,8 @@ func checkFuncCall(node *ast.Node, declNode *ast.Node) {
 	if name == "" {
 		name = node.Children[0].Children[1].TokenStart.Literal
 	}
-	if name == "print" {
-		return
-	}
 
 	//declNode := node.Symbols.LookupSymbol(name)
-	// TODO: Remove the "print" check after std library is added.
 	if declNode == nil {
 		abortMsgf("Calling undeclared function: %s", name)
 	}
