@@ -21,7 +21,7 @@ func main() {
 	// Flags
 	timeFlag := flag.Bool("time", false, "Print the time taken by each compiler phase.")
 	astFlag := flag.Bool("ast", false, "Print the AST.")
-	codeFlag := flag.Bool("code", false, "Print the C code.")
+	goFlag := flag.Bool("go", false, "Print the Go code.")
 	outFlag := flag.String("out", "", "Path for output files.")
 	nameFlag := flag.String("name", "", "Name for output executable.")
 	binaryFlag := flag.Bool("binary", true, "Generates executable.")
@@ -65,7 +65,7 @@ func main() {
 	output := emitter.Generate(&a)
 	elapsedEmitting := time.Since(start)
 
-	if *codeFlag {
+	if *goFlag {
 		fmt.Println(output)
 	}
 
@@ -76,23 +76,22 @@ func main() {
 	}
 	local := filepath.Dir(ex) // Get current path.
 	outputDir := path.Join(local, *outFlag)
-	codeFile := path.Join(outputDir, "out.c") // TODO: C files should use Knox file names.
+	outputFile := path.Join(outputDir, "out.go") // TODO: Go files should use Knox file names.
 	binName := *nameFlag
 	if binName == "" {
-		binName = "a.out"
+		binName = "out"
 	}
-	outputBin := path.Join(outputDir, binName) // TODO: Make the flag specify a file, not just a path.
-	werr := ioutil.WriteFile(codeFile, []byte(output), 0644)
+	outputBin := path.Join(outputDir, binName)
+	werr := ioutil.WriteFile(outputFile, []byte(output), 0644)
 	if werr != nil {
 		panic(werr)
 	}
 
-	// Invoke compiler.
+	// Invoke Go compiler.
 	if *binaryFlag {
-		cmd := exec.Command("clang", codeFile, "-o", outputBin)
-		sto, sterr := cmd.Output()
+		cmd := exec.Command("go", "build", "-o", outputBin, outputFile)
+		_, sterr := cmd.Output()
 		if sterr != nil {
-			fmt.Println(sto)
 			panic(sterr)
 		}
 	}
