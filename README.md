@@ -10,7 +10,7 @@ The principles behind the design of Knox are:
  - Operability. Use any C library and produce C libraries.
  - Automatic reference counting. Avoid manual memory management without garbage collection pauses.
  - Fast enough. Compiling time, execution time, and memory usage should be comparable to Go (but probably better!).  
- - Well-behaved. Contracts, error handling, and unit testing are first-class constructs.
+ - Well-behaved. Contracts, error handling, and unit tests are first-class constructs.
 
 ```
 func main() void {
