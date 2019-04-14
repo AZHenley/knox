@@ -1,12 +1,14 @@
 package emitter
 
 import (
+	"fmt"
 	"knox/ast"
 	"strings"
 )
 
 var level = 0
 var prototypes []string
+var currentMethods []string
 
 func indent() string {
 	return strings.Repeat("\t", level)
@@ -34,7 +36,10 @@ func program(node *ast.Node) string {
 		if child.Type == ast.FUNCDECL {
 			code += funcDecl(&child)
 		} else if child.Type == ast.CLASS {
-
+			code += classDecl(&child)
+			for _, method := range currentMethods {
+				code += method
+			}
 		}
 	}
 
@@ -45,6 +50,32 @@ func program(node *ast.Node) string {
 	head += "\n"
 
 	return head + code
+}
+
+func classDecl(node *ast.Node) string {
+	currentMethods = nil
+	code := "struct " + node.Children[0].TokenStart.Literal + " " + classBlock(&node.Children[1])
+	return code
+}
+
+func classBlock(node *ast.Node) string {
+	var code string
+	//level++
+	code += "{\n"
+	for _, child := range node.Children {
+		if child.Type == ast.VARDECL {
+			code += "\t" + varDecl(&child)
+		} else if child.Type == ast.FUNCDECL {
+			method := funcDecl(&child) // TODO: Add self reference as first param.
+			currentMethods = append(currentMethods, method)
+		} else {
+			// Should not happen.
+			fmt.Println(child.Type)
+		}
+	}
+	//level--
+	code += "};\n\n"
+	return code
 }
 
 func funcDecl(node *ast.Node) string {

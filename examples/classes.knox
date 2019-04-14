@@ -1,5 +1,9 @@
 class foobar {
-    func alive() void {
-        
+    //var hungry : bool = false;
+    var t : int = 0;
+    func alive() void {      
     }
+}
+
+func main() void {
 }
