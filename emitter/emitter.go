@@ -241,6 +241,11 @@ func varDecl(node *ast.Node) string {
 
 func expr(node *ast.Node) string {
 	if node.Type == ast.BINARYOP {
+		// If concatenating strings.
+		if node.TokenStart.Literal == "concat" { // Type checker will convert + for strings to concat.
+			return "concat(" + expr(&node.Children[0]) + ", " + expr(&node.Children[1]) + ")"
+		}
+		// Else any other binary op.
 		return "(" + expr(&node.Children[0]) + node.TokenStart.Literal + expr(&node.Children[1]) + ")"
 	} else if node.Type == ast.UNARYOP {
 		return "(" + node.TokenStart.Literal + expr(&node.Children[0]) + ")"

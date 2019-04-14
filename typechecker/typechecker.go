@@ -330,6 +330,7 @@ func getType(node *ast.Node) *typeObj {
 			if compareTypes(left, typeINT) || compareTypes(left, typeFLOAT) { // Math ops work on numbers.
 				return left
 			} else if node.TokenStart.Type == token.PLUS && compareTypes(left, typeSTRING) { // + works on strings.
+				node.TokenStart.Literal = "concat"
 				return left
 			} else {
 				abortMsg("Invalid operation.")
