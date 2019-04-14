@@ -124,9 +124,13 @@ func (p *Parser) classBlock() ast.Node {
 	for !p.curTokenIs(token.RBRACE) {
 		if p.curTokenIs(token.VAR) {
 			blockNode.Children = append(blockNode.Children, p.varDecl())
+			p.consume(token.SEMICOLON)
 		} else if p.curTokenIs(token.FUNCTION) {
 			blockNode.Children = append(blockNode.Children, p.funcDecl())
+		} else {
+			p.abortMsg("Unexpected token in class block.")
 		}
+
 	}
 	p.consume(token.RBRACE)
 
