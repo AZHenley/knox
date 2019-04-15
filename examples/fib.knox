@@ -9,5 +9,5 @@ func fib(n : int) int {
 }
 
 func main() void {
-    print(fib(10));
+    stl.print("Fib");
 }

@@ -189,7 +189,7 @@ func funcCall(node *ast.Node) string {
 				argList += ", "
 			}
 		}
-		return funcName + "(" + argList + ");"
+		return funcName + "(" + argList + ")"
 	}
 	// Either a package or a method.
 
