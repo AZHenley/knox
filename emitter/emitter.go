@@ -288,6 +288,9 @@ func expr(node *ast.Node) string {
 		if node.Type == ast.STRING {
 			return "\"" + node.TokenStart.Literal + "\""
 		}
+		if node.Type == ast.NIL {
+			return "null"
+		}
 		return node.TokenStart.Literal
 	}
 }

@@ -28,6 +28,7 @@ var typeBOOL *typeObj
 var typeINT *typeObj
 var typeFLOAT *typeObj
 var typeSTRING *typeObj
+var typeNIL *typeObj
 var typeLIST *typeObj
 var typeMAP *typeObj
 var typeADDRESS *typeObj
@@ -46,6 +47,7 @@ func setup() {
 	typeINT = &typeObj{}
 	typeFLOAT = &typeObj{}
 	typeSTRING = &typeObj{}
+	typeNIL = &typeObj{}
 	typeBOOL.isPrimitive = true
 	typeINT.isPrimitive = true
 	typeFLOAT.isPrimitive = true
@@ -55,6 +57,7 @@ func setup() {
 	typeINT.fullName = "int"
 	typeFLOAT.fullName = "float"
 	typeSTRING.fullName = "string"
+	typeNIL.fullName = "nil"
 }
 
 func typecheck(node *ast.Node) {
@@ -116,7 +119,7 @@ func typecheck(node *ast.Node) {
 			// TODO: Right should be a list. Left type should be right inner type.
 			left := declType(&node.Children[0])
 			right := getType(&node.Children[1])
-			fmt.Println("FGHJK", right.fullName, right.isList, right.isClass, right.isPrimitive)
+			fmt.Println("Debugging...", right.fullName, right.isList, right.isClass, right.isPrimitive)
 			if !right.isList && !right.isMap {
 				abortMsg("For loop requires a list or map.")
 			}
@@ -149,6 +152,12 @@ func abortMsgf(msg string, args ...interface{}) {
 }
 
 func compareTypes(a *typeObj, b *typeObj) bool {
+	// TODO: Consider adding nil as a subtype of all reference types.
+	// Special case for comparing reference types to nil.
+	if (a.isClass || a.isContainer) && b.fullName == "nil" {
+		return true
+	}
+	// All other cases.
 	return a.fullName == b.fullName
 }
 
@@ -432,7 +441,8 @@ func getType(node *ast.Node) *typeObj {
 		return typeSTRING
 	case ast.BOOL:
 		return typeBOOL
-	//case ast.NIL:
+	case ast.NIL:
+		return typeNIL
 	//return typeNIL
 
 	case ast.EXPRESSION:
