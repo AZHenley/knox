@@ -257,7 +257,7 @@ func varDecl(node *ast.Node) string {
 		varName := node.Children[i].TokenStart.Literal
 		varType := node.Children[i+1].Children[0].TokenStart.Literal
 		if varType == "string" {
-			varType = "char *"
+			varType = "const char *"
 		}
 		code += varType + " " + varName
 		if i+2 < len(node.Children)-1 {
