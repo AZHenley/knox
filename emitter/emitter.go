@@ -9,6 +9,7 @@ import (
 var level = 0
 var prototypes []string
 var currentMethods []string
+var currentClass string
 
 func indent() string {
 	return strings.Repeat("\t", level)
@@ -40,6 +41,7 @@ func program(node *ast.Node) string {
 			for _, method := range currentMethods {
 				code += method
 			}
+			currentClass = ""
 		}
 	}
 
@@ -54,6 +56,7 @@ func program(node *ast.Node) string {
 
 func classDecl(node *ast.Node) string {
 	currentMethods = nil
+	currentClass = node.Children[0].TokenStart.Literal
 	code := "struct " + node.Children[0].TokenStart.Literal + " " + classBlock(&node.Children[1])
 	return code
 }
@@ -105,6 +108,9 @@ func funcDecl(node *ast.Node) string {
 	code += node.Children[0].TokenStart.Literal + "("
 
 	// Parameters.
+	if currentClass != "" {
+		code += currentClass + "* self, "
+	}
 	for i := 0; i < len(node.Children[1].Children); i++ {
 		paramName := node.Children[1].Children[i].Children[0].TokenStart.Literal
 		paramType := node.Children[1].Children[i].Children[1].Children[0].TokenStart.Literal
@@ -167,18 +173,19 @@ func statement(node *ast.Node) string {
 	case ast.JUMPSTATEMENT:
 		code = jumpStatement(node)
 	case ast.LEFTEXPR:
-		code = expr(&node.Children[0]) + "\n"
+		code = expr(&node.Children[0]) + ";\n"
 	case ast.FUNCCALL:
 		code = funcCall(node) + "\n"
 	}
 	return code
 }
 
+// TODO: This needs to be rewritten to recursively handle dotop.
 func funcCall(node *ast.Node) string {
-	funcName := node.Children[0].TokenStart.Literal
 
 	// Normal function calls.
 	if node.Children[0].Type != ast.DOTOP {
+		funcName := node.Children[0].TokenStart.Literal
 		var argList string
 		for index, child := range node.Children {
 			if index == 0 {
@@ -191,8 +198,8 @@ func funcCall(node *ast.Node) string {
 		}
 		return funcName + "(" + argList + ")"
 	}
-	// Either a package or a method.
 
+	// Either a package or a method.
 	// TODO: Handle builtin functions in a better way.
 	if node.Children[0].Children[0].TokenStart.Literal == "stl" {
 		switch node.Children[0].Children[1].TokenStart.Literal {
@@ -204,6 +211,22 @@ func funcCall(node *ast.Node) string {
 			return funcName + "(\"%s\", " + argList + ");"
 		}
 	}
+
+	// If a method.
+	// myobj.foo(a, b)  ->  foo(myobj, a, b)
+	if node.Children[0].Type == ast.DOTOP {
+		funcName := node.Children[0].Children[1].TokenStart.Literal
+		var argList string
+		argList += node.Children[0].Children[0].TokenStart.Literal + ", "
+		for index, child := range node.Children[1].Children {
+			argList += expr(&child)
+			if index < len(node.Children[1].Children)-1 {
+				argList += ", "
+			}
+		}
+		return funcName + "(" + argList + ")"
+	}
+
 	return ""
 }
 
@@ -258,6 +281,10 @@ func varDecl(node *ast.Node) string {
 		varType := node.Children[i+1].Children[0].TokenStart.Literal
 		if varType == "string" {
 			varType = "const char *"
+		} else if varType != "int" && varType != "bool" && varType != "float" {
+			// TODO: This needs to be changed.
+			// If a reference type
+			varType = "struct " + varType + " *"
 		}
 		code += varType + " " + varName
 		if i+2 < len(node.Children)-1 {
@@ -284,6 +311,8 @@ func expr(node *ast.Node) string {
 		return funcCall(node)
 	} else if node.Type == ast.EXPRESSION {
 		return expr(&node.Children[0])
+	} else if node.Type == ast.NEW {
+		return "malloc(sizeof(" + node.Children[0].Children[0].TokenStart.Literal + "))"
 	} else { // Primary.
 		if node.Type == ast.STRING {
 			return "\"" + node.TokenStart.Literal + "\""
