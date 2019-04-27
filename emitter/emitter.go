@@ -7,9 +7,12 @@ import (
 )
 
 var level = 0
-var prototypes []string
-var currentMethods []string
-var currentClass string
+var currentName string      // Current var declaration name.
+var nextLine string         // Placeholder to add next line once current line completes.
+var prototypes []string     // Keep track of function prototypes so that order doesn't matter.
+var currentMethods []string // Keep track of methods in current class
+var currentMembers []string // Keep track of members in current class
+var currentClass string     // Name of current class
 
 func indent() string {
 	return strings.Repeat("\t", level)
@@ -38,9 +41,21 @@ func program(node *ast.Node) string {
 			code += funcDecl(&child)
 		} else if child.Type == ast.CLASS {
 			code += classDecl(&child)
+
+			// Fake constructor.
+			constructor := "void _" + currentClass + "(struct " + currentClass + "* self)"
+			prototypes = append(prototypes, constructor+";")
+			code += constructor + " {\n"
+			for _, member := range currentMembers {
+				code += "\tself->" + member
+			}
+			code += "}\n\n"
+
+			// All other methods.
 			for _, method := range currentMethods {
 				code += method
 			}
+
 			currentClass = ""
 		}
 	}
@@ -56,6 +71,7 @@ func program(node *ast.Node) string {
 
 func classDecl(node *ast.Node) string {
 	currentMethods = nil
+	currentMembers = nil
 	currentClass = node.Children[0].TokenStart.Literal
 	code := "struct " + node.Children[0].TokenStart.Literal + " " + classBlock(&node.Children[1])
 	return code
@@ -67,9 +83,11 @@ func classBlock(node *ast.Node) string {
 	code += "{\n"
 	for _, child := range node.Children {
 		if child.Type == ast.VARDECL {
-			code += "\t" + varDecl(&child)
+			//code += "\t" + varDecl(&child)
+			rawMethod := "\t" + varDecl(&child)
+			code += strings.Split(rawMethod, " =")[0] + ";\n"
 		} else if child.Type == ast.FUNCDECL {
-			method := funcDecl(&child) // TODO: Add self reference as first param.
+			method := funcDecl(&child)
 			currentMethods = append(currentMethods, method)
 		} else {
 			// Should not happen.
@@ -160,6 +178,8 @@ func blockIf(node *ast.Node) string {
 }
 
 func statement(node *ast.Node) string {
+	currentName = ""
+
 	var code string
 	switch node.Type {
 	case ast.VARDECL:
@@ -176,6 +196,11 @@ func statement(node *ast.Node) string {
 		code = expr(&node.Children[0]) + ";\n"
 	case ast.FUNCCALL:
 		code = funcCall(node) + "\n"
+	}
+
+	if nextLine != "" {
+		code += nextLine + "\n"
+		nextLine = ""
 	}
 	return code
 }
@@ -266,6 +291,7 @@ func varAssign(node *ast.Node) string {
 	// TODO: Fix multiple assignment.
 	for i := 0; i < len(node.Children)-1; i++ {
 		code += node.Children[i].Children[0].TokenStart.Literal
+		currentName = node.Children[i].Children[0].TokenStart.Literal
 		if i+1 < len(node.Children)-1 {
 			code += ", "
 		}
@@ -278,9 +304,12 @@ func varAssign(node *ast.Node) string {
 
 func varDecl(node *ast.Node) string {
 	code := ""
+	member := ""
 	// TODO: Fix multiple declarations.
 	for i := 0; i < len(node.Children)-1; i += 2 {
 		varName := node.Children[i].TokenStart.Literal
+		currentName = varName
+
 		varType := node.Children[i+1].Children[0].TokenStart.Literal
 		if varType == "string" {
 			varType = "const char *"
@@ -290,13 +319,17 @@ func varDecl(node *ast.Node) string {
 			varType = "struct " + varType + " *"
 		}
 		code += varType + " " + varName
+		member += varName
 		if i+2 < len(node.Children)-1 {
 			code += ", "
 		}
 	}
 
 	varExpr := expr(&node.Children[len(node.Children)-1].Children[0])
-	//return varName + " " + varType + " := " + varExpr + "\n"
+	member += " = " + varExpr + ";\n"
+	if currentClass != "" {
+		currentMembers = append(currentMembers, member)
+	}
 	return code + " = " + varExpr + ";\n"
 }
 
@@ -317,6 +350,7 @@ func expr(node *ast.Node) string {
 	} else if node.Type == ast.EXPRESSION {
 		return expr(&node.Children[0])
 	} else if node.Type == ast.NEW {
+		nextLine = "\t_" + node.Children[0].Children[0].TokenStart.Literal + "(" + currentName + ");"
 		return "malloc(sizeof(struct " + node.Children[0].Children[0].TokenStart.Literal + "))"
 	} else { // Primary.
 		if node.Type == ast.STRING {
