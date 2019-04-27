@@ -313,7 +313,7 @@ func expr(node *ast.Node) string {
 	} else if node.Type == ast.FUNCCALL {
 		return funcCall(node)
 	} else if node.Type == ast.DOTOP {
-		//return "((" + expr(&node.Children[0]) + ")->(" + expr(&node.Children[1]) + "))"
+		return "((" + expr(&node.Children[0]) + ")->(" + expr(&node.Children[1]) + "))"
 	} else if node.Type == ast.EXPRESSION {
 		return expr(&node.Children[0])
 	} else if node.Type == ast.NEW {
