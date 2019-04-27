@@ -22,7 +22,7 @@ func Generate(node *ast.Node) string {
 
 func header() string {
 	code := ""
-	code += "#include <stdlib.h>\n#include <stdio.h>\n#include <string.h>\n#include <stdint.h>\n#include <stdbool.h>\n#include \"knoxutil.h\"\n\n" // TODO: #130 Only include what is needed.
+	code += "#include <stdlib.h>\n#include <stdio.h>\n#include <string.h>\n#include <stdint.h>\n#include <stdbool.h>\n#include <stddef.h>\n#include \"knoxutil.h\"\n\n" // TODO: #130 Only include what is needed.
 	return code
 }
 
@@ -109,7 +109,7 @@ func funcDecl(node *ast.Node) string {
 
 	// Parameters.
 	if currentClass != "" {
-		code += currentClass + "* self, "
+		code += "struct " + currentClass + "* self, "
 	}
 	for i := 0; i < len(node.Children[1].Children); i++ {
 		paramName := node.Children[1].Children[i].Children[0].TokenStart.Literal
@@ -313,17 +313,17 @@ func expr(node *ast.Node) string {
 	} else if node.Type == ast.FUNCCALL {
 		return funcCall(node)
 	} else if node.Type == ast.DOTOP {
-		return "((" + expr(&node.Children[0]) + ")->(" + expr(&node.Children[1]) + "))"
+		return "(" + expr(&node.Children[0]) + "->" + expr(&node.Children[1]) + ")"
 	} else if node.Type == ast.EXPRESSION {
 		return expr(&node.Children[0])
 	} else if node.Type == ast.NEW {
-		return "malloc(sizeof(" + node.Children[0].Children[0].TokenStart.Literal + "))"
+		return "malloc(sizeof(struct " + node.Children[0].Children[0].TokenStart.Literal + "))"
 	} else { // Primary.
 		if node.Type == ast.STRING {
 			return "\"" + node.TokenStart.Literal + "\""
 		}
 		if node.Type == ast.NIL {
-			return "null"
+			return "NULL"
 		}
 		return node.TokenStart.Literal
 	}
