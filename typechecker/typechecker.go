@@ -80,12 +80,13 @@ func typecheck(node *ast.Node) {
 					abortMsgf("Undeclared type: %s", leftType.name)
 				}
 			} else if node.Type == ast.VARASSIGN {
-				// TODO: Handle multiple assignment.
-				decl := child.Symbols.LookupSymbol(node.Children[0].Children[0].TokenStart.Literal)
-				if decl == nil {
-					abortMsgf("Referencing undeclared variable: %s", node.Children[0].Children[0].TokenStart.Literal)
-				}
-				leftType := declType(decl)
+				// TODO: Fix member access bug.
+				//decl := child.Symbols.LookupSymbol(node.Children[0].Children[0].TokenStart.Literal)
+				//if decl == nil {
+				//	abortMsgf("Referencing undeclared variable: %s", node.Children[0].Children[0].TokenStart.Literal)
+				//}
+				//leftType := declType(decl)
+				leftType := getType(&node.Children[0])
 				if !compareTypes(leftType, exprType) { // Do the types match?
 					abortMsgf("Mismatched types: %s and %s", leftType.fullName, exprType.fullName)
 				}
@@ -390,10 +391,32 @@ func getType(node *ast.Node) *typeObj {
 			}
 			return &left.inner[0]
 		} else if left.isMap {
-
+			// TODO
 		} else {
 			abortMsg("Invalid operation.")
 		}
+
+	// Member access
+	case ast.DOTOP:
+		// TODO: Handle chain of dotops
+		left := getType(&node.Children[0])
+		var name string
+		if left.name == "[" { // Special case for builtin list functions
+			name = "list"
+		} else {
+			name = left.name
+		}
+
+		typeDeclNode := node.Symbols.LookupSymbol(name) // Class decl
+		if typeDeclNode == nil {
+			abortMsgf("Undeclared type: %s", name)
+		}
+
+		memberDecl := typeDeclNode.Children[1].Symbols.LookupSymbol(node.Children[1].TokenStart.Literal)
+		if memberDecl == nil {
+			abortMsgf("Referencing undeclared member: %s", node.Children[1].TokenStart.Literal)
+		}
+		return declType(memberDecl)
 
 	case ast.VARREF:
 		name := node.Children[0].TokenStart.Literal
@@ -443,7 +466,6 @@ func getType(node *ast.Node) *typeObj {
 		return typeBOOL
 	case ast.NIL:
 		return typeNIL
-	//return typeNIL
 
 	case ast.EXPRESSION:
 		return getType(&node.Children[0])
