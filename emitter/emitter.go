@@ -270,6 +270,9 @@ func varAssign(node *ast.Node) string {
 			code += ", "
 		}
 	}
+	if node.Children[0].Children[0].Type == ast.DOTOP {
+		code = expr(&node.Children[0].Children[0])
+	}
 	return code + " = " + expr(&node.Children[len(node.Children)-1].Children[0]) + ";\n"
 }
 
@@ -309,6 +312,8 @@ func expr(node *ast.Node) string {
 		return "(" + node.TokenStart.Literal + expr(&node.Children[0]) + ")"
 	} else if node.Type == ast.FUNCCALL {
 		return funcCall(node)
+	} else if node.Type == ast.DOTOP {
+		//return "((" + expr(&node.Children[0]) + ")->(" + expr(&node.Children[1]) + "))"
 	} else if node.Type == ast.EXPRESSION {
 		return expr(&node.Children[0])
 	} else if node.Type == ast.NEW {
