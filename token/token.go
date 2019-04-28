@@ -59,6 +59,7 @@ const (
 	RBRACKET  = "]"
 	COLON     = ":"
 	DOT       = "."
+	SELF      = "SELF"
 	NIL       = "NIL"
 )
 
@@ -78,6 +79,7 @@ var keywords = map[string]TokenType{
 	"in":       IN,
 	"while":    WHILE,
 	"new":      NEW,
+	"self":     SELF,
 	"nil":      NIL,
 }
 

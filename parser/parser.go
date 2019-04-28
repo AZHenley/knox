@@ -743,6 +743,8 @@ func (p *Parser) primary() ast.Node {
 		primaryNode.Type = ast.BOOL
 	case token.NIL:
 		primaryNode.Type = ast.NIL
+	case token.SELF:
+		primaryNode.Type = ast.SELF
 	case token.IDENT:
 		primaryNode.Type = ast.VARREF
 		primaryNode.Symbols = p.curSymTable
