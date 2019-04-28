@@ -18,7 +18,7 @@ class stl {
 
     // Math.
     func random(min : int, max : int) int { return 0; }
-    func randomf(min : float, max : float) float { return 0; }
+    //func randomf(min : float, max : float) float { return 0; }
     // func randomd(min : double, max : double) double { return 0; }
     // func seed
 }
