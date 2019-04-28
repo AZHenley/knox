@@ -7,12 +7,13 @@ import (
 )
 
 var level = 0
-var currentName string      // Current var declaration name.
-var nextLine string         // Placeholder to add next line once current line completes.
-var prototypes []string     // Keep track of function prototypes so that order doesn't matter.
-var currentMethods []string // Keep track of methods in current class
-var currentMembers []string // Keep track of members in current class
-var currentClass string     // Name of current class
+var currentName string        // Current var declaration name.
+var nextLine string           // Placeholder to add next line once current line completes.
+var prototypes []string       // Keep track of function prototypes so that order doesn't matter.
+var structPrototypes []string // Keep track of struct prototypes so that order doesn't matter.
+var currentMethods []string   // Keep track of methods in current class
+var currentMembers []string   // Keep track of members in current class
+var currentClass string       // Name of current class
 
 func indent() string {
 	return strings.Repeat("\t", level)
@@ -58,6 +59,10 @@ func program(node *ast.Node) string {
 		}
 	}
 
+	//Generate struct prototypes.
+	for _, prototype := range structPrototypes {
+		head += prototype + "\n"
+	}
 	// Generate function prototypes since C requires functions to be declared before use.
 	for _, prototype := range prototypes {
 		head += prototype + "\n"
@@ -72,6 +77,7 @@ func classDecl(node *ast.Node) string {
 	currentMembers = nil
 	currentClass = node.Children[0].TokenStart.Literal
 	code := "struct " + node.Children[0].TokenStart.Literal + " " + classBlock(&node.Children[1])
+	structPrototypes = append(structPrototypes, "struct "+node.Children[0].TokenStart.Literal+";")
 	return code
 }
 
