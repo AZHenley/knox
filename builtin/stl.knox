@@ -1,5 +1,12 @@
-// stl should be a module, not a class.
+// TODO: stl should be a module, not a class.
 class stl {
     func print(x : string) void {}
     func range(start : int, end : int, step : int) [int] { return [0]; }
+
+    func and(x : int, y : int) int { return 0; }
+    func or(x : int, y : int) int { return 0; }
+    func not(x : int) int { return 0; }
+    func xor(x : int, y : int) int { return 0; }
+    func left(x : int, y : int) int { return 0; }
+    func right(x : int, y : int) int { return 0; }
 }

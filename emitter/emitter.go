@@ -234,7 +234,20 @@ func funcCall(node *ast.Node) string {
 			funcName = "printf"
 			argList = expr(&node.Children[1])
 			return funcName + "(\"%s\", " + argList + ");"
+		case "and":
+			return "(" + expr(&node.Children[1]) + " & " + expr(&node.Children[2]) + ")"
+		case "or":
+			return "(" + expr(&node.Children[1]) + " | " + expr(&node.Children[2]) + ")"
+		case "not":
+			return "(~" + expr(&node.Children[1]) + ")"
+		case "left":
+			return "(" + expr(&node.Children[1]) + " << " + expr(&node.Children[2]) + ")"
+		case "right":
+			return "(" + expr(&node.Children[1]) + " >> " + expr(&node.Children[2]) + ")"
+		case "xor":
+			return "(" + expr(&node.Children[1]) + " ^ " + expr(&node.Children[2]) + ")"
 		}
+
 	}
 
 	// If a method.
