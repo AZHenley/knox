@@ -1,12 +1,24 @@
-// TODO: stl should be a module, not a class.
+// TODO: stl should be a module, not a class?
 class stl {
+    // Standard input and output.
     func print(x : string) void {}
+
+    // File input and output.
+
+    // List operations.
     func range(start : int, end : int, step : int) [int] { return [0]; }
 
+    // Bitwise.
     func and(x : int, y : int) int { return 0; }
     func or(x : int, y : int) int { return 0; }
     func not(x : int) int { return 0; }
     func xor(x : int, y : int) int { return 0; }
     func left(x : int, y : int) int { return 0; }
     func right(x : int, y : int) int { return 0; }
+
+    // Math.
+    func random(min : int, max : int) int { return 0; }
+    func randomf(min : float, max : float) float { return 0; }
+    // func randomd(min : double, max : double) double { return 0; }
+    // func seed
 }

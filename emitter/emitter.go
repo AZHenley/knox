@@ -26,11 +26,9 @@ func Generate(node *ast.Node) string {
 func header() string {
 	code := ""
 	code += "#include <stdlib.h>\n#include <stdio.h>\n#include <string.h>\n#include <stdint.h>\n#include <stdbool.h>\n#include <stddef.h>\n#include \"knoxutil.h\"\n\n" // TODO: #130 Only include what is needed.
+	// TODO: Main should set seed.
 	return code
 }
-
-// TODO: Declare all functions first, before definitions, to avoid ordering issues.
-// TODO: Main needs to return int.
 
 func program(node *ast.Node) string {
 	head := header()
@@ -234,6 +232,8 @@ func funcCall(node *ast.Node) string {
 			funcName = "printf"
 			argList = expr(&node.Children[1])
 			return funcName + "(\"%s\", " + argList + ");"
+
+		// Bitwise.
 		case "and":
 			return "(" + expr(&node.Children[1]) + " & " + expr(&node.Children[2]) + ")"
 		case "or":
@@ -246,6 +246,12 @@ func funcCall(node *ast.Node) string {
 			return "(" + expr(&node.Children[1]) + " >> " + expr(&node.Children[2]) + ")"
 		case "xor":
 			return "(" + expr(&node.Children[1]) + " ^ " + expr(&node.Children[2]) + ")"
+
+		// Math.
+		case "random":
+			return "random(" + expr(&node.Children[1]) + ", " + expr(&node.Children[2]) + ")"
+		case "randomf":
+			return "randomf(" + expr(&node.Children[1]) + ", " + expr(&node.Children[2]) + ")"
 		}
 
 	}

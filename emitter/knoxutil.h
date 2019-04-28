@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// Concatensate two strings.
 char* concat(const char *s1, const char *s2)
 {
     const size_t len1 = strlen(s1);
@@ -15,6 +16,7 @@ char* concat(const char *s1, const char *s2)
     return result;
 }
 
+// Copy the contents of one string to a new string.
 char* copy(const char *s)
 {
     const size_t len = strlen(s);
@@ -22,4 +24,16 @@ char* copy(const char *s)
     // TODO: Check for malloc errors.
     memcpy(result, s, len + 1);
     return result;
+}
+
+int random(int min, int max) {
+    return (rand() % (max - min + 1)) + min; 
+}
+
+float randomf(float min, float max) {
+    return min + ((float)rand() / RAND_MAX) * (max - min);
+}
+
+double randomd(double min, double max) {
+    return min + ((double)rand() / RAND_MAX) * (max - min);
 }
