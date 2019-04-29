@@ -33,7 +33,8 @@ var typeLIST *typeObj
 var typeMAP *typeObj
 var typeADDRESS *typeObj
 
-var currentFunc *ast.Node
+var currentFunc *ast.Node  // Keep track of current function to compare return type.
+var currentClass *ast.Node // Keep track of current class to check self type.
 
 // Analyze performs type checking on the entire AST.
 func Analyze(node *ast.Node) {
@@ -130,6 +131,9 @@ func typecheck(node *ast.Node) {
 
 		} else if child.Type == ast.FUNCDECL {
 			currentFunc = &child
+			typecheck(&child)
+		} else if child.Type == ast.CLASS {
+			currentClass = &child
 			typecheck(&child)
 		} else if child.Type == ast.LEFTEXPR {
 			only := getType(&child.Children[0])
@@ -456,6 +460,8 @@ func getType(node *ast.Node) *typeObj {
 		obj.fullName += itemType + "]"
 		return obj
 
+	case ast.SELF:
+		return declType(currentClass)
 	case ast.INT:
 		return typeINT
 	case ast.FLOAT:
