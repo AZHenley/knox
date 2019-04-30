@@ -214,7 +214,9 @@ func (p *Parser) returnList() ast.Node {
 	var returnNode ast.Node
 	returnNode.Type = ast.RETURNLIST
 
-	if !p.curTokenIs("(") {
+	if p.curTokenIs(token.LBRACE) {
+		p.abortMsg("Expected return type.")
+	} else if !p.curTokenIs(token.LPAREN) {
 		returnNode.Children = append(returnNode.Children, p.varType())
 	} else {
 		p.consume(token.LPAREN)
