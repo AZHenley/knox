@@ -131,7 +131,10 @@ func funcDecl(node *ast.Node) string {
 
 	// Parameters.
 	if currentClass != "" {
-		code += "struct " + currentClass + "* self, "
+		code += "struct " + currentClass + "* self"
+		if len(node.Children[1].Children) > 0 {
+			code += ", "
+		}
 	}
 	for i := 0; i < len(node.Children[1].Children); i++ {
 		paramName := node.Children[1].Children[i].Children[0].TokenStart.Literal
@@ -267,11 +270,14 @@ func funcCall(node *ast.Node) string {
 	if node.Children[0].Type == ast.DOTOP {
 		funcName := node.Children[0].Children[1].TokenStart.Literal
 		var argList string
-		argList += node.Children[0].Children[0].TokenStart.Literal + ", "
-		for index, child := range node.Children[1].Children {
-			argList += expr(&child)
-			if index < len(node.Children[1].Children)-1 {
-				argList += ", "
+		argList += node.Children[0].Children[0].TokenStart.Literal
+		if len(node.Children) > 1 {
+			argList += ", "
+			for index, child := range node.Children[1].Children {
+				argList += expr(&child)
+				if index < len(node.Children[1].Children)-1 {
+					argList += ", "
+				}
 			}
 		}
 		return funcName + "(" + argList + ")"
