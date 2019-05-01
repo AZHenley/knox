@@ -138,7 +138,7 @@ func typecheck(node *ast.Node) {
 		} else if child.Type == ast.LEFTEXPR {
 			only := getType(&child.Children[0])
 			if !compareTypes(only, typeVOID) {
-				abortMsg("Expression must be of void type.")
+				abortMsg("Expression must be of void type. " + only.fullName)
 			}
 		} else {
 			typecheck(&child)
