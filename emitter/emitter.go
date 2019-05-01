@@ -270,7 +270,8 @@ func funcCall(node *ast.Node) string {
 	if node.Children[0].Type == ast.DOTOP {
 		funcName := node.Children[0].Children[1].TokenStart.Literal
 		var argList string
-		argList += node.Children[0].Children[0].TokenStart.Literal
+		//argList += node.Children[0].Children[0].TokenStart.Literal
+		argList += expr(&node.Children[0].Children[0])
 		if len(node.Children) > 1 {
 			argList += ", "
 			for index, child := range node.Children[1].Children {
@@ -322,7 +323,8 @@ func varAssign(node *ast.Node) string {
 	// TODO: Fix multiple assignment.
 	for i := 0; i < len(node.Children)-1; i++ {
 		code += node.Children[i].Children[0].TokenStart.Literal
-		currentName = node.Children[i].Children[0].TokenStart.Literal
+		//currentName = node.Children[i].Children[0].TokenStart.Literal
+		currentName = expr(&node.Children[i])
 		if i+1 < len(node.Children)-1 {
 			code += ", "
 		}
@@ -339,7 +341,7 @@ func varDecl(node *ast.Node) string {
 	// TODO: Fix multiple declarations.
 	for i := 0; i < len(node.Children)-1; i += 2 {
 		varName := node.Children[i].TokenStart.Literal
-		currentName = varName
+		currentName = expr(&node.Children[i])
 
 		varType := node.Children[i+1].Children[0].TokenStart.Literal
 		if varType == "string" {
