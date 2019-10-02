@@ -34,6 +34,7 @@ const (
 	GTEQ      = ">="
 	AND       = "&&"
 	OR        = "||"
+	AS        = "AS"
 	LPAREN    = "("
 	RPAREN    = ")"
 	LBRACE    = "{"
@@ -75,6 +76,7 @@ var keywords = map[string]TokenType{
 	"return":   RETURN,
 	"break":    BREAK,
 	"continue": CONTINUE,
+	"as":       AS,
 	"for":      FOR,
 	"in":       IN,
 	"while":    WHILE,

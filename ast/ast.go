@@ -29,6 +29,7 @@ const (
 	// TODO: Consider making this a binaryop.
 	DOTOP = "DOTOP" // Two children.
 	// TODO: Consider making this a binaryop.
+	CAST    = "CAST"    // Twp children.
 	VARDECL = "VARDECL" // Variable children. Name and type for each variable, then expression.
 	// TODO: Consider making the third child a VARASSIGN.
 	VARTYPE   = "VARTYPE"   // Variable children. Name and optionally a child for each inner type.
