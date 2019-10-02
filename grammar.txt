@@ -27,7 +27,8 @@ argList = "(" [expr {"," expr}] ")"
 
 expr = logical
 logical = equality {("&&" | "||") equality}
-equality = comparison {("!=" | "==") comparison } ;
+equality = cast {("!=" | "==") cast} 
+cast = comparison {"as" ident}
 comparison = addition {(">" | ">=" | "<" | "<=") addition}
 addition = multiplication {( "-" | "+" ) multiplication}
 multiplication = unary {( "/" | "*" ) unary}
@@ -37,5 +38,7 @@ paran = "(" expr ")" | special
 special = primary | "new" varType | "typeof" "(" expr ")"       
 listLiteral = "[" [expr {"," expr}] "]"
 primary = ident | int | float | string | "false" | "true" | "nil" | listLiteral
+
+// Consider moving "(" expr ")" into primary from paran.
 
 // Missing... interfaces, switch, contracts, typedef, typeof operator, casting, several literals (byte, hex, rune, char), function pointers, import, module, concurrency
