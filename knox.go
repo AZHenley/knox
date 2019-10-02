@@ -90,11 +90,6 @@ func main() {
 	// Invoke compiler.
 	if *binaryFlag {
 		cmd := exec.Command("clang", codeFile, "-o", outputBin)
-		// sto, sterr := cmd.Output()
-		// fmt.Println(sto)
-		// if sterr != nil {
-		// 	panic(sterr)
-		// }
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cerr := cmd.Run()
@@ -104,8 +99,8 @@ func main() {
 	}
 
 	if *timeFlag {
-		fmt.Printf("Parsing took: %v", elapsedParsing)
-		fmt.Printf("Parsing took: %v", elapsedTypeChecking)
-		fmt.Printf("Parsing took: %v", elapsedEmitting)
+		fmt.Printf("Parsing took: %v\n", elapsedParsing)
+		fmt.Printf("Parsing took: %v\n", elapsedTypeChecking)
+		fmt.Printf("Parsing took: %v\n", elapsedEmitting)
 	}
 }
