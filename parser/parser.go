@@ -568,7 +568,7 @@ func (p *Parser) logical() ast.Node {
 }
 
 func (p *Parser) equality() ast.Node {
-	var node = p.comparison()
+	var node = p.cast()
 	for p.curTokenIs(token.EQ) || p.curTokenIs(token.NOTEQ) {
 		var binaryNode ast.Node
 		binaryNode.Type = ast.BINARYOP
@@ -576,8 +576,27 @@ func (p *Parser) equality() ast.Node {
 
 		p.nextToken()
 		binaryNode.Children = append(binaryNode.Children, node)
-		binaryNode.Children = append(binaryNode.Children, p.comparison())
+		binaryNode.Children = append(binaryNode.Children, p.cast())
 		node = binaryNode
+	}
+	return node
+}
+
+func (p *Parser) cast() ast.Node {
+	var node = p.comparison()
+	for p.curTokenIs(token.AS) {
+		var castNode ast.Node
+		castNode.Type = ast.CAST
+		castNode.TokenStart = p.curToken
+
+		p.nextToken()
+		var identNode ast.Node
+		identNode.Type = ast.IDENT
+		identNode.TokenStart = p.curToken
+		p.consume(token.IDENT)
+
+		castNode.Children = append(castNode.Children, node)
+		castNode.Children = append(castNode.Children, identNode)
 	}
 	return node
 }
