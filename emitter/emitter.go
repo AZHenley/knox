@@ -197,6 +197,8 @@ func statement(node *ast.Node) string {
 		code = ifStatement(node)
 	case ast.WHILESTATEMENT:
 		code = whileStatement(node)
+	case ast.FORSTATEMENT:
+		code = forStatement(node)
 	case ast.JUMPSTATEMENT:
 		code = jumpStatement(node)
 	case ast.LEFTEXPR:
@@ -305,6 +307,11 @@ func ifStatement(node *ast.Node) string {
 
 func whileStatement(node *ast.Node) string {
 	return "while(" + expr(&node.Children[0]) + ") " + blockIf(&node.Children[1]) + "\n"
+}
+
+func forStatement(node *ast.Node) string {
+	return ""
+	// TODO
 }
 
 func jumpStatement(node *ast.Node) string {
