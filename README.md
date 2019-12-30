@@ -46,6 +46,7 @@ func fizzbuzz(n : int) void {
  - Python-style While and For loops
  - Allows whitespace between if and elseif blocks
  - Enum support
+ - Sum types
  - Constructors
  - Classes must explicitly implement interfaces
  - No pointers
