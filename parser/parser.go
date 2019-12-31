@@ -597,6 +597,7 @@ func (p *Parser) cast() ast.Node {
 
 		castNode.Children = append(castNode.Children, node)
 		castNode.Children = append(castNode.Children, identNode)
+		node = castNode
 	}
 	return node
 }
