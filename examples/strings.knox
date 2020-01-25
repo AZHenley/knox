@@ -1,0 +1,10 @@
+func main() void {
+    var s : string = "Hello!";
+    var ss : string = s;
+    s = "Never!!!!!!!!!!!!!!!!!";
+
+    stl.print(s + "\n");
+    stl.print(ss);
+
+    ss = s;
+}

@@ -1,0 +1,4 @@
+func main() int {
+    var i : int = 5;
+    var f : float = i as float;
+}

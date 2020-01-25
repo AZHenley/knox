@@ -1,0 +1,8 @@
+func main() bool {
+    return 0;
+}
+
+func soon() bool {
+    return false;
+}
+
