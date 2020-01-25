@@ -24,6 +24,8 @@ class person {
     //var zzz : map[string, int] = new map;
     //var xyz : address[boss] = new address;
     //var yyy : map[string, map[string, [int]]] = new map;
+    //var www : person = null;
+    //var wxy : person = new person;
 
 
     func something() bool {

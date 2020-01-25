@@ -1,8 +1,23 @@
 class foobar {
     var hungry : bool = false;
-    func alive() void {      
+    var number : int = 3;
+    func alive(a : int) void {      
     }
 }
 
 func main() void {
+    var left : foobar = nil;
+    left = new foobar;
+    var right : foobar = new foobar;
+    right.alive(left.number * 3);
+    right.hungry = true;
 }
+
+
+// nil (already done)
+// new (already done)
+// method calls (#144)
+// member access (#145)
+// reference types (#119)
+// object references (#107)
+// nested dot op (TODO)
