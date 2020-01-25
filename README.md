@@ -9,6 +9,7 @@ The principles behind the design of Knox are:
  - Convenient data structures. Strings, lists, and maps are first-class data structures that should be as easy as Python.
  - Operability. Use any C library and produce C libraries.
  - Automatic reference counting. Avoid manual memory management without garbage collection pauses.
+ - Easy to setup and use. No massive installation like C# or Java and no annoying configuration like Go's gopath.
  - Fast enough. Compiling time, execution time, and memory usage should be comparable to Go (but probably better!).  
  - Well-behaved. Contracts, error handling, and unit tests are first-class constructs.
 
