@@ -41,4 +41,4 @@ primary = ident | int | float | string | "false" | "true" | "nil" | listLiteral
 
 // Consider moving "(" expr ")" into primary from paran.
 
-// Missing... interfaces, switch, contracts, typedef, typeof operator, casting, several literals (byte, hex, rune, char), function pointers, import, module, concurrency
+// Missing... interfaces, switch, contracts, typedef, typeof operator, several literals (byte, hex, rune, char), function pointers, import, module, concurrency
