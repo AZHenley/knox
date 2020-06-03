@@ -5,12 +5,12 @@ Knox is an experimental language meant to help me learn Go and explore compiler 
 The principles behind the design of Knox are:
  - Explicitness. Explicit and unambiguous code is a priority, even over brevity. No surprises.  
  - Pass by reference. All complex types should be pass by reference and pointers should be hidden, like Java and C#.
- - Small language. Simple and consistent syntax with few constructs, as an alternative to Go.
+ - Small language. Simple and consistent syntax with few constructs, as an alternative to Zig or C.
  - Convenient data structures. Strings, lists, and maps are first-class data structures that should be as easy as Python.
  - Operability. Use any C library and produce C libraries.
- - Automatic reference counting. Avoid manual memory management without garbage collection pauses.
  - Easy to setup and use. No massive installation like C# or Java and no annoying configuration like Go's gopath.
- - Fast enough. Compiling time, execution time, and memory usage should be comparable to Go (but probably better!).  
+ - Fast enough. Compiling time, execution time, and memory usage should be comparable to directly using C.  
+ - Low overhead. All runtime dependencies are optional for systems programming.
  - Well-behaved. Contracts, error handling, and unit tests are first-class constructs.
 
 ```
@@ -37,6 +37,7 @@ func fizzbuzz(n : int) void {
  - Classes instead of structs
  - Objects are pass-by-reference
  - Ada-style type constraints
+ - No garbage collector
  - No type inference
  - No short form of variable declarations
  - No variable declaration blocks
