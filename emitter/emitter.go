@@ -399,6 +399,9 @@ func expr(node *ast.Node) string {
 		if node.Type == ast.NIL {
 			return "NULL"
 		}
+		if node.Type == ast.INT || node.Type == ast.FLOAT {
+			return strings.ReplaceAll(node.TokenStart.Literal, "_", "")
+		}
 		return node.TokenStart.Literal
 	}
 }

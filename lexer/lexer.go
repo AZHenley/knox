@@ -178,7 +178,7 @@ func (l *Lexer) skipComment() {
 // read number
 func (l *Lexer) readNumber() string {
 	position := l.position
-	for isDigit(l.ch) {
+	for isDigit(l.ch) || isUnderscore(l.ch) {
 		l.readChar()
 	}
 	return string(l.characters[position:l.position])
@@ -210,22 +210,6 @@ func (l *Lexer) readDecimal() token.Token {
 	} else {
 		illegalPart := l.readUntilWhitespace()
 		return token.Token{Type: token.ILLEGAL, Literal: integer + illegalPart}
-	}
-}
-
-// read float
-func (l *Lexer) readFloat() token.Token {
-	l.readChar()
-	fraction := l.readNumber()
-	if len(fraction) == 0 {
-		return token.Token{Type: token.ILLEGAL, Literal: "."}
-	} else {
-		if isEmpty(l.ch) || isWhitespace(l.ch) || IsOperator(l.ch) || isComparison(l.ch) || isCompound(l.ch) || isBracket(l.ch) || isBrace(l.ch) || isParen(l.ch) {
-			return token.Token{Type: token.FLOAT, Literal: "." + fraction}
-		} else {
-			illegalPart := l.readUntilWhitespace()
-			return token.Token{Type: token.ILLEGAL, Literal: "." + fraction + illegalPart}
-		}
 	}
 }
 
@@ -306,4 +290,8 @@ func isEmpty(ch rune) bool {
 // is Digit
 func isDigit(ch rune) bool {
 	return rune('0') <= ch && ch <= rune('9')
+}
+
+func isUnderscore(ch rune) bool {
+	return ch == rune('_')
 }
