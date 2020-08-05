@@ -23,43 +23,49 @@ type typeObj struct {
 	inner       []typeObj // Inner types. TODO: Make this a slice of pointers of typeObj.
 }
 
-var typeVOID *typeObj
-var typeBOOL *typeObj
-var typeINT *typeObj
-var typeFLOAT *typeObj
-var typeSTRING *typeObj
-var typeNIL *typeObj
-var typeLIST *typeObj
-var typeMAP *typeObj
-var typeADDRESS *typeObj
+// var typeVOID *typeObj
+// var typeBOOL *typeObj
+// var typeINT *typeObj
+// var typeFLOAT *typeObj
+// var typeSTRING *typeObj
+// var typeNIL *typeObj
+// var typeLIST *typeObj
+// var typeMAP *typeObj
+// var typeADDRESS *typeObj
+
+var prim primitives // Object holding the primitive types.
 
 var currentFunc *ast.Node  // Keep track of current function to compare return type.
 var currentClass *ast.Node // Keep track of current class to check self type.
 
 // Analyze performs type checking on the entire AST.
 func Analyze(node *ast.Node) {
-	setup()
+	//setup()
+	prim.Init()
 	typecheck(node)
 }
 
-func setup() {
-	typeVOID = &typeObj{}
-	typeBOOL = &typeObj{}
-	typeINT = &typeObj{}
-	typeFLOAT = &typeObj{}
-	typeSTRING = &typeObj{}
-	typeNIL = &typeObj{}
-	typeBOOL.isPrimitive = true
-	typeINT.isPrimitive = true
-	typeFLOAT.isPrimitive = true
-	typeSTRING.isPrimitive = true
-	typeVOID.fullName = "void"
-	typeBOOL.fullName = "bool"
-	typeINT.fullName = "int"
-	typeFLOAT.fullName = "float"
-	typeSTRING.fullName = "string"
-	typeNIL.fullName = "nil"
-}
+// TODO: Create an object of builtin types.
+// func setup() {
+// 	typeVOID = &typeObj{}
+// 	typeBOOL = &typeObj{}
+// 	typeINT = &typeObj{}
+// 	typeFLOAT = &typeObj{}
+// 	typeSTRING = &typeObj{}
+// 	typeNIL = &typeObj{}
+// 	typeBOOL.isPrimitive = true
+// 	typeINT.isPrimitive = true
+// 	typeFLOAT.isPrimitive = true
+// 	typeSTRING.isPrimitive = true
+// 	typeVOID.fullName = "void"
+// 	typeBOOL.fullName = "bool"
+// 	typeINT.fullName = "int"
+// 	typeFLOAT.fullName = "float"
+// 	typeSTRING.fullName = "string"
+// 	typeNIL.fullName = "nil"
+// }
+
+// #137 make sure main has return type void or int
 
 func typecheck(node *ast.Node) {
 	for _, child := range node.Children {
@@ -92,7 +98,7 @@ func typecheck(node *ast.Node) {
 					abortMsgf("Mismatched types: %s and %s", leftType.fullName, exprType.fullName)
 				}
 			} else if node.Type == ast.IFSTATEMENT || node.Type == ast.WHILESTATEMENT {
-				if !compareTypes(exprType, typeBOOL) {
+				if !compareTypes(exprType, prim.typeBOOL) {
 					abortMsg("Conditionals require boolean expressions.")
 				}
 			}
@@ -112,13 +118,14 @@ func typecheck(node *ast.Node) {
 				// TODO: Support multiple return types.
 				returnType := buildTypeList(&child)
 				funcReturnType := buildReturnList(&currentFunc.Children[2])
-				if compareTypes(funcReturnType, typeVOID) && returnType.fullName == "" { // Check for return; and void type.
+				if compareTypes(funcReturnType, prim.typeVOID) && returnType.fullName == "" { // Check for return; and void type.
 				} else if !compareTypes(returnType, funcReturnType) {
 					abortMsg("Incorrect return type.")
 				}
 			}
 		} else if node.Type == ast.FORSTATEMENT {
 			// TODO: Right should be a list. Left type should be right inner type.
+			// TODO: Is this working?
 			left := declType(&node.Children[0])
 			right := getType(&node.Children[1])
 			fmt.Println("Debugging...", right.fullName, right.isList, right.isClass, right.isPrimitive)
@@ -137,7 +144,7 @@ func typecheck(node *ast.Node) {
 			typecheck(&child)
 		} else if child.Type == ast.LEFTEXPR {
 			only := getType(&child.Children[0])
-			if !compareTypes(only, typeVOID) {
+			if !compareTypes(only, prim.typeVOID) {
 				abortMsg("Expression must be of void type. " + only.fullName)
 			}
 		} else {
@@ -341,38 +348,38 @@ func getType(node *ast.Node) *typeObj {
 			abortMsgf("Mismatched types: %s and %s", left.fullName, right.fullName)
 		}
 		if lexer.IsOperator([]rune(node.TokenStart.Literal)[0]) {
-			if compareTypes(left, typeINT) || compareTypes(left, typeFLOAT) { // Math ops work on numbers.
+			if compareTypes(left, prim.typeINT) || compareTypes(left, prim.typeFLOAT) { // Math ops work on numbers.
 				return left
-			} else if node.TokenStart.Type == token.PLUS && compareTypes(left, typeSTRING) { // + works on strings.
+			} else if node.TokenStart.Type == token.PLUS && compareTypes(left, prim.typeSTRING) { // + works on strings.
 				node.TokenStart.Literal = "concat"
 				return left
 			} else {
 				abortMsg("Invalid operation.")
 			}
 		} else if node.TokenStart.Literal == ">=" || node.TokenStart.Literal == ">" || node.TokenStart.Literal == "<=" || node.TokenStart.Literal == "<" { // Comparison ops work on numbers, but return a bool.
-			if compareTypes(left, typeINT) || compareTypes(left, typeFLOAT) {
-				return typeBOOL
+			if compareTypes(left, prim.typeINT) || compareTypes(left, prim.typeFLOAT) {
+				return prim.typeBOOL
 			} else {
 				abortMsg("Invalid operation.")
 			}
 		} else if node.TokenStart.Literal == "==" {
-			return typeBOOL
+			return prim.typeBOOL
 		} else if node.TokenStart.Literal == "&&" || node.TokenStart.Literal == "||" {
-			if !compareTypes(left, typeBOOL) {
+			if !compareTypes(left, prim.typeBOOL) {
 				abortMsg("Invalid operation.")
 			}
-			return typeBOOL
+			return prim.typeBOOL
 		}
 		return left // Will this ever be reached?
 
 	case ast.UNARYOP:
 		single := getType(&node.Children[0])
 		if node.TokenStart.Type == token.BANG {
-			if !compareTypes(single, typeBOOL) {
+			if !compareTypes(single, prim.typeBOOL) {
 				abortMsg("Invalid operation.")
 			}
 		} else if node.TokenStart.Type == token.PLUS || node.TokenStart.Type == token.MINUS {
-			if !compareTypes(single, typeINT) && !compareTypes(single, typeFLOAT) {
+			if !compareTypes(single, prim.typeINT) && !compareTypes(single, prim.typeFLOAT) {
 				abortMsg("Invalid operation.")
 			}
 		} else if node.TokenStart.Type == token.NEW {
@@ -390,7 +397,7 @@ func getType(node *ast.Node) *typeObj {
 		right := getType(&node.Children[1])
 
 		if left.isList {
-			if !compareTypes(right, typeINT) {
+			if !compareTypes(right, prim.typeINT) {
 				abortMsg("List index must be int.")
 			}
 			return &left.inner[0]
@@ -463,15 +470,15 @@ func getType(node *ast.Node) *typeObj {
 	case ast.SELF:
 		return declType(currentClass)
 	case ast.INT:
-		return typeINT
+		return prim.typeINT
 	case ast.FLOAT:
-		return typeFLOAT
+		return prim.typeFLOAT
 	case ast.STRING:
-		return typeSTRING
+		return prim.typeSTRING
 	case ast.BOOL:
-		return typeBOOL
+		return prim.typeBOOL
 	case ast.NIL:
-		return typeNIL
+		return prim.typeNIL
 
 	case ast.EXPRESSION:
 		return getType(&node.Children[0])
