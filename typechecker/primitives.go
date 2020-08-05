@@ -30,3 +30,7 @@ func (p *primitives) Init() {
 	p.typeSTRING.fullName = "string"
 	p.typeNIL.fullName = "nil"
 }
+
+func (p *primitives) IsPrimitiveType(literal string) bool {
+	return literal == "bool" || literal == "string" || literal == "int" || literal == "float"
+}

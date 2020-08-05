@@ -173,6 +173,7 @@ func compareTypes(a *typeObj, b *typeObj) bool {
 	return a.fullName == b.fullName
 }
 
+// Is this still needed?
 func stringToType(prim string) *typeObj {
 	primitive := &typeObj{}
 	primitive.fullName = prim
@@ -202,7 +203,7 @@ func buildTypeObj(node *ast.Node) *typeObj {
 	obj := &typeObj{}
 
 	if isSimple(node) {
-		obj.isPrimitive = isPrimitiveType(node)
+		obj.isPrimitive = prim.IsPrimitiveType(getName(node))
 		obj.isClass = !obj.isPrimitive
 		obj.fullName = getName(node)
 		obj.name = obj.fullName
@@ -261,11 +262,6 @@ func isList(node *ast.Node) bool {
 		return true
 	}
 	return false
-}
-
-func isPrimitiveType(node *ast.Node) bool {
-	literal := getName(node)
-	return literal == "bool" || literal == "string" || literal == "int" || literal == "float"
 }
 
 func isSimple(node *ast.Node) bool {
@@ -445,6 +441,19 @@ func getType(node *ast.Node) *typeObj {
 		checkFuncCall(node, declNode)
 
 		return &declType(declNode).inner[0] // TODO: This will not work for multiple return...
+
+	case ast.CAST:
+		// Check that left and right are both primitive.
+		// We will rely on C's casting rules for the semantics.
+		typeLiteral := node.Children[1].TokenStart.Literal
+		left := getType(&node.Children[0])
+		isRightPrimitive := prim.IsPrimitiveType(typeLiteral)
+
+		if !left.isPrimitive || !isRightPrimitive {
+			abortMsgf("Illegal cast from %s to %s.", node.Children[0].TokenStart.Literal, node.Children[1].TokenStart.Literal)
+		}
+
+		return stringToType(typeLiteral)
 
 	case ast.NEW:
 		return buildTypeObj(&node.Children[0])
