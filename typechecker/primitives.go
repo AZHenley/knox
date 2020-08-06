@@ -1,5 +1,7 @@
 package typechecker
 
+import "fmt"
+
 type primitives struct {
 	typeVOID       *typeObj
 	typeBOOL       *typeObj
@@ -15,14 +17,16 @@ type primitives struct {
 }
 
 func (p *primitives) Init() {
-	p.typeVOID.Init("void", false, false, false, true, false, false, false, false, false, false, false)
-	p.typeBOOL.Init("bool", false, false, false, true, false, false, false, false, false, false, false)
-	p.typeINT.Init("int", false, true, false, true, false, false, false, false, false, false, false)
-	p.typeINTLITERAL.Init("INT_LITERAL", true, true, false, true, false, false, false, false, false, false, false)
-	p.typeI32.Init("i32", false, true, false, true, false, false, false, false, false, false, false)
-	p.typeFLOAT.Init("float", false, true, false, true, false, false, false, false, false, false, false)
-	p.typeSTRING.Init("string", false, false, false, true, false, false, false, false, false, false, false)
-	p.typeNIL.Init("nil", true, false, false, true, false, false, false, false, false, false, false)
+	p.typeVOID = createTypeObj("void", false, false, false, true, false, false, false, false, false, false, false)
+	fmt.Println("%%%")
+	fmt.Println(p.typeVOID)
+	p.typeBOOL = createTypeObj("bool", false, false, false, true, false, false, false, false, false, false, false)
+	p.typeINT = createTypeObj("int", false, true, false, true, false, false, false, false, false, false, false)
+	p.typeINTLITERAL = createTypeObj("INT_LITERAL", true, true, false, true, false, false, false, false, false, false, false)
+	p.typeI32 = createTypeObj("i32", false, true, false, true, false, false, false, false, false, false, false)
+	p.typeFLOAT = createTypeObj("float", false, true, false, true, false, false, false, false, false, false, false)
+	p.typeSTRING = createTypeObj("string", false, false, false, true, false, false, false, false, false, false, false)
+	p.typeNIL = createTypeObj("nil", true, false, false, true, false, false, false, false, false, false, false)
 }
 
 func (p *primitives) IsPrimitiveType(literal string) bool {

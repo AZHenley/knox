@@ -20,8 +20,8 @@ type typeObj struct {
 	inner       []typeObj // Inner types. TODO: Make this a slice of pointers of typeObj.
 }
 
-func (t *typeObj) Init(name string, literal bool, number bool, function bool, primitive bool, container bool, listt bool, mapt bool, multi bool, classt bool, enumt bool, typedeft bool) {
-	t = &typeObj{}
+func createTypeObj(name string, literal bool, number bool, function bool, primitive bool, container bool, listt bool, mapt bool, multi bool, classt bool, enumt bool, typedeft bool) *typeObj {
+	t := &typeObj{}
 	t.name = name
 	t.fullName = name
 	t.isLiteral = literal
@@ -35,4 +35,5 @@ func (t *typeObj) Init(name string, literal bool, number bool, function bool, pr
 	t.isClass = classt
 	t.isEnum = enumt
 	t.isTypedef = typedeft
+	return t
 }
