@@ -7,32 +7,6 @@ import (
 	"knox/token"
 )
 
-// Internal representation of a type.
-type typeObj struct {
-	fullName    string // Name of this type (and all inner types)
-	name        string // Name of this outer type
-	isFunction  bool   // Is this a function
-	isPrimitive bool   // Is this type a primitive (int, float, string, rune, byte, bool)
-	isContainer bool   // Is this type a container (list, map, address, etc.)
-	isList      bool
-	isMap       bool
-	isMulti     bool      // Is this a set of types (used for multiple return)
-	isClass     bool      // Is this a user-defined class
-	isEnum      bool      // Is this an enum
-	isTypedef   bool      // Is this a typedef
-	inner       []typeObj // Inner types. TODO: Make this a slice of pointers of typeObj.
-}
-
-// var typeVOID *typeObj
-// var typeBOOL *typeObj
-// var typeINT *typeObj
-// var typeFLOAT *typeObj
-// var typeSTRING *typeObj
-// var typeNIL *typeObj
-// var typeLIST *typeObj
-// var typeMAP *typeObj
-// var typeADDRESS *typeObj
-
 var prim primitives // Object holding the primitive types.
 
 var currentFunc *ast.Node  // Keep track of current function to compare return type.
@@ -40,35 +14,15 @@ var currentClass *ast.Node // Keep track of current class to check self type.
 
 // Analyze performs type checking on the entire AST.
 func Analyze(node *ast.Node) {
-	//setup()
 	prim.Init()
 	typecheck(node)
 }
-
-// TODO: Create an object of builtin types.
-// func setup() {
-// 	typeVOID = &typeObj{}
-// 	typeBOOL = &typeObj{}
-// 	typeINT = &typeObj{}
-// 	typeFLOAT = &typeObj{}
-// 	typeSTRING = &typeObj{}
-// 	typeNIL = &typeObj{}
-// 	typeBOOL.isPrimitive = true
-// 	typeINT.isPrimitive = true
-// 	typeFLOAT.isPrimitive = true
-// 	typeSTRING.isPrimitive = true
-// 	typeVOID.fullName = "void"
-// 	typeBOOL.fullName = "bool"
-// 	typeINT.fullName = "int"
-// 	typeFLOAT.fullName = "float"
-// 	typeSTRING.fullName = "string"
-// 	typeNIL.fullName = "nil"
-// }
 
 // #137 make sure main has return type void or int
 
 func typecheck(node *ast.Node) {
 	for _, child := range node.Children {
+		// fmt.Printf("@@@ %v_%v has %v children\n", child.Type, child.TokenStart.Literal, len(child.Children))
 		if child.Type == ast.EXPRESSION {
 			exprType := getType(&child.Children[0])
 			// TODO: Handle for, return
@@ -119,7 +73,8 @@ func typecheck(node *ast.Node) {
 				returnType := buildTypeList(&child)
 				funcReturnType := buildReturnList(&currentFunc.Children[2])
 				if compareTypes(funcReturnType, prim.typeVOID) && returnType.fullName == "" { // Check for return; and void type.
-				} else if !compareTypes(returnType, funcReturnType) {
+				} else if !compareTypes(&returnType.inner[0], &funcReturnType.inner[0]) {
+					// TODO: Comparing the inner[0] is correct for single return types, but won't work for multiple. Need to expand compareType to handle this. buildTypeList and buildReturnList should probably not use inner for single return types, which would solve literals and simple types, then set isMulti to true and expand compareTypes to handle recursively comparing inner for multi.
 					abortMsg("Incorrect return type.")
 				}
 			}
@@ -164,11 +119,21 @@ func abortMsgf(msg string, args ...interface{}) {
 }
 
 func compareTypes(a *typeObj, b *typeObj) bool {
+	// Handle literals.
+	if a.isLiteral || b.isLiteral {
+		// Type inference for number literals.
+		if a.isNumber && b.isNumber {
+			// TODO: Range check the literal.
+			return true
+		}
+	}
+
 	// TODO: Consider adding nil as a subtype of all reference types.
 	// Special case for comparing reference types to nil.
 	if (a.isClass || a.isContainer) && b.fullName == "nil" {
 		return true
 	}
+
 	// All other cases.
 	return a.fullName == b.fullName
 }
@@ -204,6 +169,7 @@ func buildTypeObj(node *ast.Node) *typeObj {
 
 	if isSimple(node) {
 		obj.isPrimitive = prim.IsPrimitiveType(getName(node))
+		obj.isNumber = prim.IsNumberType(getName(node))
 		obj.isClass = !obj.isPrimitive
 		obj.fullName = getName(node)
 		obj.name = obj.fullName
@@ -344,7 +310,9 @@ func getType(node *ast.Node) *typeObj {
 			abortMsgf("Mismatched types: %s and %s", left.fullName, right.fullName)
 		}
 		if lexer.IsOperator([]rune(node.TokenStart.Literal)[0]) {
-			if compareTypes(left, prim.typeINT) || compareTypes(left, prim.typeFLOAT) { // Math ops work on numbers.
+			//if compareTypes(left, prim.typeINT) || compareTypes(left, prim.typeFLOAT) { // Math ops work on numbers.
+			if left.isNumber && right.isNumber {
+				// TODO: Will this coerce a INTLITERAL to an INT? x + 1 is not the same as 1 + x here.
 				return left
 			} else if node.TokenStart.Type == token.PLUS && compareTypes(left, prim.typeSTRING) { // + works on strings.
 				node.TokenStart.Literal = "concat"
@@ -353,7 +321,8 @@ func getType(node *ast.Node) *typeObj {
 				abortMsg("Invalid operation.")
 			}
 		} else if node.TokenStart.Literal == ">=" || node.TokenStart.Literal == ">" || node.TokenStart.Literal == "<=" || node.TokenStart.Literal == "<" { // Comparison ops work on numbers, but return a bool.
-			if compareTypes(left, prim.typeINT) || compareTypes(left, prim.typeFLOAT) {
+			if left.isNumber && right.isNumber {
+				//if compareTypes(left, prim.typeINT) || compareTypes(left, prim.typeFLOAT) {
 				return prim.typeBOOL
 			} else {
 				abortMsg("Invalid operation.")
@@ -375,7 +344,8 @@ func getType(node *ast.Node) *typeObj {
 				abortMsg("Invalid operation.")
 			}
 		} else if node.TokenStart.Type == token.PLUS || node.TokenStart.Type == token.MINUS {
-			if !compareTypes(single, prim.typeINT) && !compareTypes(single, prim.typeFLOAT) {
+			//if !compareTypes(single, prim.typeINT) && !compareTypes(single, prim.typeFLOAT) {
+			if !single.isNumber {
 				abortMsg("Invalid operation.")
 			}
 		} else if node.TokenStart.Type == token.NEW {
@@ -479,9 +449,9 @@ func getType(node *ast.Node) *typeObj {
 	case ast.SELF:
 		return declType(currentClass)
 	case ast.INT:
-		return prim.typeINT
+		return prim.typeINTLITERAL
 	case ast.FLOAT:
-		return prim.typeFLOAT
+		return prim.typeFLOATLITERAL
 	case ast.STRING:
 		return prim.typeSTRING
 	case ast.BOOL:
