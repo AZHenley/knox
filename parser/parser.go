@@ -582,25 +582,25 @@ func (p *Parser) equality() ast.Node {
 	return node
 }
 
-func (p *Parser) cast() ast.Node {
-	var node = p.comparison()
-	for p.curTokenIs(token.AS) {
-		var castNode ast.Node
-		castNode.Type = ast.CAST
-		castNode.TokenStart = p.curToken
+// func (p *Parser) cast() ast.Node {
+// 	var node = p.comparison()
+// 	for p.curTokenIs(token.AS) {
+// 		var castNode ast.Node
+// 		castNode.Type = ast.CAST
+// 		castNode.TokenStart = p.curToken
 
-		p.nextToken()
-		var identNode ast.Node
-		identNode.Type = ast.IDENT
-		identNode.TokenStart = p.curToken
-		p.consume(token.IDENT)
+// 		p.nextToken()
+// 		var identNode ast.Node
+// 		identNode.Type = ast.IDENT
+// 		identNode.TokenStart = p.curToken
+// 		p.consume(token.IDENT)
 
-		castNode.Children = append(castNode.Children, node)
-		castNode.Children = append(castNode.Children, identNode)
-		node = castNode
-	}
-	return node
-}
+// 		castNode.Children = append(castNode.Children, node)
+// 		castNode.Children = append(castNode.Children, identNode)
+// 		node = castNode
+// 	}
+// 	return node
+//}
 
 func (p *Parser) comparison() ast.Node {
 	var node = p.addition()
@@ -729,8 +729,24 @@ func (p *Parser) special() ast.Node {
 		newNode.Children = append(newNode.Children, p.varType())
 		return newNode
 	} else {
-		return p.primary()
-		// TODO: Handle casts.
+		var node = p.primary()
+		fmt.Printf("CURRENT TOKEN IS %v", p.curToken.Type)
+		for p.curTokenIs(token.AS) {
+			var castNode ast.Node
+			castNode.Type = ast.CAST
+			castNode.TokenStart = p.curToken
+
+			p.nextToken()
+			var identNode ast.Node
+			identNode.Type = ast.IDENT
+			identNode.TokenStart = p.curToken
+
+			castNode.Children = append(castNode.Children, node)
+			castNode.Children = append(castNode.Children, identNode)
+			node = castNode
+			p.consume(token.IDENT)
+		}
+		return node
 	}
 	// TODO: else if Typeof.
 }
