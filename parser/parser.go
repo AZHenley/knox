@@ -21,17 +21,17 @@ type Parser struct {
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{l: l}
 	p.nextToken()
-	p.nextToken() // Not sure why these are needed.
+	p.nextToken() // Call twice to initialize current and peek tokens.
 	return p
 }
 
 func (p *Parser) abort(t token.TokenType) {
-	fmt.Printf("Expected %s, got %s instead.\n", t, p.curToken.Type)
+	fmt.Printf("Expected %s, got %s instead. Line %v.\n", t, p.curToken.Type, p.curToken.Line)
 	panic("Aborted.\n")
 }
 
 func (p *Parser) abortMsg(msg string) {
-	fmt.Println(msg)
+	fmt.Printf("%v. Line %v.\n", msg, p.curToken.Line)
 	panic("Aborted.\n")
 }
 

@@ -22,7 +22,6 @@ func Analyze(node *ast.Node) {
 
 func typecheck(node *ast.Node) {
 	for _, child := range node.Children {
-		// fmt.Printf("@@@ %v_%v has %v children\n", child.Type, child.TokenStart.Literal, len(child.Children))
 		if child.Type == ast.EXPRESSION {
 			exprType := getType(&child.Children[0])
 			// TODO: Handle for, return
@@ -35,10 +34,10 @@ func typecheck(node *ast.Node) {
 				//fmt.Println("Right: " + exprType.fullName)
 
 				if !compareTypes(leftType, exprType) { // Do the types match?
-					abortMsgf("Mismatched types: %s and %s", leftType.fullName, exprType.fullName)
+					abortMsgf(node, "Mismatched types: %s and %s", leftType.fullName, exprType.fullName)
 				}
 				if leftType.isClass && !child.Symbols.IsDeclared(leftType.name) {
-					abortMsgf("Undeclared type: %s", leftType.name)
+					abortMsgf(node, "Undeclared type: %s", leftType.name)
 				}
 			} else if node.Type == ast.VARASSIGN {
 				// TODO: Fix member access bug.
@@ -49,11 +48,11 @@ func typecheck(node *ast.Node) {
 				//leftType := declType(decl)
 				leftType := getType(&node.Children[0])
 				if !compareTypes(leftType, exprType) { // Do the types match?
-					abortMsgf("Mismatched types: %s and %s", leftType.fullName, exprType.fullName)
+					abortMsgf(node, "Mismatched types: %s and %s", leftType.fullName, exprType.fullName)
 				}
 			} else if node.Type == ast.IFSTATEMENT || node.Type == ast.WHILESTATEMENT {
 				if !compareTypes(exprType, prim.typeBOOL) {
-					abortMsg("Conditionals require boolean expressions.")
+					abortMsg(node, "Conditionals require boolean expressions.")
 				}
 			}
 			// } else if child.Type == ast.FUNCCALL { // Handles funccall outside of an expression.
@@ -75,7 +74,7 @@ func typecheck(node *ast.Node) {
 				if compareTypes(funcReturnType, prim.typeVOID) && returnType.fullName == "" { // Check for return; and void type.
 				} else if !compareTypes(&returnType.inner[0], &funcReturnType.inner[0]) {
 					// TODO: Comparing the inner[0] is correct for single return types, but won't work for multiple. Need to expand compareType to handle this. buildTypeList and buildReturnList should probably not use inner for single return types, which would solve literals and simple types, then set isMulti to true and expand compareTypes to handle recursively comparing inner for multi.
-					abortMsg("Incorrect return type.")
+					abortMsgf(node, "Incorrect return type: %v when expecting %v.", returnType.inner[0].fullName, funcReturnType.inner[0].fullName)
 				}
 			}
 		} else if node.Type == ast.FORSTATEMENT {
@@ -85,10 +84,10 @@ func typecheck(node *ast.Node) {
 			right := getType(&node.Children[1])
 			fmt.Println("Debugging...", right.fullName, right.isList, right.isClass, right.isPrimitive)
 			if !right.isList && !right.isMap {
-				abortMsg("For loop requires a list or map.")
+				abortMsg(node, "For loop requires a list or map")
 			}
 			if !compareTypes(left, &right.inner[0]) {
-				abortMsg("For loop element is incorrect type.")
+				abortMsg(node, "For loop element is incorrect type")
 			}
 
 		} else if child.Type == ast.FUNCDECL {
@@ -100,7 +99,7 @@ func typecheck(node *ast.Node) {
 		} else if child.Type == ast.LEFTEXPR {
 			only := getType(&child.Children[0])
 			if !compareTypes(only, prim.typeVOID) {
-				abortMsg("Expression must be of void type. " + only.fullName)
+				abortMsg(node, "Expression must be of void type, not "+only.fullName)
 			}
 		} else {
 			typecheck(&child)
@@ -108,13 +107,14 @@ func typecheck(node *ast.Node) {
 	}
 }
 
-func abortMsg(msg string) {
-	fmt.Println("Type error: " + msg)
+func abortMsg(node *ast.Node, msg string) {
+	fmt.Printf("Type error: %v. Line %v.\n", msg, node.TokenStart.Line)
 	panic("Aborted.\n")
 }
 
-func abortMsgf(msg string, args ...interface{}) {
-	fmt.Printf("Type error: "+msg+"\n", args...)
+func abortMsgf(node *ast.Node, msg string, args ...interface{}) {
+	s := fmt.Sprintf(". Line %v.\n", node.TokenStart.Line)
+	fmt.Printf("Type error: "+msg+s, args...)
 	panic("Aborted.\n")
 }
 
@@ -133,6 +133,8 @@ func compareTypes(a *typeObj, b *typeObj) bool {
 	if (a.isClass || a.isContainer) && b.fullName == "nil" {
 		return true
 	}
+
+	// TODO: Recursively check containers.
 
 	// All other cases.
 	return a.fullName == b.fullName
@@ -161,7 +163,7 @@ func declType(node *ast.Node) *typeObj {
 		classType := stringToType(node.Children[0].TokenStart.Literal)
 		return classType
 	}
-	abortMsg("Unknown type error.")
+	abortMsg(node, "Unknown type error.")
 	return nil
 }
 
@@ -251,23 +253,24 @@ func checkFuncCall(node *ast.Node, declNode *ast.Node) {
 
 	//declNode := node.Symbols.LookupSymbol(name)
 	if declNode == nil {
-		abortMsgf("Calling undeclared function: %s", name)
+		abortMsgf(node, "Calling undeclared function: %s", name)
 	}
 
 	// Check number of args to number of params.
 	if len(node.Children)-1 != len(declNode.Children[1].Children) {
-		abortMsg("Incorrect number of arguments.")
+		abortMsg(node, "Incorrect number of arguments.")
 	}
 	// Check types of args to types of params.
 	for i := 1; i < len(node.Children); i++ {
 		argType := getType(&node.Children[i])
 		expectedType := declType(&declNode.Children[1].Children[i-1])
 		if !compareTypes(argType, expectedType) {
-			abortMsgf("Mismatched type in function argument.")
+			abortMsgf(node, "Mismatched type in function argument.")
 		}
 	}
 }
 
+// TODO: Why doesn't this take a pointer?
 // Look up a func's declaration given a ref, handling the dot operator.
 func lookUpDecl(node ast.Node) *ast.Node {
 	if node.Type == ast.IDENT {
@@ -290,7 +293,7 @@ func lookUpDecl(node ast.Node) *ast.Node {
 
 		typeDeclNode := node.Symbols.LookupSymbol(name) // Class decl
 		if typeDeclNode == nil {
-			abortMsgf("Undeclared type: %s", name)
+			abortMsgf(&node, "Undeclared type: %s", name)
 		}
 
 		methodDecl := typeDeclNode.Children[1].Symbols.LookupSymbol(node.Children[1].TokenStart.Literal)
@@ -309,7 +312,7 @@ func getType(node *ast.Node) *typeObj {
 		right := getType(&node.Children[1])
 
 		if !compareTypes(left, right) { // All ops require left and right types be same.
-			abortMsgf("Mismatched types: %s and %s", left.fullName, right.fullName)
+			abortMsgf(node, "Mismatched types: %s and %s", left.fullName, right.fullName)
 		}
 		if lexer.IsOperator([]rune(node.TokenStart.Literal)[0]) {
 			//if compareTypes(left, prim.typeINT) || compareTypes(left, prim.typeFLOAT) { // Math ops work on numbers.
@@ -322,20 +325,20 @@ func getType(node *ast.Node) *typeObj {
 				node.TokenStart.Literal = "concat"
 				return left
 			} else {
-				abortMsg("Invalid operation.")
+				abortMsg(node, "Invalid operation.") // TODO: Improve this error message.
 			}
 		} else if node.TokenStart.Literal == ">=" || node.TokenStart.Literal == ">" || node.TokenStart.Literal == "<=" || node.TokenStart.Literal == "<" { // Comparison ops work on numbers, but return a bool.
 			if left.isNumber && right.isNumber {
 				//if compareTypes(left, prim.typeINT) || compareTypes(left, prim.typeFLOAT) {
 				return prim.typeBOOL
 			} else {
-				abortMsg("Invalid operation.")
+				abortMsg(node, "Invalid operation.") // TODO: Improve this error message.
 			}
 		} else if node.TokenStart.Literal == "==" {
 			return prim.typeBOOL
 		} else if node.TokenStart.Literal == "&&" || node.TokenStart.Literal == "||" {
 			if !compareTypes(left, prim.typeBOOL) {
-				abortMsg("Invalid operation.")
+				abortMsg(node, "Invalid operation.") // TODO: Improve this error message.
 			}
 			return prim.typeBOOL
 		}
@@ -345,12 +348,12 @@ func getType(node *ast.Node) *typeObj {
 		single := getType(&node.Children[0])
 		if node.TokenStart.Type == token.BANG {
 			if !compareTypes(single, prim.typeBOOL) {
-				abortMsg("Invalid operation.")
+				abortMsg(node, "Invalid operation.") // TODO: Improve this error message.
 			}
 		} else if node.TokenStart.Type == token.PLUS || node.TokenStart.Type == token.MINUS {
 			//if !compareTypes(single, prim.typeINT) && !compareTypes(single, prim.typeFLOAT) {
 			if !single.isNumber {
-				abortMsg("Invalid operation.")
+				abortMsg(node, "Invalid operation.") // TODO: Improve this error message.
 			}
 		} else if node.TokenStart.Type == token.NEW {
 			//if !compareTypes(single, typeBOOL) {
@@ -368,13 +371,13 @@ func getType(node *ast.Node) *typeObj {
 
 		if left.isList {
 			if !compareTypes(right, prim.typeINT) {
-				abortMsg("List index must be int.")
+				abortMsg(node, "List index must be int.")
 			}
 			return &left.inner[0]
 		} else if left.isMap {
 			// TODO
 		} else {
-			abortMsg("Invalid operation.")
+			abortMsg(node, "Invalid operation.") // TODO: Improve this error message.
 		}
 
 	// Member access
@@ -390,12 +393,12 @@ func getType(node *ast.Node) *typeObj {
 
 		typeDeclNode := node.Symbols.LookupSymbol(name) // Class decl
 		if typeDeclNode == nil {
-			abortMsgf("Undeclared type: %s", name)
+			abortMsgf(node, "Undeclared type: %s", name)
 		}
 
 		memberDecl := typeDeclNode.Children[1].Symbols.LookupSymbol(node.Children[1].TokenStart.Literal)
 		if memberDecl == nil {
-			abortMsgf("Referencing undeclared member: %s", node.Children[1].TokenStart.Literal)
+			abortMsgf(node, "Referencing undeclared member: %s", node.Children[1].TokenStart.Literal)
 		}
 		return declType(memberDecl)
 
@@ -403,7 +406,7 @@ func getType(node *ast.Node) *typeObj {
 		name := node.Children[0].TokenStart.Literal
 		declNode := node.Symbols.LookupSymbol(name)
 		if declNode == nil {
-			abortMsgf("Referencing undeclared variable: %s", name)
+			abortMsgf(node, "Referencing undeclared variable: %s", name)
 		}
 		return declType(declNode)
 
@@ -424,7 +427,7 @@ func getType(node *ast.Node) *typeObj {
 		isRightPrimitive := prim.IsPrimitiveType(typeLiteral)
 
 		if !left.isPrimitive || !isRightPrimitive {
-			abortMsgf("Illegal cast from %s to %s.", node.Children[0].TokenStart.Literal, node.Children[1].TokenStart.Literal)
+			abortMsgf(node, "Illegal cast from %s to %s.", node.Children[0].TokenStart.Literal, node.Children[1].TokenStart.Literal)
 		}
 
 		return stringToType(typeLiteral)
@@ -442,7 +445,7 @@ func getType(node *ast.Node) *typeObj {
 		for i, item := range node.Children {
 			obj.inner = append(obj.inner, *getType(&item))
 			if obj.inner[i].fullName != itemType && itemType != "" { // Check if all items are same type.
-				abortMsg("Mismatched types in list literal.")
+				abortMsg(node, "Mismatched types in list literal.")
 			}
 			itemType = obj.inner[i].fullName
 		}

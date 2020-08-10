@@ -9,15 +9,17 @@ import (
 
 // Lexer object.
 type Lexer struct {
-	position     int    //current character position
-	readPosition int    //next character position
-	ch           rune   //current character
-	characters   []rune //rune slice of input string
+	position     int    // Current character position.
+	readPosition int    // Next character position.
+	ch           rune   // Current character.
+	characters   []rune // Rune slice of input string.
+	line         int    // Line number of the current token.
 }
 
 // New a Lexer instance from string input.
 func New(input string) *Lexer {
 	l := &Lexer{characters: []rune(input)}
+	l.line = 1
 	l.readChar()
 	return l
 }
@@ -30,7 +32,13 @@ func (l *Lexer) readChar() {
 		l.ch = l.characters[l.readPosition]
 	}
 	l.position = l.readPosition
-	l.readPosition += 1
+	l.readPosition++
+
+	// Keep track of the line number.
+	if l.ch == '\n' {
+		l.line++
+		// TODO: Keep track of column number and reset after seeing newline.
+	}
 }
 
 // NextToken to read next token, skipping the white space.
@@ -128,13 +136,21 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Type = token.EOF
 	default:
 		if isDigit(l.ch) {
-			return l.readDecimal()
+			// If starts with 0x...
+			// If starts with 0b...
+			// If starts with 0o...
+			// Else...
+			tok = l.readDecimal()
+			tok.Line = l.line
+			return tok
 		} else {
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdentifier(tok.Literal)
+			tok.Line = l.line
 			return tok
 		}
 	}
+	tok.Line = l.line
 	l.readChar()
 	return tok
 }
