@@ -134,7 +134,19 @@ func compareTypes(a *typeObj, b *typeObj) bool {
 		return true
 	}
 
-	// TODO: Recursively check containers.
+	// Recursively check container type.
+	if a.isContainer && b.isContainer {
+		if len(a.inner) != len(b.inner) {
+			return false
+		}
+
+		for i := range a.inner {
+			if compareTypes(&a.inner[i], &b.inner[i]) == false {
+				return false
+			}
+		}
+		return true // All inner types matched.
+	}
 
 	// All other cases.
 	return a.fullName == b.fullName
