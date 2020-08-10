@@ -667,7 +667,7 @@ func (p *Parser) postfix() ast.Node {
 	var node ast.Node
 	node = p.paran()
 
-	for p.curTokenIs(token.LBRACKET) || p.curTokenIs(token.LPAREN) || p.curTokenIs(token.DOT) {
+	for p.curTokenIs(token.LBRACKET) || p.curTokenIs(token.LPAREN) || p.curTokenIs(token.DOT) || p.curTokenIs(token.AS) {
 		if p.curTokenIs(token.LPAREN) {
 			var postNode ast.Node
 			postNode.Children = append(postNode.Children, node)
@@ -702,6 +702,20 @@ func (p *Parser) postfix() ast.Node {
 			p.consume(token.IDENT)
 
 			node = postNode
+		} else if p.curTokenIs(token.AS) {
+			var castNode ast.Node
+			castNode.Type = ast.CAST
+			castNode.TokenStart = p.curToken
+
+			p.nextToken()
+			var identNode ast.Node
+			identNode.Type = ast.IDENT
+			identNode.TokenStart = p.curToken
+
+			castNode.Children = append(castNode.Children, node)
+			castNode.Children = append(castNode.Children, identNode)
+			node = castNode
+			p.consume(token.IDENT)
 		}
 	}
 	return node
@@ -729,24 +743,24 @@ func (p *Parser) special() ast.Node {
 		newNode.Children = append(newNode.Children, p.varType())
 		return newNode
 	} else {
-		var node = p.primary()
-		fmt.Printf("CURRENT TOKEN IS %v", p.curToken.Type)
-		for p.curTokenIs(token.AS) {
-			var castNode ast.Node
-			castNode.Type = ast.CAST
-			castNode.TokenStart = p.curToken
+		return p.primary()
+		// var node = p.primary()
+		// for p.curTokenIs(token.AS) {
+		// 	var castNode ast.Node
+		// 	castNode.Type = ast.CAST
+		// 	castNode.TokenStart = p.curToken
 
-			p.nextToken()
-			var identNode ast.Node
-			identNode.Type = ast.IDENT
-			identNode.TokenStart = p.curToken
+		// 	p.nextToken()
+		// 	var identNode ast.Node
+		// 	identNode.Type = ast.IDENT
+		// 	identNode.TokenStart = p.curToken
 
-			castNode.Children = append(castNode.Children, node)
-			castNode.Children = append(castNode.Children, identNode)
-			node = castNode
-			p.consume(token.IDENT)
-		}
-		return node
+		// 	castNode.Children = append(castNode.Children, node)
+		// 	castNode.Children = append(castNode.Children, identNode)
+		// 	node = castNode
+		// 	p.consume(token.IDENT)
+		//}
+		//return node
 	}
 	// TODO: else if Typeof.
 }

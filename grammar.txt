@@ -32,9 +32,9 @@ comparison = addition {(">" | ">=" | "<" | "<=") addition}
 addition = multiplication {( "-" | "+" ) multiplication}
 multiplication = unary {( "/" | "*" ) unary}
 unary = (("!" | "-" | "+") unary) | postfix
-postfix = paran {"[" expr "]" | argList | "." ident}
+postfix = paran {"[" expr "]" | argList | "." ident | "as" ident}
 paran = "(" expr ")" | special 
-special = primary {"as" ident} | "new" varType | "typeof" "(" expr ")"       
+special = primary | "new" varType | "typeof" "(" expr ")"       
 listLiteral = "[" [expr {"," expr}] "]"
 primary = ident | int | float | string | "false" | "true" | "nil" | listLiteral
 
