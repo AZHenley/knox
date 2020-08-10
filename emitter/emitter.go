@@ -7,13 +7,14 @@ import (
 )
 
 var level = 0
-var currentName string        // Current var declaration name.
-var nextLine string           // Placeholder to add next line once current line completes.
-var prototypes []string       // Keep track of function prototypes so that order doesn't matter.
-var structPrototypes []string // Keep track of struct prototypes so that order doesn't matter.
-var currentMethods []string   // Keep track of methods in current class
-var currentMembers []string   // Keep track of members in current class
-var currentClass string       // Name of current class
+var currentName string          // Current var declaration name.
+var nextLine string             // Placeholder to add next line once current line completes.
+var prototypes []string         // Keep track of function prototypes so that order doesn't matter.
+var structPrototypes []string   // Keep track of struct prototypes so that order doesn't matter.
+var currentMethods []string     // Keep track of methods in current class
+var currentMembers []string     // Keep track of members in current class
+var currentClass string         // Name of current class
+var datatypes map[string]string // Mapping of Knox primitives to C primitives.
 
 func indent() string {
 	return strings.Repeat("\t", level)
@@ -21,6 +22,7 @@ func indent() string {
 
 // Generate outputs code given an AST.
 func Generate(node *ast.Node) string {
+	datatypes = initDataTypes()
 	return program(node)
 }
 
@@ -351,13 +353,12 @@ func varDecl(node *ast.Node) string {
 		currentName = expr(&node.Children[i])
 
 		varType := node.Children[i+1].Children[0].TokenStart.Literal
-		if varType == "string" {
-			varType = "const char *"
-		} else if varType != "int" && varType != "bool" && varType != "float" {
-			// TODO: This needs to be changed.
-			// If a reference type
+		if val, ok := datatypes[varType]; ok {
+			varType = val
+		} else {
 			varType = "struct " + varType + " *"
 		}
+
 		code += varType + " " + varName
 		member += varName
 		if i+2 < len(node.Children)-1 {
@@ -389,6 +390,8 @@ func expr(node *ast.Node) string {
 		return "(" + expr(&node.Children[0]) + "->" + expr(&node.Children[1]) + ")"
 	} else if node.Type == ast.EXPRESSION {
 		return expr(&node.Children[0])
+	} else if node.Type == ast.CAST {
+		return "((" + datatypes[expr(&node.Children[1])] + ")" + expr(&node.Children[0]) + ")"
 	} else if node.Type == ast.NEW {
 		nextLine = "\t_" + node.Children[0].Children[0].TokenStart.Literal + "(" + currentName + ");"
 		return "malloc(sizeof(struct " + node.Children[0].Children[0].TokenStart.Literal + "))"
@@ -400,7 +403,7 @@ func expr(node *ast.Node) string {
 			return "NULL"
 		}
 		if node.Type == ast.INT || node.Type == ast.FLOAT {
-			return strings.ReplaceAll(node.TokenStart.Literal, "_", "")
+			return strings.ReplaceAll(node.TokenStart.Literal, "_", "") // Remove the underscore separators.
 		}
 		return node.TokenStart.Literal
 	}
