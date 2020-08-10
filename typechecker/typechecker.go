@@ -139,10 +139,12 @@ func compareTypes(a *typeObj, b *typeObj) bool {
 }
 
 // Is this still needed?
-func stringToType(prim string) *typeObj {
+func stringToType(s string) *typeObj {
 	primitive := &typeObj{}
-	primitive.fullName = prim
-	primitive.name = prim
+	primitive.fullName = s
+	primitive.name = s
+	primitive.isPrimitive = prim.IsPrimitiveType(s)
+	primitive.isNumber = prim.IsNumberType(s)
 	return primitive
 }
 
@@ -314,7 +316,9 @@ func getType(node *ast.Node) *typeObj {
 			if left.isNumber && right.isNumber {
 				// TODO: Will this coerce a INTLITERAL to an INT? x + 1 is not the same as 1 + x here.
 				return left
-			} else if node.TokenStart.Type == token.PLUS && compareTypes(left, prim.typeSTRING) { // + works on strings.
+			} else if node.TokenStart.Type == token.PLUS && compareTypes(left, prim.typeSTRING) {
+				// + works on strings.
+				// TODO: Need to properly augment the AST with concat info.
 				node.TokenStart.Literal = "concat"
 				return left
 			} else {
