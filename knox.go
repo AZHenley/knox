@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"knox/ast"
+	"knox/builtin"
 	"knox/emitter"
 	"knox/lexer"
 	"knox/parser"
@@ -49,7 +50,7 @@ func main() {
 
 	// Builtin functions.
 	// TODO: Build builtin first in case user's program conflicts.
-	//a = *builtin.Init(&a) // TODO: Uncomment this to get stdlib back.
+	a = *builtin.Init(&a)
 
 	// Type check.
 	start = time.Now()
