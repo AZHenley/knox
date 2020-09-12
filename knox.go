@@ -4,17 +4,18 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"knox/ast"
-	"knox/builtin"
-	"knox/emitter"
-	"knox/lexer"
-	"knox/parser"
-	"knox/typechecker"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
 	"time"
+
+	"github.com/AZHenley/knox/ast"
+	"github.com/AZHenley/knox/builtin"
+	"github.com/AZHenley/knox/emitter"
+	"github.com/AZHenley/knox/lexer"
+	"github.com/AZHenley/knox/parser"
+	"github.com/AZHenley/knox/typechecker"
 )
 
 func main() {
