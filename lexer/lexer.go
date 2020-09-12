@@ -4,7 +4,8 @@ package lexer
 
 import (
 	"fmt"
-	"knox/token"
+
+	"github.com/AZHenley/knox/token"
 )
 
 // Lexer object.

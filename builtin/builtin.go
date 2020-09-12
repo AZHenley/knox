@@ -2,9 +2,10 @@ package builtin
 
 import (
 	"io/ioutil"
-	"knox/ast"
-	"knox/lexer"
-	"knox/parser"
+
+	"github.com/AZHenley/knox/ast"
+	"github.com/AZHenley/knox/lexer"
+	"github.com/AZHenley/knox/parser"
 )
 
 // import "knox/ast"

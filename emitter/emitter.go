@@ -2,8 +2,9 @@ package emitter
 
 import (
 	"fmt"
-	"knox/ast"
 	"strings"
+
+	"github.com/AZHenley/knox/ast"
 )
 
 var level = 0

@@ -2,9 +2,10 @@ package typechecker
 
 import (
 	"fmt"
-	"knox/ast"
-	"knox/lexer"
-	"knox/token"
+
+	"github.com/AZHenley/knox/ast"
+	"github.com/AZHenley/knox/lexer"
+	"github.com/AZHenley/knox/token"
 )
 
 var prim primitives // Object holding the primitive types.
