@@ -2,8 +2,9 @@ package ast
 
 import (
 	"fmt"
-	"knox/token"
 	"strings"
+
+	"github.com/AZHenley/knox/token"
 )
 
 // NodeType is a string.
